@@ -24,6 +24,12 @@ async def health_check(db: AsyncSession = Depends(get_db)) -> HealthResponse:
     )
 
 
+@router.get("/ping")
+async def ping():
+    """Simple ping endpoint for Railway health checks."""
+    return {"status": "ok", "message": "pong"}
+
+
 @router.get("/metrics", response_class=PlainTextResponse)
 async def metrics():
     """Prometheus-style metrics endpoint."""
