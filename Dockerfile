@@ -27,6 +27,7 @@ RUN pip install -e . && pip install uvicorn[standard]
 
 # Copy application code
 COPY backend/ ./backend/
+COPY start.sh ./
 
 # Create logs directory
 RUN mkdir -p /app/logs
@@ -42,5 +43,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # Expose port (Railway will set PORT env var)
 EXPOSE $PORT
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Default command
-CMD ["sh", "-c", "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
+CMD ["./start.sh"]
