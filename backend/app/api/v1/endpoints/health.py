@@ -24,6 +24,16 @@ async def health_check(db: AsyncSession = Depends(get_db)) -> HealthResponse:
     )
 
 
+@router.get("/health-simple")
+async def health_check_simple():
+    """Simple health check that doesn't require database."""
+    return {
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "version": settings.app_version,
+    }
+
+
 @router.get("/ping")
 async def ping():
     """Simple ping endpoint for Railway health checks."""
