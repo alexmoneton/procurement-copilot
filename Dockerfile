@@ -26,7 +26,6 @@ RUN pip install uv && uv pip install -e .
 
 # Copy application code
 COPY backend/ ./backend/
-COPY app/ ./app/
 
 # Create logs directory
 RUN mkdir -p /app/logs
