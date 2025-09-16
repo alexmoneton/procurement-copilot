@@ -20,6 +20,7 @@ WORKDIR /app
 
 # Copy requirements first for better caching
 COPY pyproject.toml ./
+COPY README.md ./
 
 # Install Python dependencies
 RUN pip install uv && uv pip install --system -e .
