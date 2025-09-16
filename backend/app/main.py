@@ -1,0 +1,63 @@
+"""FastAPI application main module."""
+
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .api.v1.api import api_router
+from .core.config import settings
+from .core.logging import get_logger
+from .db.session import close_db, init_db
+
+logger = get_logger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager."""
+    # Startup
+    logger.info("Starting up Procurement Copilot API")
+    await init_db()
+    logger.info("Database initialized")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down Procurement Copilot API")
+    await close_db()
+    logger.info("Database connections closed")
+
+
+# Create FastAPI application
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="AI-powered procurement tender monitoring system",
+    openapi_url=f"{settings.api_v1_prefix}/openapi.json",
+    docs_url=f"{settings.api_v1_prefix}/docs",
+    redoc_url=f"{settings.api_v1_prefix}/redoc",
+    lifespan=lifespan,
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API router
+app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+
+@app.get("/")
+async def root():
+    """Root endpoint."""
+    return {
+        "message": "Procurement Copilot API",
+        "version": settings.app_version,
+        "docs": f"{settings.api_v1_prefix}/docs",
+    }

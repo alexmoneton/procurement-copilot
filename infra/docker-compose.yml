@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: procurement-copilot-db
+    environment:
+      POSTGRES_DB: procurement_copilot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - procurement-network
+
+  # Redis (for future use with Celery)
+  redis:
+    image: redis:7-alpine
+    container_name: procurement-copilot-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - procurement-network
+
+  # FastAPI Application
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: procurement-copilot-api
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=procurement_copilot
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - TIMEZONE=Europe/Paris
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app/backend
+      - ../logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - procurement-network
+
+  # Scheduler Service
+  scheduler:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: procurement-copilot-scheduler
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=procurement_copilot
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - TIMEZONE=Europe/Paris
+    volumes:
+      - ../backend:/app/backend
+      - ../logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python -m backend.app.tasks.scheduler
+    networks:
+      - procurement-network
+
+  # Worker Service (for future use with Celery)
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: procurement-copilot-worker
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=procurement_copilot
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - TIMEZONE=Europe/Paris
+    volumes:
+      - ../backend:/app/backend
+      - ../logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: python -m backend.app.tasks.worker
+    networks:
+      - procurement-network
+    profiles:
+      - worker  # Only start with --profile worker
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  procurement-network:
+    driver: bridge

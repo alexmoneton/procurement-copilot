@@ -1,0 +1,31 @@
+# Development overrides
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./backend:/app
+      - ./logs:/app/logs
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+
+  frontend:
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev
+
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_LOG_STATEMENT=all
+      - POSTGRES_LOG_MIN_DURATION_STATEMENT=1000
+
+  redis:
+    ports:
+      - "6379:6379"

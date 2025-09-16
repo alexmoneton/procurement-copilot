@@ -1,0 +1,73 @@
+# Production overrides
+version: '3.8'
+
+services:
+  api:
+    environment:
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    restart: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  scheduler:
+    environment:
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  frontend:
+    environment:
+      - NODE_ENV=production
+    restart: always
+    command: npm start
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.25'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  postgres:
+    restart: always
+    environment:
+      - POSTGRES_LOG_STATEMENT=none
+      - POSTGRES_LOG_MIN_DURATION_STATEMENT=-1
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  redis:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.1'
+        reservations:
+          memory: 128M
+          cpus: '0.05'
