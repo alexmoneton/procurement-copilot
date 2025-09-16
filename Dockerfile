@@ -22,7 +22,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 
 # Install Python dependencies
-RUN pip install uv && uv pip install -e .
+RUN pip install uv && uv pip install --system -e .
 
 # Copy application code
 COPY backend/ ./backend/
