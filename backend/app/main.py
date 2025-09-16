@@ -18,15 +18,22 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
     logger.info("Starting up Procurement Copilot API")
-    await init_db()
-    logger.info("Database initialized")
+    try:
+        await init_db()
+        logger.info("Database initialized")
+    except Exception as e:
+        logger.warning(f"Database initialization failed: {e}")
+        logger.info("Continuing without database connection")
     
     yield
     
     # Shutdown
     logger.info("Shutting down Procurement Copilot API")
-    await close_db()
-    logger.info("Database connections closed")
+    try:
+        await close_db()
+        logger.info("Database connections closed")
+    except Exception as e:
+        logger.warning(f"Error closing database connections: {e}")
 
 
 # Create FastAPI application
@@ -61,3 +68,9 @@ async def root():
         "version": settings.app_version,
         "docs": f"{settings.api_v1_prefix}/docs",
     }
+
+
+@app.get("/health")
+async def health():
+    """Simple health check endpoint."""
+    return {"status": "ok", "message": "API is running"}
