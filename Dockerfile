@@ -23,7 +23,7 @@ COPY pyproject.toml ./
 COPY README.md ./
 
 # Install Python dependencies
-RUN pip install uv && uv pip install --system -e .
+RUN pip install -e .
 
 # Copy application code
 COPY backend/ ./backend/
