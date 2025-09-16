@@ -3,7 +3,8 @@ nixPkgs = ["python311", "pip"]
 
 [phases.install]
 cmds = [
-  "pip install -e ."
+  "pip install -e .",
+  "pip install uvicorn[standard]"
 ]
 
 [phases.build]

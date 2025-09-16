@@ -23,7 +23,7 @@ COPY pyproject.toml ./
 COPY README.md ./
 
 # Install Python dependencies
-RUN pip install -e .
+RUN pip install -e . && pip install uvicorn[standard]
 
 # Copy application code
 COPY backend/ ./backend/
