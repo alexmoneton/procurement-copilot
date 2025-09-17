@@ -2,6 +2,9 @@ import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { BellIcon, CogIcon, HomeIcon } from '@heroicons/react/24/outline'
 
+// Check if Clerk is properly configured
+const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+
 const navigation = [
   { name: 'Dashboard', href: '/app', icon: HomeIcon },
   { name: 'Account', href: '/account', icon: CogIcon },
@@ -41,7 +44,13 @@ export default function AppLayout({
               </li>
               <li className="mt-auto">
                 <div className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900">
-                  <UserButton afterSignOutUrl="/" />
+                  {hasClerkKeys ? (
+                    <UserButton afterSignOutUrl="/" />
+                  ) : (
+                    <Link href="/" className="text-sm text-gray-600 hover:text-blue-600">
+                      Sign out
+                    </Link>
+                  )}
                 </div>
               </li>
             </ul>
@@ -64,7 +73,13 @@ export default function AppLayout({
                 <BellIcon className="h-6 w-6" aria-hidden="true" />
               </button>
               <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true" />
-              <UserButton afterSignOutUrl="/" />
+              {hasClerkKeys ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <Link href="/" className="text-sm text-gray-600 hover:text-blue-600">
+                  Sign out
+                </Link>
+              )}
             </div>
           </div>
         </div>
