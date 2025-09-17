@@ -11,6 +11,11 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 
+def get_logger(name: str = None):
+    """Get a logger instance."""
+    return logger
+
+
 class RequestIDMiddleware(BaseHTTPMiddleware):
     """Middleware to add request ID to all requests."""
     
