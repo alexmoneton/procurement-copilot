@@ -23,7 +23,7 @@ COPY pyproject.toml ./
 COPY README.md ./
 
 # Install Python dependencies
-RUN pip install -e . && pip install uvicorn[standard]
+RUN pip install fastapi uvicorn[standard] && pip install -e .
 
 # Copy application code
 COPY backend/ ./backend/

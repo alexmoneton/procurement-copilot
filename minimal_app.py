@@ -11,6 +11,19 @@ print("MINIMAL APP STARTING")
 print(f"Python version: {sys.version}")
 print(f"Working directory: {os.getcwd()}")
 print(f"PORT environment variable: {os.environ.get('PORT', 'NOT SET')}")
+
+# Check installed packages
+try:
+    import subprocess
+    result = subprocess.run(['pip', 'list'], capture_output=True, text=True)
+    print("Installed packages:")
+    for line in result.stdout.split('\n')[:10]:  # Show first 10 packages
+        if line.strip():
+            print(f"  {line}")
+    print("  ...")
+except Exception as e:
+    print(f"Could not list packages: {e}")
+
 print("All environment variables:")
 for key, value in os.environ.items():
     if any(x in key.upper() for x in ['PORT', 'DATABASE', 'DB_', 'RAILWAY']):
