@@ -5,8 +5,8 @@
     "buildCommand": "pip install fastapi uvicorn[standard] && pip install -e ."
   },
   "deploy": {
-    "startCommand": "python3 minimal_app.py",
-    "healthcheckPath": "/ping",
+    "startCommand": "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/api/v1/ping",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
