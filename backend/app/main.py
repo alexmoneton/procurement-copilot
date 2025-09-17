@@ -63,14 +63,28 @@ app.include_router(api_router, prefix=settings.api_v1_prefix)
 @app.get("/")
 async def root():
     """Root endpoint."""
-    return {
-        "message": "Procurement Copilot API",
-        "version": settings.app_version,
-        "docs": f"{settings.api_v1_prefix}/docs",
-    }
+    try:
+        return {
+            "message": "Procurement Copilot API",
+            "version": settings.app_version,
+            "docs": f"{settings.api_v1_prefix}/docs",
+        }
+    except Exception as e:
+        return {
+            "message": "Procurement Copilot API",
+            "version": "0.1.0",
+            "error": str(e),
+            "docs": "/api/v1/docs",
+        }
 
 
 @app.get("/health")
 async def health():
     """Simple health check endpoint."""
     return {"status": "ok", "message": "API is running"}
+
+
+@app.get("/ping")
+async def ping():
+    """Ultra simple ping endpoint."""
+    return "pong"
