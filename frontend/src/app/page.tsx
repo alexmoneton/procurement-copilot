@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { ArrowRightIcon, CheckIcon, ChartBarIcon, BellIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
+// Check if Clerk is properly configured
+const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+
 const features = [
   {
     name: 'Automated Monitoring',
@@ -42,16 +45,29 @@ export default function LandingPage() {
           </div>
           <div className="flex lg:flex-1 lg:justify-end">
             <div className="flex items-center gap-4">
-              <SignInButton mode="modal">
-                <button className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
-                  Sign in
-                </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <button className="rounded-md bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                  Get started
-                </button>
-              </SignUpButton>
+              {hasClerkKeys ? (
+                <>
+                  <SignInButton mode="modal">
+                    <button className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
+                      Sign in
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="rounded-md bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                      Get started
+                    </button>
+                  </SignUpButton>
+                </>
+              ) : (
+                <>
+                  <Link href="/pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
+                    Sign in
+                  </Link>
+                  <Link href="/pricing" className="rounded-md bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                    Get started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </nav>
@@ -78,12 +94,19 @@ export default function LandingPage() {
               to deliver personalized tender alerts directly to your inbox.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <SignUpButton mode="modal">
-                <button className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+              {hasClerkKeys ? (
+                <SignUpButton mode="modal">
+                  <button className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                    Start free trial
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </button>
+                </SignUpButton>
+              ) : (
+                <Link href="/pricing" className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
                   Start free trial
                   <ArrowRightIcon className="ml-2 h-4 w-4" />
-                </button>
-              </SignUpButton>
+                </Link>
+              )}
               <Link href="/pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
                 View pricing <span aria-hidden="true">→</span>
               </Link>
@@ -171,11 +194,17 @@ export default function LandingPage() {
               Start your free trial today and see how much time you can save with automated tender monitoring.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <SignUpButton mode="modal">
-                <button className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              {hasClerkKeys ? (
+                <SignUpButton mode="modal">
+                  <button className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                    Get started for free
+                  </button>
+                </SignUpButton>
+              ) : (
+                <Link href="/pricing" className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                   Get started for free
-                </button>
-              </SignUpButton>
+                </Link>
+              )}
               <Link href="/pricing" className="text-sm font-semibold leading-6 text-white hover:text-blue-100">
                 View pricing <span aria-hidden="true">→</span>
               </Link>

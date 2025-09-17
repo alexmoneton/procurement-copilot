@@ -7,6 +7,9 @@ import { SignUpButton } from '@clerk/nextjs'
 import { PLAN_OPTIONS } from '@/lib/utils'
 import { apiClient } from '@/lib/api'
 
+// Check if Clerk is properly configured
+const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+
 export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null)
 
@@ -187,11 +190,17 @@ export default function PricingPage() {
               Join hundreds of companies already saving time and winning more contracts with our platform.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <SignUpButton mode="modal">
-                <button className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              {hasClerkKeys ? (
+                <SignUpButton mode="modal">
+                  <button className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                    Start free trial
+                  </button>
+                </SignUpButton>
+              ) : (
+                <Link href="/" className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                   Start free trial
-                </button>
-              </SignUpButton>
+                </Link>
+              )}
               <Link href="/" className="text-sm font-semibold leading-6 text-white hover:text-blue-100">
                 Learn more <span aria-hidden="true">→</span>
               </Link>
