@@ -28,6 +28,7 @@ RUN pip install -e . && pip install uvicorn[standard]
 # Copy application code
 COPY backend/ ./backend/
 COPY start.sh ./
+COPY minimal_app.py ./
 
 # Create logs directory
 RUN mkdir -p /app/logs
