@@ -7,15 +7,21 @@ const isProtectedRoute = createRouteMatcher([
 ])
 
 export default clerkMiddleware(async (auth, req) => {
-  // Skip auth during build time
-  if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')) {
+  // Skip auth when Clerk is not properly configured
+  if (!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')) {
     return
   }
   
   if (isProtectedRoute(req)) {
-    const session = await auth()
-    if (!session.userId) {
-      return Response.redirect(new URL('/sign-in', req.url))
+    try {
+      const session = await auth()
+      if (!session.userId) {
+        return Response.redirect(new URL('/sign-in', req.url))
+      }
+    } catch (error) {
+      // If auth fails, just continue without protection
+      console.warn('Auth failed:', error)
+      return
     }
   }
 })
