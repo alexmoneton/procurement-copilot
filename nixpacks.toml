@@ -3,7 +3,7 @@ nixPkgs = ["python311", "pip"]
 
 [phases.install]
 cmds = [
-  "pip install fastapi uvicorn[standard]",
+  "pip install fastapi uvicorn[standard] sqlalchemy alembic pydantic pydantic-settings httpx asyncpg psycopg2-binary",
   "pip install -e ."
 ]
 
