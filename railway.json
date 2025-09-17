@@ -5,7 +5,7 @@
     "buildCommand": "pip install -e . && pip install uvicorn[standard]"
   },
   "deploy": {
-    "startCommand": "chmod +x start.sh && ./start.sh",
+    "startCommand": "python3 minimal_app.py",
     "healthcheckPath": "/ping",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
