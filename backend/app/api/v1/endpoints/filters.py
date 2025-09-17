@@ -5,10 +5,10 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...db.session import get_db
-from ...db.crud import SavedFilterCRUD, UserCRUD
-from ...db.schemas import SavedFilter, SavedFilterCreate, SavedFilterUpdate
-from ...core.logging import logger
+from ....db.session import get_db
+from ....db.crud import SavedFilterCRUD, UserCRUD
+from ....db.schemas import SavedFilter, SavedFilterCreate, SavedFilterUpdate
+from ....core.logging import logger
 
 router = APIRouter()
 

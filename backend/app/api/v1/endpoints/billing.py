@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 import stripe
 
-from ...db.session import get_db
-from ...db.crud import UserCRUD
-from ...core.config import settings
-from ...core.logging import logger
+from ....db.session import get_db
+from ....db.crud import UserCRUD
+from ....core.config import settings
+from ....core.logging import logger
 
 router = APIRouter()
 
