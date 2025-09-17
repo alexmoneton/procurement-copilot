@@ -16,6 +16,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+  
+  if (!hasClerkKeys) {
+    // Render without Clerk during build or when keys are missing
+    return (
+      <html lang="en">
+        <body className={inter.className}>
+          {children}
+        </body>
+      </html>
+    )
+  }
+  
   return (
     <ClerkProvider>
       <html lang="en">
