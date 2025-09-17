@@ -7,7 +7,11 @@ import { apiClient, Tender, SavedFilter } from '@/lib/api'
 import { formatDate, formatCurrency, getDeadlineStatus, getDeadlineColor, getSourceColor } from '@/lib/utils'
 import { CreateFilterModal } from '@/components/CreateFilterModal'
 
-export default function DashboardPage() {
+// Check if Clerk is properly configured
+const hasClerkKeys = typeof window !== 'undefined' && 
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+
+function DashboardPageContent() {
   const { user } = useUser()
   const [tenders, setTenders] = useState<Tender[]>([])
   const [filters, setFilters] = useState<SavedFilter[]>([])
@@ -299,4 +303,24 @@ export default function DashboardPage() {
       )}
     </div>
   )
+}
+
+export default function DashboardPage() {
+  // Only render dashboard when Clerk is properly configured
+  if (!hasClerkKeys) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Authentication is not configured. Please set up Clerk to access the dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return <DashboardPageContent />
 }

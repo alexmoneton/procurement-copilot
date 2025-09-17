@@ -5,6 +5,10 @@ import { useUser } from '@clerk/nextjs'
 import { UserIcon, CreditCardIcon, BellIcon } from '@heroicons/react/24/outline'
 import { apiClient } from '@/lib/api'
 
+// Check if Clerk is properly configured
+const hasClerkKeys = typeof window !== 'undefined' && 
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
+
 interface UserPlan {
   id: string
   name: string
@@ -12,7 +16,7 @@ interface UserPlan {
   status: 'active' | 'canceled' | 'past_due'
 }
 
-export default function AccountPage() {
+function AccountPageContent() {
   const { user } = useUser()
   const [plan, setPlan] = useState<UserPlan | null>(null)
   const [loading, setLoading] = useState(true)
@@ -272,4 +276,24 @@ export default function AccountPage() {
       </div>
     </div>
   )
+}
+
+export default function AccountPage() {
+  // Only render account page when Clerk is properly configured
+  if (!hasClerkKeys) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Account</h1>
+            <p className="mt-4 text-lg text-gray-600">
+              Authentication is not configured. Please set up Clerk to access your account.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return <AccountPageContent />
 }
