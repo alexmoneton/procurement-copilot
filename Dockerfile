@@ -23,7 +23,7 @@ COPY pyproject.toml ./
 COPY README.md ./
 
 # Install Python dependencies
-RUN pip install fastapi uvicorn[standard] sqlalchemy alembic pydantic pydantic-settings httpx asyncpg psycopg2-binary && pip install -e .
+RUN pip install fastapi uvicorn[standard] sqlalchemy alembic pydantic pydantic-settings httpx asyncpg psycopg2-binary loguru apscheduler tenacity selectolax playwright python-dotenv python-multipart python-jose[cryptography] passlib[bcrypt] stripe && pip install -e .
 
 # Copy application code
 COPY backend/ ./backend/
