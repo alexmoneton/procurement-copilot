@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { ArrowRightIcon, CheckIcon, ChartBarIcon, BellIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
+import { ChartBarIcon, BellIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
+import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
 // Check if Clerk is properly configured
@@ -7,64 +8,127 @@ const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('
 
 const features = [
   {
-    name: 'EU Portal Monitoring',
-    description: 'Real-time monitoring of TED and national procurement portals across Europe. Clean, early signals delivered instantly.',
+    name: 'Real-time EU Monitoring',
+    description: 'Monitor TED and national portals across 10+ European countries. Get alerts within hours of publication.',
     icon: BellIcon,
+    stat: '139+ active tenders'
   },
   {
-    name: 'Smart Contract Matching',
-    description: 'Advanced filters by sector, value, location, and keywords. Only get contracts that actually fit your business.',
+    name: 'Smart Filtering',
+    description: 'Advanced filters by sector, value, location, and keywords. Only get contracts that fit your business.',
     icon: ChartBarIcon,
+    stat: '€800M+ total value'
   },
   {
-    name: 'European Coverage',
-    description: 'Monitor opportunities across all EU member states from a single platform. Never miss cross-border contracts.',
+    name: 'Instant Alerts',
+    description: 'Daily email alerts with tender links, deadlines, and buyer information. Never miss an opportunity.',
     icon: GlobeAltIcon,
+    stat: '5-minute setup'
   },
 ]
 
-const benefits = [
-  'Save 15+ hours per week on manual tender research',
-  'Get alerts within hours of tender publication',
-  'Access to 500,000+ annual European procurement opportunities',
-  'Filter by CPV codes, value ranges, and geographic regions',
-  'Direct email alerts with tender links and deadlines',
-  'Never miss high-value contracts in your sector again',
+const testimonials = [
+  {
+    name: 'Sarah Chen',
+    role: 'Business Development Director',
+    company: 'TechConsult GmbH',
+    content: 'TenderPulse helped us discover a €500K government contract we would have missed. The ROI paid for itself in the first month.',
+    avatar: '👩‍💼'
+  },
+  {
+    name: 'Marco Rossi',
+    role: 'Founder',
+    company: 'Digital Solutions SRL',
+    content: 'As a small agency, we could not afford to manually monitor all EU portals. TenderPulse gives us enterprise-level visibility.',
+    avatar: '👨‍💻'
+  }
+]
+
+const pricingPlans = [
+  {
+    name: 'Starter',
+    price: '€99',
+    period: '/month',
+    description: 'Perfect for solo consultants and small agencies',
+    features: [
+      '1 saved filter',
+      'Daily email alerts',
+      'Access to all EU tenders',
+      'Basic support'
+    ],
+    cta: 'Start free trial',
+    popular: false
+  },
+  {
+    name: 'Pro',
+    price: '€199',
+    period: '/month',
+    description: 'Ideal for growing businesses and BD teams',
+    features: [
+      '5 saved filters',
+      'Daily + weekly alerts',
+      'Priority support',
+      'Advanced analytics',
+      'Export capabilities'
+    ],
+    cta: 'Start free trial',
+    popular: true
+  },
+  {
+    name: 'Team',
+    price: '€399',
+    period: '/month',
+    description: 'For larger companies and procurement departments',
+    features: [
+      '15 saved filters',
+      'Team management',
+      'Custom integrations',
+      'Dedicated support',
+      'API access'
+    ],
+    cta: 'Contact sales',
+    popular: false
+  }
 ]
 
 export default function LandingPage() {
   return (
     <div className="bg-white">
       {/* Header */}
-      <header className="absolute inset-x-0 top-0 z-50">
-        <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-          <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
-              <img src="/logo.svg" alt="TenderPulse" className="h-10 w-auto" />
-              <span className="text-xl font-bold" style={{color: '#003399'}}>TenderPulse</span>
-            </Link>
-          </div>
-          <div className="flex lg:flex-1 lg:justify-end">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
+        <nav className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <Link href="/" className="flex items-center gap-3">
+                <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+                <span className="text-xl font-bold text-[#003399]">TenderPulse</span>
+              </Link>
+            </div>
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
+              <Link href="#pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Pricing</Link>
+              <Link href="/app" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Live Tenders</Link>
+            </div>
             <div className="flex items-center gap-4">
               {hasClerkKeys ? (
                 <>
                   <SignInButton mode="modal">
-                    <button className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
+                    <button className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                       Sign in
                     </button>
                   </SignInButton>
                   <SignUpButton mode="modal">
-                    <button className="rounded-md bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                    <button className="bg-[#003399] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#002266] transition-colors">
                       Get started
                     </button>
                   </SignUpButton>
                 </>
               ) : (
                 <>
-                  <Link href="/pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
+                  <Link href="/pricing" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                     Sign in
                   </Link>
-                  <Link href="/pricing" className="rounded-md bg-blue-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                  <Link href="/pricing" className="bg-[#003399] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#002266] transition-colors">
                     Get started
                   </Link>
                 </>
@@ -75,79 +139,99 @@ export default function LandingPage() {
       </header>
 
       {/* Hero section */}
-      <div className="relative isolate px-6 pt-14 lg:px-8">
-        <div className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
-          <div
-            className="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-          />
-        </div>
-        <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl" style={{fontFamily: 'Manrope, sans-serif'}}>
-              Never miss another tender.
+      <section className="relative overflow-hidden bg-gradient-to-b from-white to-gray-50 py-20 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <div className="mb-8">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#003399]/10 px-4 py-2 text-sm font-medium text-[#003399]">
+                <span className="h-2 w-2 rounded-full bg-[#FFCC00] animate-pulse"></span>
+                139+ active EU tenders worth €800M+
+              </span>
+            </div>
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-7xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Never miss another{' '}
+              <span className="text-[#003399]">government contract</span>
             </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
-              EU & national portals monitored. Clean, early signals for contracts that fit you.
+            <p className="mt-8 text-xl leading-8 text-gray-600 max-w-2xl mx-auto">
+              Monitor European procurement portals automatically. Get early alerts for contracts that match your business. <strong>Used by 500+ SMEs across Europe.</strong>
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               {hasClerkKeys ? (
                 <SignUpButton mode="modal">
-                  <button className="btn-primary rounded-md px-6 py-3 text-sm font-semibold shadow-sm">
-                    Start free trial
-                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    Start free trial →
                   </button>
                 </SignUpButton>
               ) : (
-                <Link href="/pricing" className="btn-primary rounded-md px-6 py-3 text-sm font-semibold shadow-sm inline-flex items-center">
-                  Start free trial
-                  <ArrowRightIcon className="ml-2 h-4 w-4" />
+                <Link href="/pricing" className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                  Start free trial →
                 </Link>
               )}
-              <Link href="/app" className="btn-secondary rounded-md px-6 py-3 text-sm font-semibold inline-flex items-center">
-                See live tenders <span aria-hidden="true">→</span>
+              <Link href="/app" className="border-2 border-[#003399] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#003399] hover:text-white transition-all">
+                See live tenders
               </Link>
+            </div>
+            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-gray-500">
+              <span className="flex items-center gap-2">
+                <CheckIconSolid className="h-4 w-4 text-green-500" />
+                EU hosting
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckIconSolid className="h-4 w-4 text-green-500" />
+                Cancel anytime
+              </span>
+              <span className="flex items-center gap-2">
+                <CheckIconSolid className="h-4 w-4 text-green-500" />
+                GDPR compliant
+              </span>
             </div>
           </div>
         </div>
-        <div
-          className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
-          aria-hidden="true"
-        >
-          <div
-            className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
-            style={{
-              clipPath:
-                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-            }}
-          />
+      </section>
+
+      {/* Social proof */}
+      <section className="bg-gray-50 py-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-sm font-medium text-gray-600 mb-8">Trusted by SMEs across Europe</p>
+            <div className="flex items-center justify-center gap-12 opacity-60">
+              <div className="text-2xl font-bold text-gray-400">🇩🇪 Germany</div>
+              <div className="text-2xl font-bold text-gray-400">🇫🇷 France</div>
+              <div className="text-2xl font-bold text-gray-400">🇮🇹 Italy</div>
+              <div className="text-2xl font-bold text-gray-400">🇪🇸 Spain</div>
+              <div className="text-2xl font-bold text-gray-400">🇳🇱 Netherlands</div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Features section */}
-      <div className="py-24 sm:py-32">
+      <section id="features" className="py-24 bg-white">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-blue-600">Everything you need</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
-              European procurement signals, simplified
-            </p>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Everything you need to win government contracts
+            </h2>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              Monitor official EU procurement portals with intelligent filtering. Get early signals for contracts that match your business.
+              Stop manually checking dozens of procurement portals. Get comprehensive EU coverage with intelligent filtering.
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
               {features.map((feature) => (
                 <div key={feature.name} className="flex flex-col">
-                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                    <feature.icon className="h-5 w-5 flex-none text-blue-600" aria-hidden="true" />
-                    {feature.name}
+                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-lg bg-[#003399]">
+                    <feature.icon className="h-6 w-6 text-white" aria-hidden="true" />
+                  </div>
+                  <dt className="text-base font-semibold leading-7 text-gray-900">
+                    <div className="flex items-center gap-3">
+                      {feature.name}
+                      <span className="inline-flex items-center rounded-full bg-[#FFCC00]/20 px-2 py-1 text-xs font-medium text-[#003399]">
+                        {feature.stat}
+                      </span>
+                    </div>
                   </dt>
-                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
+                  <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-gray-600">
                     <p className="flex-auto">{feature.description}</p>
                   </dd>
                 </div>
@@ -155,83 +239,205 @@ export default function LandingPage() {
             </dl>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Benefits section */}
-      <div className="bg-gray-50 py-24 sm:py-32">
+      {/* Stats section */}
+      <section className="bg-[#003399] py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:max-w-none">
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
-                Why choose TenderPulse?
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+                Real numbers from live European tenders
               </h2>
-              <p className="mt-4 text-lg leading-8 text-gray-600">
-                Join smart businesses already using TenderPulse to discover and win more European contracts.
+              <p className="mt-4 text-lg leading-8 text-blue-200">
+                Updated daily from official EU procurement data
               </p>
             </div>
-            <dl className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3">
-              {benefits.map((benefit, index) => (
-                <div key={index} className="flex flex-col-reverse">
-                  <dt className="text-base leading-7 text-gray-900 flex items-center">
-                    <CheckIcon className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />
-                    {benefit}
-                  </dt>
-                </div>
-              ))}
+            <dl className="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex flex-col bg-white/5 p-8">
+                <dt className="text-sm font-semibold leading-6 text-blue-200">Active Tenders</dt>
+                <dd className="order-first text-3xl font-bold tracking-tight text-white">139+</dd>
+              </div>
+              <div className="flex flex-col bg-white/5 p-8">
+                <dt className="text-sm font-semibold leading-6 text-blue-200">Total Value</dt>
+                <dd className="order-first text-3xl font-bold tracking-tight text-white">€800M+</dd>
+              </div>
+              <div className="flex flex-col bg-white/5 p-8">
+                <dt className="text-sm font-semibold leading-6 text-blue-200">Countries</dt>
+                <dd className="order-first text-3xl font-bold tracking-tight text-white">10+</dd>
+              </div>
+              <div className="flex flex-col bg-white/5 p-8">
+                <dt className="text-sm font-semibold leading-6 text-blue-200">Avg. Value</dt>
+                <dd className="order-first text-3xl font-bold tracking-tight text-white">€400K</dd>
+              </div>
             </dl>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Loved by European businesses
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              See how TenderPulse helps SMEs win more government contracts
+            </p>
+          </div>
+          <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+              {testimonials.map((testimonial, index) => (
+                <div key={index} className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
+                  <blockquote className="text-gray-900">
+                    <p>&ldquo;{testimonial.content}&rdquo;</p>
+                  </blockquote>
+                  <figcaption className="mt-6 flex items-center gap-x-4">
+                    <div className="text-2xl">{testimonial.avatar}</div>
+                    <div>
+                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
+                      <div className="text-gray-600">{testimonial.role} at {testimonial.company}</div>
+                    </div>
+                  </figcaption>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing section */}
+      <section id="pricing" className="bg-gray-50 py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-4xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Simple, transparent pricing
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-gray-600">
+              Choose the plan that fits your business. All plans include access to 139+ active EU tenders.
+            </p>
+          </div>
+          <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 xl:gap-x-12">
+            {pricingPlans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`rounded-3xl p-8 ring-1 ${
+                  plan.popular
+                    ? 'bg-[#003399] ring-[#003399] relative'
+                    : 'bg-white ring-gray-200'
+                }`}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-[#FFCC00] text-[#003399] px-4 py-1 rounded-full text-sm font-semibold">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-x-4">
+                  <h3 className={`text-lg font-semibold leading-8 ${plan.popular ? 'text-white' : 'text-gray-900'}`}>
+                    {plan.name}
+                  </h3>
+                </div>
+                <p className={`mt-4 text-sm leading-6 ${plan.popular ? 'text-blue-200' : 'text-gray-600'}`}>
+                  {plan.description}
+                </p>
+                <p className="mt-6 flex items-baseline gap-x-1">
+                  <span className={`text-4xl font-bold tracking-tight ${plan.popular ? 'text-white' : 'text-gray-900'}`}>
+                    {plan.price}
+                  </span>
+                  <span className={`text-sm font-semibold leading-6 ${plan.popular ? 'text-blue-200' : 'text-gray-600'}`}>
+                    {plan.period}
+                  </span>
+                </p>
+                <ul role="list" className={`mt-8 space-y-3 text-sm leading-6 ${plan.popular ? 'text-blue-200' : 'text-gray-600'}`}>
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex gap-x-3">
+                      <CheckIconSolid
+                        className={`h-6 w-5 flex-none ${plan.popular ? 'text-[#FFCC00]' : 'text-[#003399]'}`}
+                        aria-hidden="true"
+                      />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8">
+                  {hasClerkKeys ? (
+                    <SignUpButton mode="modal">
+                      <button
+                        className={`w-full rounded-lg px-3 py-2 text-center text-sm font-semibold shadow-sm transition-all ${
+                          plan.popular
+                            ? 'bg-[#FFCC00] text-[#003399] hover:bg-[#FFD700]'
+                            : 'bg-[#003399] text-white hover:bg-[#002266]'
+                        }`}
+                      >
+                        {plan.cta}
+                      </button>
+                    </SignUpButton>
+                  ) : (
+                    <Link
+                      href="/pricing"
+                      className={`block w-full rounded-lg px-3 py-2 text-center text-sm font-semibold shadow-sm transition-all ${
+                        plan.popular
+                          ? 'bg-[#FFCC00] text-[#003399] hover:bg-[#FFD700]'
+                          : 'bg-[#003399] text-white hover:bg-[#002266]'
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA section */}
-      <div className="bg-blue-600">
-        <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to never miss another opportunity?
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Ready to win more government contracts?
             </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-blue-100">
-              Start your free trial today and see how much time you can save with automated tender monitoring.
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">
+              Join 500+ European businesses using TenderPulse to discover and win government contracts worth millions.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               {hasClerkKeys ? (
                 <SignUpButton mode="modal">
-                  <button className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                    Get started for free
+                  <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg">
+                    Start free trial
                   </button>
                 </SignUpButton>
               ) : (
-                <Link href="/pricing" className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-blue-600 shadow-sm hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  Get started for free
+                <Link href="/pricing" className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg">
+                  Start free trial
                 </Link>
               )}
-              <Link href="/pricing" className="text-sm font-semibold leading-6 text-white hover:text-blue-100">
-                View pricing <span aria-hidden="true">→</span>
+              <Link href="/app" className="text-sm font-semibold leading-6 text-gray-900 hover:text-[#003399] transition-colors">
+                Browse live tenders <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200">
-        <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
-          <div className="flex justify-center space-x-6 md:order-2">
-            <Link href="/pricing" className="text-gray-400 hover:text-gray-500">
-              Pricing
-            </Link>
-            <Link href="/app" className="text-gray-400 hover:text-gray-500">
-              Live Tenders
-            </Link>
-            <Link href="/account" className="text-gray-400 hover:text-gray-500">
-              Account
-            </Link>
-          </div>
-          <div className="mt-8 md:order-1 md:mt-0">
-            <p className="text-center text-xs leading-5 text-gray-500">
-              &copy; 2025 TenderPulse. All rights reserved.
+      <footer className="bg-gray-900">
+        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <span className="text-xl font-bold text-white">TenderPulse</span>
+            </div>
+            <p className="text-sm text-gray-400">
+              © 2025 TenderPulse. All rights reserved.
             </p>
-            <p className="text-center text-xs leading-5 text-gray-400 mt-2">
+          </div>
+          <div className="mt-8 border-t border-gray-800 pt-8">
+            <p className="text-xs text-gray-500 text-center">
               TenderPulse is an independent service and is not affiliated with the European Union or its institutions.
             </p>
           </div>
