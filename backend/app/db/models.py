@@ -4,6 +4,7 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
+from typing import Optional, Union, List
 
 from sqlalchemy import (
     ARRAY,
@@ -89,7 +90,7 @@ class Tender(Base):
         nullable=False,
         comment="Tender title"
     )
-    summary: Mapped[str | None] = mapped_column(
+    summary: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         comment="Tender summary/description"
@@ -102,7 +103,7 @@ class Tender(Base):
         index=True,
         comment="Date when tender was published"
     )
-    deadline_date: Mapped[date | None] = mapped_column(
+    deadline_date: Mapped[Optional[date]] = mapped_column(
         Date,
         nullable=True,
         index=True,
@@ -116,7 +117,7 @@ class Tender(Base):
         default=list,
         comment="CPV (Common Procurement Vocabulary) codes"
     )
-    buyer_name: Mapped[str | None] = mapped_column(
+    buyer_name: Mapped[Optional[str]] = mapped_column(
         String(500),
         nullable=True,
         comment="Name of the buying organization"
@@ -129,12 +130,12 @@ class Tender(Base):
     )
     
     # Financial information
-    value_amount: Mapped[Decimal | None] = mapped_column(
+    value_amount: Mapped[Optional[Decimal]] = mapped_column(
         Numeric(15, 2),
         nullable=True,
         comment="Estimated tender value amount"
     )
-    currency: Mapped[str | None] = mapped_column(
+    currency: Mapped[Optional[str]] = mapped_column(
         String(3),
         nullable=True,
         comment="Currency code (ISO 4217)"
@@ -145,6 +146,11 @@ class Tender(Base):
         Text,
         nullable=False,
         comment="URL to the original tender notice"
+    )
+    raw_blob: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Raw data blob from the source for debugging/reprocessing"
     )
     
     # Timestamps
@@ -256,12 +262,12 @@ class SavedFilter(Base):
     )
     
     # Value range
-    min_value: Mapped[Decimal | None] = mapped_column(
+    min_value: Mapped[Optional[Decimal]] = mapped_column(
         Numeric(15, 2),
         nullable=True,
         comment="Minimum tender value"
     )
-    max_value: Mapped[Decimal | None] = mapped_column(
+    max_value: Mapped[Optional[Decimal]] = mapped_column(
         Numeric(15, 2),
         nullable=True,
         comment="Maximum tender value"
@@ -274,7 +280,7 @@ class SavedFilter(Base):
         default=NotifyFrequency.DAILY,
         comment="How often to send notifications"
     )
-    last_notified_at: Mapped[datetime | None] = mapped_column(
+    last_notified_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
         comment="Last time notification was sent for this filter"
@@ -391,7 +397,7 @@ class Award(Base):
         default=list,
         comment="Names of winning suppliers"
     )
-    other_bidders: Mapped[list[str] | None] = mapped_column(
+    other_bidders: Mapped[Optional[List[str]]] = mapped_column(
         ARRAY(String(255)),
         nullable=True,
         comment="Names of other bidders (if available)"
@@ -436,13 +442,13 @@ class Company(Base):
         index=True,
         comment="Company name"
     )
-    domain: Mapped[str | None] = mapped_column(
+    domain: Mapped[Optional[str]] = mapped_column(
         String(255),
         nullable=True,
         index=True,
         comment="Company website domain"
     )
-    email: Mapped[str | None] = mapped_column(
+    email: Mapped[Optional[str]] = mapped_column(
         String(255),
         nullable=True,
         comment="Primary contact email"
@@ -461,7 +467,7 @@ class Company(Base):
         default=False,
         comment="Whether company is on suppression list"
     )
-    last_contacted: Mapped[datetime | None] = mapped_column(
+    last_contacted: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
         comment="Last time company was contacted"

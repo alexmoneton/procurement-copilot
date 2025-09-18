@@ -84,10 +84,16 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",  # Ignore extra fields from .env file
     )
     
+    # Connector configuration
+    ENABLE_CONNECTORS: str = Field(default="TED", description="Comma-separated list of enabled connectors")
+    SHADOW_CONNECTORS: str = Field(default="", description="Comma-separated list of shadow connectors")
+    TZ: str = Field(default="Europe/Paris", description="Application timezone")
+    
     # Application
-    app_name: str = Field(default="Procurement Copilot", description="Application name")
+    app_name: str = Field(default="TenderPulse", description="Application name")
     app_version: str = Field(default="0.1.0", description="Application version")
     environment: Environment = Field(default=Environment.DEVELOPMENT, description="Environment")
     debug: bool = Field(default=False, description="Debug mode")

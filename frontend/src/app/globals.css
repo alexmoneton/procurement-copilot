@@ -1,26 +1,96 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700&family=Inter:wght@400;500&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* TenderPulse EU Theme Tokens */
+  --eu-blue: #003399;
+  --eu-gold: #FFCC00;
+  --midnight: #0A1633;
+  --card-navy: #111A3A;
+  --offwhite: #F7F9FC;
+  --gray: #B7C2D0;
+  --success: #1B8C6E;
+  --error: #C73737;
+  --text-dark: #0A1633;
+  --text-light: #F7F9FC;
+  
+  /* Light theme defaults */
+  --bg: #FFFFFF;
+  --card: #FFFFFF;
+  --text: var(--text-dark);
+  --border: #E5E7EB;
+}
+
+[data-theme="dark"] {
+  --bg: var(--midnight);
+  --card: var(--card-navy);
+  --text: var(--offwhite);
+  --border: #374151;
+}
+
+[data-theme="light"] {
+  --bg: #FFFFFF;
+  --card: #FFFFFF;
+  --text: var(--text-dark);
+  --border: #E5E7EB;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-heading: 'Manrope', system-ui, sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1, h2, h3 {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* TenderPulse Button Styles */
+.btn-primary {
+  background: var(--eu-gold);
+  color: var(--text-dark);
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #E6B800;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--eu-blue);
+  border: 2px solid var(--eu-blue);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--eu-blue);
+  color: white;
+}
+
+/* EU Card Styles */
+.card-eu {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 51, 153, 0.08);
+  transition: all 0.2s ease;
+}
+
+.card-eu:hover {
+  box-shadow: 0 8px 24px rgba(0, 51, 153, 0.12);
+  transform: translateY(-2px);
 }

@@ -1,0 +1,14 @@
+# Railway ignore file
+frontend/
+infra/
+scripts/
+*.md
+.git/
+.env*
+!.env.prod.example
+test_*
+simple_api.py
+tenderpulse_api.py
+__pycache__/
+*.pyc
+.DS_Store

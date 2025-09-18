@@ -1,0 +1,55 @@
+# Render Blueprint for TenderPulse
+services:
+  - type: web
+    name: tenderpulse-api
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: ENABLE_CONNECTORS
+        value: TED
+      - key: SHADOW_CONNECTORS
+        value: ""
+      - key: TZ
+        value: Europe/Paris
+      - key: ENABLE_SCHEDULER
+        value: "true"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tenderpulse-db
+          property: connectionString
+      - key: RESEND_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: BACKEND_BASE_URL
+        value: https://api.tenderpulse.eu
+      - key: FRONTEND_BASE_URL
+        value: https://tenderpulse.eu
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: api.tenderpulse.eu
+      - key: CORS_ORIGINS
+        value: https://tenderpulse.eu
+
+databases:
+  - name: tenderpulse-db
+    databaseName: tenderpulse_prod
+    user: tenderpulse
+    region: frankfurt
+    plan: starter
+    postgresMajorVersion: 15
+    ipAllowList: []

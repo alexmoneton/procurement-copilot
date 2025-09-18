@@ -6,9 +6,9 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Procurement Copilot - AI-Powered Tender Monitoring',
-  description: 'Get automated alerts for public procurement opportunities matching your business needs. Monitor TED and BOAMP France tenders with AI-powered filtering.',
-  keywords: ['procurement', 'tenders', 'public contracts', 'TED', 'BOAMP', 'alerts', 'monitoring'],
+  title: 'TenderPulse — Real-time signals for public contracts',
+  description: 'EU & national portals monitored. Clean, early signals for contracts that fit you. Never miss another tender opportunity.',
+  keywords: ['tenders', 'public contracts', 'TED', 'EU procurement', 'alerts', 'monitoring', 'TenderPulse'],
 }
 
 export default function RootLayout({

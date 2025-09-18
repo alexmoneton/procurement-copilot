@@ -68,15 +68,24 @@ function DashboardPageContent() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-sm text-gray-700">
-          Welcome back! Here&apos;s what&apos;s happening with your tender monitoring.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900" style={{fontFamily: 'Manrope, sans-serif'}}>Dashboard</h1>
+            <p className="mt-2 text-sm text-gray-700">
+              Welcome back! Here&apos;s what&apos;s happening with your tender monitoring.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: 'var(--eu-blue)'}}>
+              Data source: TED (pilot)
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="card-eu">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -93,7 +102,7 @@ function DashboardPageContent() {
             </div>
           </div>
         </div>
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="card-eu">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -110,7 +119,7 @@ function DashboardPageContent() {
             </div>
           </div>
         </div>
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="card-eu">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -127,7 +136,7 @@ function DashboardPageContent() {
             </div>
           </div>
         </div>
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="card-eu">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -149,7 +158,7 @@ function DashboardPageContent() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* New Tenders Feed */}
         <div className="lg:col-span-2">
-          <div className="bg-white shadow rounded-lg">
+          <div className="card-eu">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 New Tenders
@@ -218,7 +227,7 @@ function DashboardPageContent() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Saved Filters */}
-          <div className="bg-white shadow rounded-lg">
+          <div className="card-eu">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -226,7 +235,7 @@ function DashboardPageContent() {
                 </h3>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="btn-primary inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md"
                 >
                   <PlusIcon className="h-4 w-4 mr-1" />
                   Create
@@ -259,7 +268,7 @@ function DashboardPageContent() {
           </div>
 
           {/* Upcoming Deadlines */}
-          <div className="bg-white shadow rounded-lg">
+          <div className="card-eu">
             <div className="px-4 py-5 sm:p-6">
               <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
                 Upcoming Deadlines

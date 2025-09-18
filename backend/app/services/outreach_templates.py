@@ -17,7 +17,7 @@ class OutreachTemplates:
         sector: str,
         missed_tenders: List[Dict[str, Any]],
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://procurement-copilot.com/signup"
+        trial_link: str = "https://tenderpulse.eu/pricing"
     ) -> Dict[str, str]:
         """
         Email 1: Missed Opportunities
@@ -114,7 +114,8 @@ class OutreachTemplates:
         
         ---
         This email was sent because you've been bidding on public tenders. If you no longer wish to receive these emails, unsubscribe here.
-        Procurement Copilot - AI-Powered Tender Monitoring
+        TenderPulse - Real-time signals for public contracts
+        Independent service; not affiliated with the EU.
         """
         
         return {
@@ -129,7 +130,7 @@ class OutreachTemplates:
         home_country: str,
         adjacent_country: str,
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://procurement-copilot.com/signup"
+        trial_link: str = "https://tenderpulse.eu/pricing"
     ) -> Dict[str, str]:
         """
         Email 2: Expand Cross-Border
@@ -221,7 +222,8 @@ class OutreachTemplates:
         
         ---
         This email was sent because you've been bidding on public tenders. If you no longer wish to receive these emails, unsubscribe here.
-        Procurement Copilot - AI-Powered Tender Monitoring
+        TenderPulse - Real-time signals for public contracts
+        Independent service; not affiliated with the EU.
         """
         
         return {
@@ -235,7 +237,7 @@ class OutreachTemplates:
         company_name: str,
         sector: str,
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://procurement-copilot.com/signup"
+        trial_link: str = "https://tenderpulse.eu/pricing"
     ) -> Dict[str, str]:
         """
         Email 3: Reactivation
@@ -327,7 +329,8 @@ class OutreachTemplates:
         
         ---
         This email was sent because you've been bidding on public tenders. If you no longer wish to receive these emails, unsubscribe here.
-        Procurement Copilot - AI-Powered Tender Monitoring
+        TenderPulse - Real-time signals for public contracts
+        Independent service; not affiliated with the EU.
         """
         
         return {

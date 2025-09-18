@@ -7,29 +7,29 @@ const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('
 
 const features = [
   {
-    name: 'Automated Monitoring',
-    description: 'Never miss a relevant tender with our AI-powered monitoring system that scans TED and BOAMP France 24/7.',
+    name: 'EU Portal Monitoring',
+    description: 'Real-time monitoring of TED and national procurement portals across Europe. Clean, early signals delivered instantly.',
     icon: BellIcon,
   },
   {
-    name: 'Smart Filtering',
-    description: 'Set up custom filters by keywords, CPV codes, countries, and value ranges to get exactly what you need.',
+    name: 'Smart Contract Matching',
+    description: 'Advanced filters by sector, value, location, and keywords. Only get contracts that actually fit your business.',
     icon: ChartBarIcon,
   },
   {
-    name: 'Multi-Source Coverage',
-    description: 'Monitor tenders from both TED (EU-wide) and BOAMP France with unified search and alerts.',
+    name: 'European Coverage',
+    description: 'Monitor opportunities across all EU member states from a single platform. Never miss cross-border contracts.',
     icon: GlobeAltIcon,
   },
 ]
 
 const benefits = [
-  'Save 10+ hours per week on manual tender research',
-  'Get notified within 24 hours of tender publication',
-  'Access to 50,000+ tenders from across Europe',
-  'Advanced filtering by CPV codes and keywords',
-  'Email alerts with direct links to tender documents',
-  'No more missed opportunities or deadline surprises',
+  'Save 15+ hours per week on manual tender research',
+  'Get alerts within hours of tender publication',
+  'Access to 500,000+ annual European procurement opportunities',
+  'Filter by CPV codes, value ranges, and geographic regions',
+  'Direct email alerts with tender links and deadlines',
+  'Never miss high-value contracts in your sector again',
 ]
 
 export default function LandingPage() {
@@ -39,8 +39,8 @@ export default function LandingPage() {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
           <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5">
-              <span className="text-2xl font-bold text-blue-600">Procurement Copilot</span>
+            <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
+              <img src="/logo.svg" alt="TenderPulse" className="h-10 w-auto" />
             </Link>
           </div>
           <div className="flex lg:flex-1 lg:justify-end">
@@ -86,29 +86,28 @@ export default function LandingPage() {
         </div>
         <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              Get tender alerts for your sector
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Never miss another tender.
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              Stop manually searching for procurement opportunities. Our AI-powered system monitors TED and BOAMP France 
-              to deliver personalized tender alerts directly to your inbox.
+              EU & national portals monitored. Clean, early signals for contracts that fit you.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               {hasClerkKeys ? (
                 <SignUpButton mode="modal">
-                  <button className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                  <button className="btn-primary rounded-md px-6 py-3 text-sm font-semibold shadow-sm">
                     Start free trial
                     <ArrowRightIcon className="ml-2 h-4 w-4" />
                   </button>
                 </SignUpButton>
               ) : (
-                <Link href="/pricing" className="rounded-md bg-blue-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                <Link href="/pricing" className="btn-primary rounded-md px-6 py-3 text-sm font-semibold shadow-sm inline-flex items-center">
                   Start free trial
                   <ArrowRightIcon className="ml-2 h-4 w-4" />
                 </Link>
               )}
-              <Link href="/pricing" className="text-sm font-semibold leading-6 text-gray-900 hover:text-blue-600">
-                View pricing <span aria-hidden="true">→</span>
+              <Link href="/app" className="btn-secondary rounded-md px-6 py-3 text-sm font-semibold inline-flex items-center">
+                See live tenders <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
@@ -132,11 +131,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base font-semibold leading-7 text-blue-600">Everything you need</h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Automated tender monitoring made simple
+            <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+              European procurement signals, simplified
             </p>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              Our platform combines AI-powered filtering with comprehensive coverage of European procurement opportunities.
+              Monitor official EU procurement portals with intelligent filtering. Get early signals for contracts that match your business.
             </p>
           </div>
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
@@ -162,11 +161,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:max-w-none">
             <div className="text-center">
-              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Why choose Procurement Copilot?
+              <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl" style={{fontFamily: 'Manrope, sans-serif'}}>
+                Why choose TenderPulse?
               </h2>
               <p className="mt-4 text-lg leading-8 text-gray-600">
-                Join hundreds of companies already saving time and winning more contracts.
+                Join smart businesses already using TenderPulse to discover and win more European contracts.
               </p>
             </div>
             <dl className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-3">
@@ -214,11 +213,14 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white">
+      <footer className="bg-white border-t border-gray-200">
         <div className="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center md:justify-between lg:px-8">
           <div className="flex justify-center space-x-6 md:order-2">
             <Link href="/pricing" className="text-gray-400 hover:text-gray-500">
               Pricing
+            </Link>
+            <Link href="/app" className="text-gray-400 hover:text-gray-500">
+              Live Tenders
             </Link>
             <Link href="/account" className="text-gray-400 hover:text-gray-500">
               Account
@@ -226,7 +228,10 @@ export default function LandingPage() {
           </div>
           <div className="mt-8 md:order-1 md:mt-0">
             <p className="text-center text-xs leading-5 text-gray-500">
-              &copy; 2024 Procurement Copilot. All rights reserved.
+              &copy; 2025 TenderPulse. All rights reserved.
+            </p>
+            <p className="text-center text-xs leading-5 text-gray-400 mt-2">
+              TenderPulse is an independent service and is not affiliated with the European Union or its institutions.
             </p>
           </div>
         </div>

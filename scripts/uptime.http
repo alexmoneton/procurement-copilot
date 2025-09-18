@@ -1,0 +1,118 @@
+# TenderPulse Uptime Monitoring Script
+# Usage: ./scripts/uptime_check.sh
+
+#!/bin/bash
+
+# Configuration
+API_URL="${API_URL:-https://api.tenderpulse.eu}"
+FRONTEND_URL="${FRONTEND_URL:-https://tenderpulse.eu}"
+TIMEOUT="${TIMEOUT:-10}"
+MAX_FAILURES="${MAX_FAILURES:-3}"
+CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Counters
+API_FAILURES=0
+FRONTEND_FAILURES=0
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+}
+
+check_endpoint() {
+    local url="$1"
+    local name="$2"
+    local expected_status="${3:-200}"
+    
+    log "🔍 Checking $name: $url"
+    
+    response=$(curl -s -w "%{http_code},%{time_total},%{time_connect}" -o /dev/null --max-time "$TIMEOUT" "$url")
+    
+    if [ $? -ne 0 ]; then
+        log "${RED}❌ $name: Connection failed${NC}"
+        return 1
+    fi
+    
+    IFS=',' read -r status_code total_time connect_time <<< "$response"
+    
+    if [ "$status_code" -eq "$expected_status" ]; then
+        response_time_ms=$(echo "$total_time * 1000" | bc)
+        log "${GREEN}✅ $name: OK (${status_code}, ${response_time_ms}ms)${NC}"
+        return 0
+    else
+        log "${RED}❌ $name: HTTP $status_code (expected $expected_status)${NC}"
+        return 1
+    fi
+}
+
+check_api_health() {
+    check_endpoint "$API_URL/api/v1/health" "API Health" 200
+}
+
+check_frontend() {
+    check_endpoint "$FRONTEND_URL" "Frontend" 200
+}
+
+send_alert() {
+    local service="$1"
+    local message="$2"
+    
+    log "${RED}🚨 ALERT: $service - $message${NC}"
+    
+    # Send to webhook if configured
+    if [ -n "$WEBHOOK_URL" ]; then
+        curl -s -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{\"text\": \"🚨 TenderPulse Alert: $service - $message\"}"
+    fi
+    
+    # Send email if configured
+    if [ -n "$ALERT_EMAIL" ] && command -v mail >/dev/null; then
+        echo "$message" | mail -s "TenderPulse Alert: $service" "$ALERT_EMAIL"
+    fi
+}
+
+main() {
+    log "🚀 Starting TenderPulse uptime monitoring..."
+    log "📊 API URL: $API_URL"
+    log "🌐 Frontend URL: $FRONTEND_URL"
+    log "⏱️  Check interval: ${CHECK_INTERVAL}s"
+    log "🔄 Max failures before alert: $MAX_FAILURES"
+    
+    while true; do
+        # Check API
+        if ! check_api_health; then
+            ((API_FAILURES++))
+            if [ $API_FAILURES -ge $MAX_FAILURES ]; then
+                send_alert "API" "API health check failed $API_FAILURES times"
+                API_FAILURES=0  # Reset after alert
+            fi
+        else
+            API_FAILURES=0
+        fi
+        
+        # Check Frontend
+        if ! check_frontend; then
+            ((FRONTEND_FAILURES++))
+            if [ $FRONTEND_FAILURES -ge $MAX_FAILURES ]; then
+                send_alert "Frontend" "Frontend check failed $FRONTEND_FAILURES times"
+                FRONTEND_FAILURES=0  # Reset after alert
+            fi
+        else
+            FRONTEND_FAILURES=0
+        fi
+        
+        log "💤 Sleeping for ${CHECK_INTERVAL}s..."
+        sleep "$CHECK_INTERVAL"
+    done
+}
+
+# Run if executed directly
+if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
+    main "$@"
+fi
