@@ -44,3 +44,19 @@ async def ping():
 async def metrics():
     """Prometheus-style metrics endpoint."""
     return metrics_collector.get_metrics()
+
+
+@router.post("/init-db")
+async def init_database():
+    """Initialize database tables (run migrations)."""
+    try:
+        from ....db.session import engine
+        from ....db.models import Base
+        
+        # Create all tables
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        
+        return {"status": "success", "message": "Database tables created successfully"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
