@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
+import Link from 'next/link'
 import { PlusIcon, CalendarIcon, BellIcon } from '@heroicons/react/24/outline'
 import { apiClient, Tender, SavedFilter } from '@/lib/api'
 import { formatDate, formatCurrency, getDeadlineStatus, getDeadlineColor, getSourceColor } from '@/lib/utils'
@@ -318,13 +319,49 @@ export default function DashboardPage() {
   // Only render dashboard when Clerk is properly configured
   if (!hasClerkKeys) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="mt-4 text-lg text-gray-600">
-              Authentication is not configured. Please set up Clerk to access the dashboard.
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-100">
+          <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center gap-4">
+                <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+                <div>
+                  <h1 className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>TenderPulse</h1>
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: '#003399'}}>
+                    139+ active EU tenders • €800M+ value
+                  </span>
+                </div>
+              </div>
+              <Link href="/" className="text-sm font-medium text-gray-600 hover:text-[#003399] transition-colors">
+                ← Back to Home
+              </Link>
+            </div>
+          </div>
+        </header>
+        
+        {/* Main content */}
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center max-w-md">
+            <div className="mb-8">
+              <div className="mx-auto h-16 w-16 bg-[#003399]/10 rounded-full flex items-center justify-center">
+                <span className="text-2xl">🔐</span>
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4" style={{fontFamily: 'Manrope, sans-serif'}}>
+              Sign in to access your dashboard
+            </h2>
+            <p className="text-gray-600 mb-8">
+              View 139+ active EU procurement opportunities and manage your tender alerts.
             </p>
+            <div className="space-y-4">
+              <Link href="/" className="block bg-[#FFCC00] text-[#003399] px-6 py-3 rounded-lg font-semibold hover:bg-[#FFD700] transition-colors">
+                Sign Up for Free Trial
+              </Link>
+              <Link href="/" className="block text-sm font-medium text-gray-600 hover:text-[#003399] transition-colors">
+                Back to Home
+              </Link>
+            </div>
           </div>
         </div>
       </div>

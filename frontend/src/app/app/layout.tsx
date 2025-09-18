@@ -21,8 +21,9 @@ export default function AppLayout({
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 shadow-sm">
           <div className="flex h-16 shrink-0 items-center">
-            <Link href="/" className="text-xl font-bold text-blue-600">
-              Procurement Copilot
+            <Link href="/" className="flex items-center gap-3">
+              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <span className="text-xl font-bold text-[#003399]">TenderPulse</span>
             </Link>
           </div>
           <nav className="flex flex-1 flex-col">
