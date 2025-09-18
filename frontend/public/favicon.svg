@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- TenderPulse Favicon - EU Blue background with Gold pulse lines -->
+  <rect width="32" height="32" rx="8" fill="#003399"/>
+  
+  <!-- Pulse/Signal lines representing tender alerts -->
+  <path d="M8 12H16V8H8V12Z" fill="#FFCC00"/>
+  <path d="M8 20H24V16H8V20Z" fill="#FFCC00"/>
+  <path d="M8 28H24V24H8V28Z" fill="#FFCC00"/>
+  
+  <!-- Small pulse dot -->
+  <circle cx="26" cy="8" r="2" fill="#FFCC00"/>
+</svg>
