@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
-import { UserIcon, CreditCardIcon, BellIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
+import { UserIcon, CreditCardIcon, BellIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { apiClient } from '@/lib/api'
 
 // Check if Clerk is properly configured
@@ -25,13 +26,12 @@ function AccountPageContent() {
   useEffect(() => {
     if (user?.emailAddresses?.[0]?.emailAddress) {
       apiClient.setUserEmail(user.emailAddresses[0].emailAddress)
-      // In a real app, you'd fetch the user's plan from your backend
-      // For now, we'll simulate a plan
+      // Simulate loading user plan
       setTimeout(() => {
         setPlan({
-          id: 'pro_199',
-          name: 'Pro',
-          filters: 5,
+          id: 'starter',
+          name: 'Starter',
+          filters: 1,
           status: 'active'
         })
         setLoading(false)
@@ -45,11 +45,9 @@ function AccountPageContent() {
       const response = await apiClient.getBillingPortal()
       if (response.data?.url) {
         window.location.href = response.data.url
-      } else {
-        console.error('Failed to get billing portal:', response.error)
       }
     } catch (error) {
-      console.error('Error getting billing portal:', error)
+      console.error('Error accessing billing portal:', error)
     } finally {
       setBillingLoading(false)
     }
@@ -58,7 +56,10 @@ function AccountPageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003399] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your account...</p>
+        </div>
       </div>
     )
   }
@@ -66,230 +67,225 @@ function AccountPageContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">Account Settings</h1>
+      <header className="bg-white border-b border-gray-100">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <div>
+                <h1 className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>Account Settings</h1>
+                <p className="text-sm text-gray-600">Manage your TenderPulse subscription</p>
+              </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-500">
-                {user?.emailAddresses?.[0]?.emailAddress}
-              </span>
+            <div className="flex items-center gap-4">
+              <Link href="/app" className="text-sm font-medium text-gray-600 hover:text-[#003399] transition-colors">
+                ← Back to Dashboard
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Profile Information */}
-          <div className="lg:col-span-2">
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Profile Information
-                </h3>
-                <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Email address</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {user?.emailAddresses?.[0]?.emailAddress}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Full name</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {user?.fullName || 'Not provided'}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Account created</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">Last sign in</dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {user?.lastSignInAt ? new Date(user.lastSignInAt).toLocaleDateString() : 'Unknown'}
-                    </dd>
-                  </div>
-                </dl>
+      {/* Main content */}
+      <main className="mx-auto max-w-4xl px-6 py-12 lg:px-8">
+        <div className="space-y-8">
+          {/* Profile section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-12 bg-[#003399]/10 rounded-full flex items-center justify-center">
+                <UserIcon className="h-6 w-6 text-[#003399]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900" style={{fontFamily: 'Manrope, sans-serif'}}>Profile</h2>
+                <p className="text-sm text-gray-600">Your account information</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <div className="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">
+                  {user?.emailAddresses?.[0]?.emailAddress || 'Not available'}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Account Status</label>
+                <div className="text-sm">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-green-100 px-3 py-1 text-green-800">
+                    <span className="h-2 w-2 rounded-full bg-green-500"></span>
+                    Active
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Plan Information */}
-          <div className="lg:col-span-1">
-            <div className="bg-white shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Current Plan
-                </h3>
-                {plan ? (
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                          <CreditCardIcon className="h-8 w-8 text-blue-600" />
-                        </div>
-                        <div className="ml-3">
-                          <p className="text-sm font-medium text-gray-900">{plan.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {plan.filters} saved filters
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        plan.status === 'active' 
-                          ? 'bg-green-100 text-green-800'
-                          : plan.status === 'canceled'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {plan.status === 'active' ? 'Active' : 
-                         plan.status === 'canceled' ? 'Canceled' : 'Past Due'}
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleBillingPortal}
-                      disabled={billingLoading}
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {billingLoading ? 'Loading...' : 'Manage Billing'}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <p className="text-sm text-gray-500 mb-4">No active plan</p>
-                    <a
-                      href="/pricing"
-                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 inline-block"
-                    >
-                      Choose a Plan
-                    </a>
-                  </div>
-                )}
+          {/* Subscription section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-12 bg-[#FFCC00]/20 rounded-full flex items-center justify-center">
+                <CreditCardIcon className="h-6 w-6 text-[#003399]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900" style={{fontFamily: 'Manrope, sans-serif'}}>Subscription</h2>
+                <p className="text-sm text-gray-600">Manage your billing and plan</p>
               </div>
             </div>
-
-            {/* Notification Settings */}
-            <div className="bg-white shadow rounded-lg mt-6">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                  Notification Settings
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <BellIcon className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900">Email notifications</p>
-                      <p className="text-sm text-gray-500">Receive tender alerts via email</p>
-                    </div>
-                    <div className="ml-auto">
-                      <button
-                        type="button"
-                        className="bg-blue-600 relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-                        role="switch"
-                        aria-checked="true"
-                      >
-                        <span className="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
-                      </button>
-                    </div>
+            
+            {plan ? (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Plan</label>
+                    <div className="text-lg font-semibold text-[#003399]">{plan.name}</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Saved Filters</label>
+                    <div className="text-lg font-semibold text-gray-900">{plan.filters} filters</div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <div className="text-lg font-semibold text-green-600 capitalize">{plan.status}</div>
                   </div>
                 </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <button
+                    onClick={handleBillingPortal}
+                    disabled={billingLoading}
+                    className="bg-[#003399] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#002266] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {billingLoading ? 'Loading...' : 'Manage Billing'}
+                  </button>
+                  <Link
+                    href="/pricing"
+                    className="border-2 border-[#003399] text-[#003399] px-6 py-3 rounded-lg font-medium hover:bg-[#003399] hover:text-white transition-colors text-center"
+                  >
+                    Upgrade Plan
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-600 mb-4">No active subscription</p>
+                <Link
+                  href="/pricing"
+                  className="bg-[#FFCC00] text-[#003399] px-6 py-3 rounded-lg font-semibold hover:bg-[#FFD700] transition-colors"
+                >
+                  Choose a Plan
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Preferences section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-12 w-12 bg-[#003399]/10 rounded-full flex items-center justify-center">
+                <BellIcon className="h-6 w-6 text-[#003399]" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900" style={{fontFamily: 'Manrope, sans-serif'}}>Preferences</h2>
+                <p className="text-sm text-gray-600">Configure your alert settings</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-4 border-b border-gray-100">
+                <div>
+                  <h3 className="font-medium text-gray-900">Email Notifications</h3>
+                  <p className="text-sm text-gray-600">Receive daily tender alerts</p>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="h-4 w-4 text-[#003399] focus:ring-[#003399] border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-4 border-b border-gray-100">
+                <div>
+                  <h3 className="font-medium text-gray-900">Weekly Summary</h3>
+                  <p className="text-sm text-gray-600">Get a weekly digest of opportunities</p>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="h-4 w-4 text-[#003399] focus:ring-[#003399] border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between py-4">
+                <div>
+                  <h3 className="font-medium text-gray-900">Product Updates</h3>
+                  <p className="text-sm text-gray-600">Notifications about new features</p>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 text-[#003399] focus:ring-[#003399] border-gray-300 rounded"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Usage section */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6" style={{fontFamily: 'Manrope, sans-serif'}}>Usage This Month</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+              <div className="text-center p-6 bg-gray-50 rounded-xl">
+                <div className="text-2xl font-bold text-[#003399]">47</div>
+                <div className="text-sm text-gray-600">Alerts Sent</div>
+              </div>
+              <div className="text-center p-6 bg-gray-50 rounded-xl">
+                <div className="text-2xl font-bold text-[#003399]">1</div>
+                <div className="text-sm text-gray-600">Active Filters</div>
+              </div>
+              <div className="text-center p-6 bg-gray-50 rounded-xl">
+                <div className="text-2xl font-bold text-[#003399]">€2.1M</div>
+                <div className="text-sm text-gray-600">Opportunities Value</div>
               </div>
             </div>
           </div>
         </div>
+      </main>
 
-        {/* Usage Statistics */}
-        <div className="mt-8">
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Usage This Month
-              </h3>
-              <dl className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-                <div className="bg-gray-50 overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <BellIcon className="h-6 w-6 text-gray-400" />
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Alerts Sent
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">24</dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <UserIcon className="h-6 w-6 text-gray-400" />
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Tenders Found
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">156</dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-gray-50 overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <CreditCardIcon className="h-6 w-6 text-gray-400" />
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">
-                            Filters Used
-                          </dt>
-                          <dd className="text-lg font-medium text-gray-900">
-                            {plan ? `${plan.filters}/5` : '0/0'}
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </dl>
+      {/* Footer */}
+      <footer className="bg-gray-900">
+        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <span className="text-xl font-bold text-white">TenderPulse</span>
             </div>
+            <p className="text-sm text-gray-400">
+              © 2025 TenderPulse. All rights reserved.
+            </p>
+          </div>
+          <div className="mt-8 border-t border-gray-800 pt-8">
+            <p className="text-xs text-gray-500 text-center">
+              TenderPulse is an independent service and is not affiliated with the European Union or its institutions.
+            </p>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }
 
+// Main component with Clerk check
 export default function AccountPage() {
-  // Only render account page when Clerk is properly configured
   if (!hasClerkKeys) {
     return (
-      <div className="min-h-screen bg-gray-50 py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Account</h1>
-            <p className="mt-4 text-lg text-gray-600">
-              Authentication is not configured. Please set up Clerk to access your account.
-            </p>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Account Settings</h1>
+          <p className="text-gray-600 mb-8">Authentication is not configured</p>
+          <Link href="/" className="bg-[#003399] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#002266] transition-colors">
+            Back to Home
+          </Link>
         </div>
       </div>
     )

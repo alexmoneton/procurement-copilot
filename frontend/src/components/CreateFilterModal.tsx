@@ -249,7 +249,7 @@ export function CreateFilterModal({ onClose, onSuccess }: CreateFilterModalProps
                     <button
                       type="submit"
                       disabled={loading}
-                      className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:col-start-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex w-full justify-center rounded-lg bg-[#003399] px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#002266] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#003399] sm:col-start-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       {loading ? 'Creating...' : 'Create Filter'}
                     </button>
