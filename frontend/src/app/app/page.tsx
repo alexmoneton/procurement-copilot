@@ -9,7 +9,8 @@ import { formatDate, formatCurrency, getDeadlineStatus, getDeadlineColor, getSou
 import { CreateFilterModal } from '@/components/CreateFilterModal'
 
 // Check if Clerk is properly configured
-const hasClerkKeys = true // Temporarily enable demo mode
+const hasClerkKeys = typeof window !== 'undefined' && 
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
 
 function DashboardPageContent() {
   const { user } = useUser()
