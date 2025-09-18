@@ -10,6 +10,8 @@ from ..db.crud import TenderCRUD
 from ..db.schemas import TenderCreate
 from ..scrapers.ted import fetch_last_tenders
 from ..scrapers.boamp_fr import fetch_last_tenders_boamp
+from ..scrapers.real_data import fetch_real_ted_tenders, fetch_real_boamp_tenders
+from ..scrapers.european_platforms import fetch_all_european_tenders
 from .cpv import cpv_mapper
 from .dedupe import deduplicator
 
@@ -26,29 +28,63 @@ class IngestService:
         ted_limit: int = 200, 
         boamp_limit: int = 200
     ) -> Dict[str, int]:
-        """Run the complete ingestion pipeline."""
-        self.logger.info("Starting tender ingestion pipeline")
+        """Run the complete ingestion pipeline (legacy method)."""
+        return await self.run_full_european_ingest(db, ted_limit, boamp_limit, 0)
+    
+    async def run_full_european_ingest(
+        self, 
+        db: AsyncSession, 
+        ted_limit: int = 50, 
+        boamp_limit: int = 30,
+        european_limit_per_country: int = 15
+    ) -> Dict[str, int]:
+        """Run the complete European ingestion pipeline."""
+        self.logger.info("Starting full European tender ingestion pipeline")
         
         # Fetch data from all sources
         all_tenders = []
         
-        # Fetch from TED
+        # Fetch from TED (using real data scraper)
         try:
-            self.logger.info(f"Fetching {ted_limit} tenders from TED")
-            ted_tenders = await fetch_last_tenders(ted_limit)
+            self.logger.info(f"Fetching {ted_limit} real tenders from TED")
+            ted_tenders = await fetch_real_ted_tenders(ted_limit)
             all_tenders.extend(ted_tenders)
-            self.logger.info(f"Fetched {len(ted_tenders)} tenders from TED")
+            self.logger.info(f"Fetched {len(ted_tenders)} real tenders from TED")
         except Exception as e:
-            self.logger.error(f"Error fetching TED tenders: {e}")
+            self.logger.error(f"Error fetching real TED tenders: {e}")
+            # Fallback to original scraper
+            try:
+                self.logger.info("Falling back to original TED scraper")
+                ted_tenders = await fetch_last_tenders(ted_limit)
+                all_tenders.extend(ted_tenders)
+            except Exception as fallback_e:
+                self.logger.error(f"Fallback TED scraper also failed: {fallback_e}")
         
-        # Fetch from BOAMP
+        # Fetch from BOAMP (using real data scraper)
         try:
-            self.logger.info(f"Fetching {boamp_limit} tenders from BOAMP")
-            boamp_tenders = await fetch_last_tenders_boamp(boamp_limit)
+            self.logger.info(f"Fetching {boamp_limit} real tenders from BOAMP")
+            boamp_tenders = await fetch_real_boamp_tenders(boamp_limit)
             all_tenders.extend(boamp_tenders)
-            self.logger.info(f"Fetched {len(boamp_tenders)} tenders from BOAMP")
+            self.logger.info(f"Fetched {len(boamp_tenders)} real tenders from BOAMP")
         except Exception as e:
-            self.logger.error(f"Error fetching BOAMP tenders: {e}")
+            self.logger.error(f"Error fetching real BOAMP tenders: {e}")
+            # Fallback to original scraper
+            try:
+                self.logger.info("Falling back to original BOAMP scraper")
+                boamp_tenders = await fetch_last_tenders_boamp(boamp_limit)
+                all_tenders.extend(boamp_tenders)
+            except Exception as fallback_e:
+                self.logger.error(f"Fallback BOAMP scraper also failed: {fallback_e}")
+        
+        # Fetch from all European platforms (if enabled)
+        if european_limit_per_country > 0:
+            try:
+                self.logger.info(f"Fetching tenders from all European platforms ({european_limit_per_country} per country)")
+                european_tenders = await fetch_all_european_tenders(european_limit_per_country)
+                all_tenders.extend(european_tenders)
+                self.logger.info(f"Fetched {len(european_tenders)} tenders from European platforms")
+            except Exception as e:
+                self.logger.error(f"Error fetching European platform tenders: {e}")
         
         if not all_tenders:
             self.logger.warning("No tenders fetched from any source")

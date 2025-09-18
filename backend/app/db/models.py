@@ -30,6 +30,22 @@ class TenderSource(str, Enum):
     
     TED = "TED"
     BOAMP_FR = "BOAMP_FR"
+    
+    # European platforms
+    GERMANY = "GERMANY"
+    ITALY = "ITALY"
+    SPAIN = "SPAIN"
+    NETHERLANDS = "NETHERLANDS"
+    UK = "UK"
+    DENMARK = "DENMARK"
+    FINLAND = "FINLAND"
+    SWEDEN = "SWEDEN"
+    AUSTRIA = "AUSTRIA"
+    
+    # Nordic sub-platforms
+    NORDIC_DK = "NORDIC_DK"
+    NORDIC_FI = "NORDIC_FI"
+    NORDIC_SE = "NORDIC_SE"
 
 
 class NotifyFrequency(str, Enum):
@@ -64,7 +80,7 @@ class Tender(Base):
         SQLEnum(TenderSource),
         nullable=False,
         index=True,
-        comment="Source of the tender (TED, BOAMP_FR)"
+        comment="Source of the tender (TED, BOAMP_FR, European platforms)"
     )
     
     # Tender details
