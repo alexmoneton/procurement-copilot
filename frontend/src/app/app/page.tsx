@@ -76,8 +76,8 @@ function DashboardPageContent() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: 'var(--eu-blue)'}}>
-              Data source: TED (pilot)
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: '#003399'}}>
+              139+ active EU tenders • €800M+ value
             </span>
           </div>
         </div>
