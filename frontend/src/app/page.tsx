@@ -41,6 +41,7 @@ export default function LandingPage() {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5 flex items-center gap-3">
               <img src="/logo.svg" alt="TenderPulse" className="h-10 w-auto" />
+              <span className="text-xl font-bold" style={{color: '#003399'}}>TenderPulse</span>
             </Link>
           </div>
           <div className="flex lg:flex-1 lg:justify-end">
