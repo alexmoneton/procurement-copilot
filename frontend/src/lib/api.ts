@@ -142,13 +142,13 @@ class ApiClient {
     if (params.offset) searchParams.set('offset', params.offset.toString());
 
     const queryString = searchParams.toString();
-    const endpoint = `/api/v1/tenders${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/api/v1/tenders/tenders${queryString ? `?${queryString}` : ''}`;
     
     return this.request(endpoint);
   }
 
   async getTender(tenderRef: string): Promise<ApiResponse<Tender>> {
-    return this.request(`/api/v1/tenders/${tenderRef}`);
+    return this.request(`/api/v1/tenders/tenders/${tenderRef}`);
   }
 
   // Saved Filters
