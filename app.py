@@ -120,6 +120,11 @@ async def health():
         "version": "1.0.0"
     }
 
+@app.get("/api/v1/filters")
+async def get_filters():
+    """Get saved filters - return empty array for now."""
+    return []
+
 @app.get("/api/v1/tenders/tenders", response_model=TendersListResponse)
 async def get_tenders(
     limit: int = Query(default=20, ge=1, le=100),
