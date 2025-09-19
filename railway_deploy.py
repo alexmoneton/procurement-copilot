@@ -137,6 +137,11 @@ async def root():
         "health": "/api/v1/health"
     }
 
+@app.get("/ping")
+async def ping():
+    """Railway healthcheck endpoint."""
+    return {"status": "ok", "message": "pong"}
+
 @app.get("/api/v1/health", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint for monitoring."""
