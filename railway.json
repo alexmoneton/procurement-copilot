@@ -4,7 +4,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "python railway_deploy.py",
+    "startCommand": "python app.py",
     "healthcheckPath": "/ping",
     "healthcheckTimeout": 300
   }
