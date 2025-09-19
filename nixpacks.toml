@@ -1,11 +1,8 @@
 [phases.setup]
-nixPkgs = ['python311', 'gcc', 'pkg-config']
+nixPkgs = ['python311']
 
 [phases.install]
-cmds = [
-    'pip install fastapi uvicorn pydantic httpx python-multipart',
-    'pip install --no-cache-dir .'
-]
+cmds = ['pip install fastapi uvicorn pydantic']
 
 [start]
 cmd = 'python app.py'
