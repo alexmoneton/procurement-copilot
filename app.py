@@ -180,7 +180,9 @@ async def get_tenders(
             value_amount=tender['value_amount'],
             currency=tender['currency'],
             url=tender['url'],
-            source=tender['source']
+            source=tender['source'],
+            created_at=tender['created_at'],
+            updated_at=tender['updated_at']
         )
         tender_responses.append(tender_response)
     
