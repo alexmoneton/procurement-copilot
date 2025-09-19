@@ -113,12 +113,12 @@ export default function LandingPage() {
               {hasClerkKeys ? (
                 <>
                   <SignInButton>
-                    <button className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+                    <button className="text-sm font-medium text-gray-600 hover:text-[#003399] hover:underline transition-all cursor-pointer">
                       Sign in
                     </button>
                   </SignInButton>
                   <SignUpButton>
-                    <button className="bg-[#003399] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#002266] transition-colors">
+                    <button className="bg-[#003399] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#002266] hover:scale-105 transition-all shadow-sm hover:shadow-md cursor-pointer">
                       Get started
                     </button>
                   </SignUpButton>
@@ -158,16 +158,16 @@ export default function LandingPage() {
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               {hasClerkKeys ? (
                 <SignUpButton>
-                  <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                  <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#003399] hover:text-[#FFCC00] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer">
                     Start free trial →
                   </button>
                 </SignUpButton>
               ) : (
-                <Link href="/pricing" className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <Link href="/pricing" className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#003399] hover:text-[#FFCC00] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer">
                   Start free trial →
                 </Link>
               )}
-              <Link href="/app" className="border-2 border-[#003399] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#003399] hover:text-white transition-all">
+              <Link href="/app" className="border-2 border-[#003399] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#003399] hover:text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer">
                 See live tenders
               </Link>
             </div>
