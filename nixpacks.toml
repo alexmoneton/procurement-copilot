@@ -1,16 +1,11 @@
 [phases.setup]
-nixPkgs = ["python311", "pip"]
+nixPkgs = ['python311', 'gcc', 'pkg-config']
 
 [phases.install]
 cmds = [
-  "pip install fastapi uvicorn[standard] sqlalchemy alembic pydantic pydantic-settings httpx asyncpg psycopg2-binary loguru apscheduler tenacity selectolax playwright python-dotenv python-multipart python-jose[cryptography] passlib[bcrypt] stripe",
-  "pip install -e ."
-]
-
-[phases.build]
-cmds = [
-  "echo 'Build phase completed'"
+    'pip install fastapi uvicorn pydantic httpx python-multipart',
+    'pip install --no-cache-dir .'
 ]
 
 [start]
-cmd = "uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT"
+cmd = 'python railway_deploy.py'
