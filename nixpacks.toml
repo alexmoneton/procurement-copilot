@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ['python311']
-
-[phases.install]
-cmds = ['pip install fastapi uvicorn pydantic']
-
-[start]
-cmd = 'python app.py'
