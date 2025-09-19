@@ -112,12 +112,12 @@ export default function LandingPage() {
             <div className="flex items-center gap-4">
               {hasClerkKeys ? (
                 <>
-                  <SignInButton mode="modal">
+                  <SignInButton>
                     <button className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
                       Sign in
                     </button>
                   </SignInButton>
-                  <SignUpButton mode="modal">
+                  <SignUpButton>
                     <button className="bg-[#003399] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#002266] transition-colors">
                       Get started
                     </button>
@@ -157,7 +157,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               {hasClerkKeys ? (
-                <SignUpButton mode="modal">
+                <SignUpButton>
                   <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     Start free trial →
                   </button>
@@ -364,7 +364,7 @@ export default function LandingPage() {
                 </ul>
                 <div className="mt-8">
                   {hasClerkKeys ? (
-                    <SignUpButton mode="modal">
+                    <SignUpButton>
                       <button
                         className={`w-full rounded-lg px-3 py-2 text-center text-sm font-semibold shadow-sm transition-all ${
                           plan.popular
@@ -406,7 +406,7 @@ export default function LandingPage() {
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
               {hasClerkKeys ? (
-                <SignUpButton mode="modal">
+                <SignUpButton>
                   <button className="bg-[#FFCC00] text-[#003399] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#FFD700] transition-all shadow-lg">
                     Start free trial
                   </button>

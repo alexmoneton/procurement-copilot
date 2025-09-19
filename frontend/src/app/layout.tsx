@@ -68,8 +68,8 @@ export default function RootLayout({
     <ClerkProvider
       afterSignInUrl="/app"
       afterSignUpUrl="/app"
-      signInUrl="/"
-      signUpUrl="/"
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
     >
       <html lang="en">
         <head>
