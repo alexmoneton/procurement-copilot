@@ -24,10 +24,12 @@ class TenderResponse(BaseModel):
     cpv_codes: List[str]
     buyer_name: str
     buyer_country: str
-    value_amount: str
+    value_amount: int
     currency: str
     url: str
     source: str
+    created_at: str
+    updated_at: str
 
 class TendersListResponse(BaseModel):
     items: List[TenderResponse]
@@ -77,7 +79,7 @@ def generate_tenders(limit: int = 20) -> List[dict]:
         tender = {
             'id': str(uuid.uuid4()),
             'tender_ref': f"{country_codes[country]}-{random.randint(2025100001, 2025100999)}",
-            'source': country,
+            'source': 'TED',  # Frontend expects 'TED' or 'BOAMP_FR'
             'title': f"{sector} - Procurement {i+1}",
             'summary': f"Public procurement for {sector.lower()} in {country.title()}.",
             'publication_date': (base_date - timedelta(days=random.randint(0, 5))).isoformat(),
@@ -85,9 +87,11 @@ def generate_tenders(limit: int = 20) -> List[dict]:
             'cpv_codes': cpv_codes,
             'buyer_name': f"Ministry of {sector} - {country.title()}",
             'buyer_country': country_codes[country],
-            'value_amount': str(random.randint(100000, 2000000)),
+            'value_amount': random.randint(100000, 2000000),  # Return as number, not string
             'currency': 'EUR',
-            'url': f"https://procurement.{country_codes[country].lower()}/tender/{random.randint(2025100001, 2025100999)}"
+            'url': f"https://procurement.{country_codes[country].lower()}/tender/{random.randint(2025100001, 2025100999)}",
+            'created_at': datetime.now().isoformat() + 'Z',
+            'updated_at': datetime.now().isoformat() + 'Z'
         }
         tenders.append(tender)
     
