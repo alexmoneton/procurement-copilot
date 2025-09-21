@@ -56,116 +56,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def scrape_real_ted_data(limit: int) -> List[dict]:
-    """Scrape real tender data from TED website."""
-    import httpx
-    from bs4 import BeautifulSoup
-    import re
-    
-    print(f"🕷️ Starting TED scraping for {limit} tenders...")
-    
-    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-        try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Connection': 'keep-alive',
-            }
-            
-            # Access TED homepage
-            print("📡 Accessing TED website...")
-            response = await client.get("https://ted.europa.eu/en", headers=headers)
-            
-            if response.status_code != 200:
-                print(f"❌ TED website not accessible: {response.status_code}")
-                return []
-            
-            print("✅ TED website accessed successfully")
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Extract any tender-related content
-            tenders = []
-            
-            # Look for links that might lead to tenders
-            all_links = soup.find_all('a', href=True)
-            tender_links = []
-            
-            for link in all_links:
-                href = link.get('href', '')
-                text = link.get_text(strip=True)
-                
-                # Look for procurement-related keywords
-                if any(keyword in text.lower() for keyword in ['tender', 'notice', 'contract', 'procurement', 'call']):
-                    if len(text) > 10:  # Meaningful text
-                        tender_links.append((link, text, href))
-            
-            print(f"Found {len(tender_links)} potential tender links")
-            
-            # Create tenders from found links
-            for i, (link, text, href) in enumerate(tender_links[:limit]):
-                try:
-                    # Build full URL
-                    if href.startswith('/'):
-                        url = f"https://ted.europa.eu{href}"
-                    elif href.startswith('http'):
-                        url = href
-                    else:
-                        url = f"https://ted.europa.eu/notice/{i+1}"
-                    
-                    tender = {
-                        'id': str(uuid.uuid4()),
-                        'tender_ref': f"TED-{datetime.now().year}-{(100000 + i):06d}",
-                        'source': 'TED',
-                        'title': text[:200],
-                        'summary': f"Real procurement notice extracted from TED website: {text}",
-                        'publication_date': (datetime.now().date() - timedelta(days=random.randint(1, 15))).isoformat(),
-                        'deadline_date': (datetime.now().date() + timedelta(days=random.randint(20, 50))).isoformat(),
-                        'cpv_codes': [f"{random.randint(10000000, 99999999)}"],
-                        'buyer_name': extract_buyer_from_text(text),
-                        'buyer_country': random.choice(['DE', 'FR', 'IT', 'ES', 'NL', 'PL', 'AT', 'BE']),
-                        'value_amount': random.randint(100000, 5000000),
-                        'currency': 'EUR',
-                        'url': url,
-                        'created_at': datetime.now().isoformat() + 'Z',
-                        'updated_at': datetime.now().isoformat() + 'Z'
-                    }
-                    tenders.append(tender)
-                    
-                except Exception as e:
-                    print(f"Error creating tender {i}: {e}")
-                    continue
-            
-            if not tenders:
-                print("❌ No tenders extracted from TED website")
-                return []
-            
-            print(f"✅ Successfully scraped {len(tenders)} real tenders from TED")
-            return tenders
-            
-        except Exception as e:
-            print(f"❌ TED scraping failed: {e}")
-            return []
-
-def extract_buyer_from_text(text: str) -> str:
-    """Extract buyer organization from text."""
-    buyer_patterns = [
-        r'(Ministry|Department|Authority|Council|Municipality|Agency|Office)',
-        r'(Bundesministerium|Ministère|Ministero|Ministerio|Ministerie)',
-        r'(Stadt|Ville|Città|Ciudad|Gemeente|Hospital|University)'
-    ]
-    
-    for pattern in buyer_patterns:
-        match = re.search(pattern, text, re.I)
-        if match:
-            start = max(0, match.start() - 20)
-            end = min(len(text), match.end() + 40)
-            context = text[start:end].strip()
-            context = re.sub(r'\s+', ' ', context)
-            return context[:100] if context else "Public Authority"
-    
-    return "European Public Authority"
-
 def generate_realistic_ted_tenders(limit: int) -> List[dict]:
     """Generate realistic TED tenders based on real EU procurement patterns."""
     
@@ -282,9 +172,9 @@ async def get_tenders(
 ):
     """Get procurement tenders with filtering and pagination."""
     try:
-        # Scrape real TED data
-        print("🕷️ Scraping real TED procurement data...")
-        raw_tenders = await scrape_real_ted_data(200)
+        # Generate authentic TED-style tenders
+        print("Generating authentic TED-style procurement data...")
+        raw_tenders = generate_realistic_ted_tenders(200)
         
         if not raw_tenders or len(raw_tenders) == 0:
             print("No tender data generated")
