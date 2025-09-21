@@ -32,11 +32,8 @@ class TenderResponse(BaseModel):
     updated_at: str
 
 class TendersListResponse(BaseModel):
-    items: List[TenderResponse]
+    tenders: List[TenderResponse]
     total: int
-    page: int
-    size: int
-    pages: int
 
 # Create FastAPI app
 app = FastAPI(
@@ -187,11 +184,8 @@ async def get_tenders(
         tender_responses.append(tender_response)
     
     return TendersListResponse(
-        items=tender_responses,
-        total=total,
-        page=page,
-        size=len(tender_responses),
-        pages=(total + limit - 1) // limit
+        tenders=tender_responses,
+        total=total
     )
 
 if __name__ == "__main__":
