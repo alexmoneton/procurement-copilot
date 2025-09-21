@@ -73,21 +73,41 @@ async def scrape_real_ted_data(limit: int) -> List[dict]:
                 'Connection': 'keep-alive',
             }
             
-            # Access TED homepage
-            print("📡 Accessing TED website...")
-            response = await client.get("https://ted.europa.eu/en", headers=headers)
+            # Access TED search results page with latest tenders
+            print("📡 Accessing TED search results...")
+            search_url = "https://ted.europa.eu/search/result?search-scope=LATEST"
+            response = await client.get(search_url, headers=headers)
             
             if response.status_code != 200:
                 print(f"❌ TED website not accessible: {response.status_code}")
                 return []
             
-            print("✅ TED website accessed successfully")
+            print("✅ TED search results page accessed successfully")
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Extract any tender-related content
+            # Extract tender listings from search results
             tenders = []
             
-            # Look for links that might lead to tenders
+            # Look for tender result items in the search results page
+            # TED uses various selectors for tender listings
+            tender_selectors = [
+                'div[class*="result"]',
+                'div[class*="notice"]', 
+                'div[class*="tender"]',
+                'article',
+                'li[class*="item"]',
+                '.search-result',
+                '.notice-item'
+            ]
+            
+            tender_elements = []
+            for selector in tender_selectors:
+                elements = soup.select(selector)
+                if elements:
+                    print(f"Found {len(elements)} elements with selector: {selector}")
+                    tender_elements.extend(elements)
+            
+            # Also look for any links that contain notice/tender information
             all_links = soup.find_all('a', href=True)
             tender_links = []
             
@@ -95,9 +115,10 @@ async def scrape_real_ted_data(limit: int) -> List[dict]:
                 href = link.get('href', '')
                 text = link.get_text(strip=True)
                 
-                # Look for procurement-related keywords
-                if any(keyword in text.lower() for keyword in ['tender', 'notice', 'contract', 'procurement', 'call']):
-                    if len(text) > 10:  # Meaningful text
+                # Look for actual tender/notice links
+                if ('notice' in href.lower() or 'tender' in href.lower() or 
+                    any(keyword in text.lower() for keyword in ['tender', 'notice', 'contract', 'procurement'])):
+                    if len(text) > 15:  # Meaningful text
                         tender_links.append((link, text, href))
             
             print(f"Found {len(tender_links)} potential tender links")
