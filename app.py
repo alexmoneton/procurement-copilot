@@ -9,7 +9,7 @@ import random
 import uuid
 from datetime import datetime, date, timedelta
 from typing import List, Optional
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -60,23 +60,37 @@ async def fetch_real_ted_data(limit: int = 20) -> List[dict]:
     """Fetch real TED data from official EU API."""
     import httpx
     
-    try:
-        # Try to fetch from TED RSS feed (simpler than CSV API)
-        ted_rss_url = "https://ted.europa.eu/TED/misc/RSS.do"
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        # Try multiple TED data sources
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(ted_rss_url)
-            
-            if response.status_code == 200:
-                # Parse RSS/XML data here
-                # For now, let's use a simpler approach and fetch from TED search
-                return await fetch_ted_search_data(limit, client)
-            else:
-                print(f"TED RSS failed with status {response.status_code}")
-                return []
-                
-    except Exception as e:
-        print(f"Error fetching real TED data: {e}")
+        # Method 1: Try TED search API
+        try:
+            print("Trying TED search API...")
+            result = await fetch_ted_search_data(limit, client)
+            if result:
+                return result
+        except Exception as e:
+            print(f"TED search API failed: {e}")
+        
+        # Method 2: Try TED RSS feed
+        try:
+            print("Trying TED RSS feed...")
+            result = await fetch_ted_rss_data(limit, client)
+            if result:
+                return result
+        except Exception as e:
+            print(f"TED RSS failed: {e}")
+        
+        # Method 3: Try data.europa.eu CSV API
+        try:
+            print("Trying data.europa.eu CSV API...")
+            result = await fetch_ted_csv_data(limit, client)
+            if result:
+                return result
+        except Exception as e:
+            print(f"TED CSV API failed: {e}")
+        
+        print("All TED data sources failed")
         return []
 
 async def fetch_ted_search_data(limit: int, client) -> List[dict]:
@@ -137,6 +151,41 @@ def parse_ted_search_response(data: dict) -> List[dict]:
         print(f"Error parsing TED response: {e}")
         return []
 
+async def fetch_ted_rss_data(limit: int, client) -> List[dict]:
+    """Fetch data from TED RSS feed."""
+    try:
+        rss_url = "https://ted.europa.eu/TED/misc/RSS.do"
+        response = await client.get(rss_url)
+        
+        if response.status_code == 200:
+            # Parse RSS XML here - simplified for now
+            # This would need proper XML parsing
+            print("RSS data received but XML parsing not implemented yet")
+            return []
+        else:
+            return []
+    except Exception as e:
+        print(f"RSS fetch error: {e}")
+        return []
+
+async def fetch_ted_csv_data(limit: int, client) -> List[dict]:
+    """Fetch data from data.europa.eu CSV API."""
+    try:
+        # Try to get dataset metadata
+        dataset_url = "https://data.europa.eu/api/hub/search/datasets/ted-csv"
+        response = await client.get(dataset_url)
+        
+        if response.status_code == 200:
+            # Parse dataset metadata to find CSV download URL
+            # This would need proper implementation
+            print("CSV metadata received but parsing not implemented yet")
+            return []
+        else:
+            return []
+    except Exception as e:
+        print(f"CSV fetch error: {e}")
+        return []
+
 def extract_value_from_notice(notice: dict) -> int:
     """Extract value from TED notice."""
     try:
@@ -150,48 +199,7 @@ def extract_value_from_notice(notice: dict) -> int:
     except:
         return random.randint(100000, 2000000)
 
-def generate_tenders(limit: int = 20) -> List[dict]:
-    """Generate realistic tender data as fallback."""
-    countries = ['SPAIN', 'GERMANY', 'FRANCE', 'ITALY', 'NETHERLANDS', 'UK', 'POLAND', 'SWEDEN']
-    country_codes = {'SPAIN': 'ES', 'GERMANY': 'DE', 'FRANCE': 'FR', 'ITALY': 'IT', 
-                    'NETHERLANDS': 'NL', 'UK': 'GB', 'POLAND': 'PL', 'SWEDEN': 'SE'}
-    
-    sectors = [
-        ("IT Services", ["72000000", "79400000"]),
-        ("Construction", ["45000000", "71000000"]),
-        ("Healthcare", ["33000000", "85000000"]),
-        ("Transport", ["60100000", "34600000"]),
-        ("Energy", ["09000000", "31600000"]),
-        ("Education", ["80000000", "92000000"])
-    ]
-    
-    tenders = []
-    base_date = datetime.now().date()
-    
-    for i in range(limit):
-        country = random.choice(countries)
-        sector, cpv_codes = random.choice(sectors)
-        
-        tender = {
-            'id': str(uuid.uuid4()),
-            'tender_ref': f"{country_codes[country]}-{random.randint(2025100001, 2025100999)}",
-            'source': 'TED',  # Frontend expects 'TED' or 'BOAMP_FR'
-            'title': f"{sector} - Procurement {i+1}",
-            'summary': f"Public procurement for {sector.lower()} in {country.title()}.",
-            'publication_date': (base_date - timedelta(days=random.randint(0, 5))).isoformat(),
-            'deadline_date': (base_date + timedelta(days=random.randint(15, 45))).isoformat(),
-            'cpv_codes': cpv_codes,
-            'buyer_name': f"Ministry of {sector} - {country.title()}",
-            'buyer_country': country_codes[country],
-            'value_amount': random.randint(100000, 2000000),  # Return as number, not string
-            'currency': 'EUR',
-            'url': f"https://procurement.{country_codes[country].lower()}/tender/{random.randint(2025100001, 2025100999)}",
-            'created_at': datetime.now().isoformat() + 'Z',
-            'updated_at': datetime.now().isoformat() + 'Z'
-        }
-        tenders.append(tender)
-    
-    return tenders
+# Mock data generation removed - using only real TED data
 
 @app.get("/")
 async def root():
@@ -232,20 +240,28 @@ async def get_tenders(
 ):
     """Get procurement tenders with filtering and pagination."""
     try:
-        # Try to fetch real TED data first
-        print("Attempting to fetch real TED data...")
+        # Fetch real TED data only
+        print("Fetching real TED data...")
         raw_tenders = await fetch_real_ted_data(200)
         
-        # If TED data fails, fallback to mock data
+        # If TED data fails, return proper error
         if not raw_tenders or len(raw_tenders) == 0:
-            print("TED data failed, using mock data fallback...")
-            raw_tenders = generate_tenders(200)
+            print("No TED data available")
+            raise HTTPException(
+                status_code=503, 
+                detail="TED data service temporarily unavailable. Please try again in a few minutes."
+            )
         else:
             print(f"Successfully fetched {len(raw_tenders)} real TED tenders!")
             
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Error fetching TED data: {e}, using mock data...")
-        raw_tenders = generate_tenders(200)
+        print(f"Error fetching TED data: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail=f"Unable to fetch tender data: {str(e)}"
+        )
     
     # Filter tenders
     filtered_tenders = raw_tenders
