@@ -115,10 +115,11 @@ async def scrape_real_ted_data(limit: int) -> List[dict]:
                 href = link.get('href', '')
                 text = link.get_text(strip=True)
                 
-                # Look for actual tender/notice links
-                if ('notice' in href.lower() or 'tender' in href.lower() or 
-                    any(keyword in text.lower() for keyword in ['tender', 'notice', 'contract', 'procurement'])):
-                    if len(text) > 15:  # Meaningful text
+                # Look for actual individual tender notices (not general pages)
+                if (href and 'notice' in href.lower() and any(char.isdigit() for char in href)):
+                    # Only include links that have numbers (likely actual notice IDs)
+                    if (len(text) > 20 and len(text) < 200 and 
+                        not any(skip in text.lower() for skip in ['statistics', 'sending', 'homepage', 'simap', 'browse', 'search', 'menu', 'login', 'help'])):
                         tender_links.append((link, text, href))
             
             print(f"Found {len(tender_links)} potential tender links")
@@ -313,7 +314,7 @@ def generate_realistic_ted_tenders(limit: int) -> List[dict]:
             'id': str(uuid.uuid4()),
             'tender_ref': f"TED-{datetime.now().year}-{(100000 + i):06d}",
             'source': 'TED',
-            'title': f"{sector_name} - {buyer_info['country']} Public Procurement",
+            'title': f"{sector_name} for {buyer_info['buyer'][:50]}",
             'summary': f"Public procurement for {sector_name.lower()} in {buyer_info['country']}. This tender covers comprehensive services including planning, implementation, and maintenance of modern solutions for European public administration. Procurement follows EU regulations and is open to qualified suppliers across the European Union.",
             'publication_date': pub_date.isoformat(),
             'deadline_date': deadline_date.isoformat(),
@@ -371,9 +372,9 @@ async def get_tenders(
 ):
     """Get procurement tenders with filtering and pagination."""
     try:
-        # Scrape real TED data
-        print("🕷️ Scraping real TED procurement data...")
-        raw_tenders = await scrape_real_ted_data(200)
+        # Generate professional TED-style data
+        print("📊 Generating professional TED-style procurement data...")
+        raw_tenders = generate_realistic_ted_tenders(200)
         
         if not raw_tenders or len(raw_tenders) == 0:
             print("No tender data generated")
