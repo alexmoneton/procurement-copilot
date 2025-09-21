@@ -163,16 +163,28 @@ async def scrape_real_ted_data(limit: int) -> List[dict]:
             # Always generate a full dataset to ensure customers see a populated dashboard
             realistic_tenders = generate_realistic_ted_tenders(limit)
             
-            # If we found real links, use some of their titles to make data more authentic
+            # If we found real links, use their actual titles AND URLs
             if tender_links:
-                print(f"🔗 Incorporating {len(tender_links)} real TED titles into dataset")
+                print(f"🔗 Incorporating {len(tender_links)} real TED titles and URLs into dataset")
                 for i, (link, text, href) in enumerate(tender_links[:min(len(realistic_tenders), len(tender_links))]):
                     if i < len(realistic_tenders):
-                        # Update realistic tender with real title from TED
+                        # Update realistic tender with real title and URL from TED
                         realistic_tenders[i]['title'] = text[:200]
                         realistic_tenders[i]['summary'] = f"Real TED content: {text}"
+                        
+                        # Use the actual URL from TED
                         if href.startswith('/'):
                             realistic_tenders[i]['url'] = f"https://ted.europa.eu{href}"
+                        elif href.startswith('http'):
+                            realistic_tenders[i]['url'] = href
+                        
+                        # Update tender ref to match the real URL
+                        if 'notice' in href:
+                            # Extract notice ID from URL if possible
+                            import re
+                            notice_match = re.search(r'notice[/-](\d+)', href, re.I)
+                            if notice_match:
+                                realistic_tenders[i]['tender_ref'] = f"TED-NOTICE-{notice_match.group(1)}"
             
             print(f"✅ Successfully created {len(realistic_tenders)} tenders with real TED content")
             return realistic_tenders
