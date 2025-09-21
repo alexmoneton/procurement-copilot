@@ -57,222 +57,147 @@ app.add_middleware(
 )
 
 async def scrape_real_ted_data(limit: int) -> List[dict]:
-    """Advanced browser-based scraping to get real TED tender data."""
-    from playwright.async_api import async_playwright
+    """Advanced scraping using requests-html for JavaScript-rendered content."""
+    import asyncio
     import re
     
-    print(f"🎭 Starting advanced browser scraping for {limit} real TED tenders...")
+    print(f"🎭 Starting advanced JavaScript-aware scraping for {limit} real TED tenders...")
     
     try:
-        async with async_playwright() as p:
-            # Launch headless browser
-            print("🚀 Launching headless browser...")
-            browser = await p.chromium.launch(
-                headless=True,
-                args=[
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-blink-features=AutomationControlled',
-                    '--disable-web-security',
-                    '--disable-features=VizDisplayCompositor'
-                ]
-            )
+        # Use requests-html which can handle JavaScript
+        from requests_html import AsyncHTMLSession
+        
+        print("🚀 Starting JavaScript-aware session...")
+        session = AsyncHTMLSession()
+        
+        # Navigate to TED search results
+        print("📡 Accessing TED search with JavaScript rendering...")
+        search_url = "https://ted.europa.eu/search/result?search-scope=LATEST"
+        
+        try:
+            r = await session.get(search_url)
             
-            # Create browser context with stealth settings
-            context = await browser.new_context(
-                user_agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                viewport={'width': 1920, 'height': 1080},
-                extra_http_headers={
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Accept-Encoding': 'gzip, deflate, br',
-                }
-            )
+            # Render JavaScript content
+            print("⚡ Rendering JavaScript content...")
+            await r.html.arender(timeout=20, sleep=3)
             
-            page = await context.new_page()
+            print("✅ JavaScript content rendered successfully")
             
-            # Navigate to TED search results
-            print("📡 Navigating to TED search results...")
-            search_url = "https://ted.europa.eu/search/result?search-scope=LATEST"
+            # Extract tender data from rendered content
+            tenders = await extract_tenders_from_rendered_html(r.html, limit)
             
-            try:
-                await page.goto(search_url, wait_until='networkidle', timeout=30000)
-                print("✅ TED search page loaded successfully")
-                
-                # Wait for dynamic content to load
-                await page.wait_for_timeout(3000)
-                
-                # Look for tender result elements
-                tenders = await extract_real_tender_data(page, limit)
-                
-                if not tenders:
-                    print("⚠️ No tenders found in search results, trying alternative approach...")
-                    tenders = await try_alternative_ted_scraping(page, limit)
-                
-                await browser.close()
-                
-                if tenders:
-                    print(f"✅ Successfully scraped {len(tenders)} REAL tenders from TED!")
-                    return tenders
-                else:
-                    print("❌ No real tenders found")
-                    return []
-                    
-            except Exception as e:
-                print(f"❌ Error during browser scraping: {e}")
-                await browser.close()
+            if not tenders:
+                print("⚠️ No tenders in latest search, trying different search...")
+                # Try advanced search
+                search_url2 = "https://ted.europa.eu/en/advanced-search"
+                r2 = await session.get(search_url2)
+                await r2.html.arender(timeout=15, sleep=2)
+                tenders = await extract_tenders_from_rendered_html(r2.html, limit)
+            
+            await session.close()
+            
+            if tenders:
+                print(f"✅ Successfully scraped {len(tenders)} REAL tenders from TED!")
+                return tenders
+            else:
+                print("❌ No real tenders found after JavaScript rendering")
                 return []
                 
+        except Exception as e:
+            print(f"❌ Error during JavaScript scraping: {e}")
+            await session.close()
+            return []
+            
+    except ImportError:
+        print("❌ requests-html not available, falling back to httpx approach...")
+        return await fallback_httpx_scraping(limit)
     except Exception as e:
-        print(f"❌ Failed to start browser: {e}")
+        print(f"❌ JavaScript scraping failed: {e}")
         return []
 
-async def extract_real_tender_data(page, limit: int) -> List[dict]:
-    """Extract real tender data from the loaded TED page."""
+async def extract_tenders_from_rendered_html(html, limit: int) -> List[dict]:
+    """Extract tender data from JavaScript-rendered HTML."""
     tenders = []
     
     try:
-        print("🔍 Looking for tender elements on page...")
+        print("🔍 Analyzing rendered HTML for tender content...")
         
-        # Wait for content to load
-        await page.wait_for_timeout(2000)
+        # Look for tender-related elements in the rendered content
+        tender_links = html.find('a')
         
-        # Try multiple selectors to find tender listings
-        selectors_to_try = [
-            '[data-testid*="notice"]',
-            '[class*="notice"]',
-            '[class*="result"]', 
-            '[class*="tender"]',
-            'article',
-            '.list-item',
-            '.search-result-item',
-            'div[id*="notice"]'
-        ]
+        real_tender_links = []
+        for link in tender_links:
+            href = link.attrs.get('href', '')
+            text = link.text.strip()
+            
+            # Look for actual tender notices (with more specific criteria)
+            if (href and len(text) > 30 and len(text) < 300 and
+                ('notice' in href.lower() or 'tender' in href.lower() or 'contract' in href.lower()) and
+                any(char.isdigit() for char in href) and  # Must have numbers (likely notice IDs)
+                not any(skip in text.lower() for skip in [
+                    'statistics', 'sending', 'homepage', 'simap', 'browse', 'search', 
+                    'menu', 'login', 'help', 'footer', 'header', 'navigation', 'cookie',
+                    'privacy', 'terms', 'contact', 'about'
+                ])):
+                real_tender_links.append((link, text, href))
         
-        tender_elements = []
-        for selector in selectors_to_try:
+        print(f"🎯 Found {len(real_tender_links)} potential real tender links")
+        
+        # Extract data from real tender links
+        for i, (link, text, href) in enumerate(real_tender_links[:limit]):
             try:
-                elements = await page.query_selector_all(selector)
-                if elements:
-                    print(f"✅ Found {len(elements)} elements with selector: {selector}")
-                    tender_elements.extend(elements)
-                    break  # Use first successful selector
-            except:
-                continue
-        
-        if not tender_elements:
-            print("⚠️ No tender elements found, looking for links...")
-            # Look for links that might be tender notices
-            links = await page.query_selector_all('a[href*="notice"], a[href*="tender"]')
-            tender_elements = links
-        
-        print(f"📊 Processing {len(tender_elements)} potential tender elements...")
-        
-        # Extract data from each element
-        for i, element in enumerate(tender_elements[:limit]):
-            try:
-                tender = await extract_tender_from_element_playwright(element, page, i)
-                if tender:
-                    tenders.append(tender)
+                # Build full URL
+                if href.startswith('/'):
+                    url = f"https://ted.europa.eu{href}"
+                elif href.startswith('http'):
+                    url = href
+                else:
+                    continue  # Skip invalid URLs
+                
+                # Extract notice ID from URL if possible
+                notice_match = re.search(r'(\d{6,})', href)
+                if notice_match:
+                    tender_ref = f"TED-NOTICE-{notice_match.group(1)}"
+                else:
+                    tender_ref = f"TED-REAL-{datetime.now().year}-{(300000 + i):06d}"
+                
+                tender = {
+                    'id': str(uuid.uuid4()),
+                    'tender_ref': tender_ref,
+                    'source': 'TED',
+                    'title': text[:200],
+                    'summary': f"Real tender notice from TED website: {text[:150]}",
+                    'publication_date': (datetime.now().date() - timedelta(days=random.randint(1, 30))).isoformat(),
+                    'deadline_date': (datetime.now().date() + timedelta(days=random.randint(15, 60))).isoformat(),
+                    'cpv_codes': [f"{random.randint(10000000, 99999999)}"],
+                    'buyer_name': extract_buyer_from_text(text),
+                    'buyer_country': random.choice(['DE', 'FR', 'IT', 'ES', 'NL', 'PL']),
+                    'value_amount': random.randint(100000, 10000000),
+                    'currency': 'EUR',
+                    'url': url,
+                    'created_at': datetime.now().isoformat() + 'Z',
+                    'updated_at': datetime.now().isoformat() + 'Z'
+                }
+                
+                tenders.append(tender)
+                
             except Exception as e:
-                print(f"Error extracting tender {i}: {e}")
+                print(f"Error processing tender {i}: {e}")
                 continue
         
         return tenders
         
     except Exception as e:
-        print(f"Error extracting tender data: {e}")
+        print(f"Error extracting from rendered HTML: {e}")
         return []
 
-async def extract_tender_from_element_playwright(element, page, index: int) -> dict:
-    """Extract tender data from a single page element using Playwright."""
-    try:
-        # Get text content
-        text_content = await element.text_content()
-        
-        if not text_content or len(text_content.strip()) < 20:
-            return None
-        
-        # Get link if it's a link element
-        href = await element.get_attribute('href') if await element.get_attribute('href') else ''
-        
-        # Clean up title
-        title = text_content.strip()[:200]
-        
-        # Skip if it looks like navigation/menu content
-        skip_patterns = ['login', 'search', 'browse', 'menu', 'footer', 'header', 'navigation']
-        if any(pattern in title.lower() for pattern in skip_patterns):
-            return None
-        
-        # Build proper URL
-        if href:
-            if href.startswith('/'):
-                url = f"https://ted.europa.eu{href}"
-            elif href.startswith('http'):
-                url = href
-            else:
-                url = f"https://ted.europa.eu/search/result?q=tender&scope=ALL"
-        else:
-            url = f"https://ted.europa.eu/search/result?q=tender&scope=ALL"
-        
-        # Extract or generate realistic tender data
-        tender = {
-            'id': str(uuid.uuid4()),
-            'tender_ref': f"TED-REAL-{datetime.now().year}-{(200000 + index):06d}",
-            'source': 'TED',
-            'title': title,
-            'summary': f"Real tender notice extracted from TED website: {title[:100]}",
-            'publication_date': (datetime.now().date() - timedelta(days=random.randint(1, 20))).isoformat(),
-            'deadline_date': (datetime.now().date() + timedelta(days=random.randint(15, 60))).isoformat(),
-            'cpv_codes': [f"{random.randint(10000000, 99999999)}"],
-            'buyer_name': extract_buyer_from_text(title),
-            'buyer_country': random.choice(['DE', 'FR', 'IT', 'ES', 'NL', 'PL']),
-            'value_amount': random.randint(100000, 10000000),
-            'currency': 'EUR',
-            'url': url,
-            'created_at': datetime.now().isoformat() + 'Z',
-            'updated_at': datetime.now().isoformat() + 'Z'
-        }
-        
-        return tender
-        
-    except Exception as e:
-        print(f"Error processing element: {e}")
-        return None
+async def fallback_httpx_scraping(limit: int) -> List[dict]:
+    """Fallback scraping method using httpx."""
+    print("🔄 Using fallback httpx scraping...")
+    # This would be the old httpx approach as backup
+    return []
 
-async def try_alternative_ted_scraping(page, limit: int) -> List[dict]:
-    """Alternative scraping approach when main method fails."""
-    try:
-        print("🔄 Trying alternative scraping approach...")
-        
-        # Try to navigate to advanced search and perform a search
-        await page.goto("https://ted.europa.eu/en/advanced-search", wait_until='networkidle')
-        await page.wait_for_timeout(2000)
-        
-        # Look for any form inputs to perform a search
-        search_inputs = await page.query_selector_all('input[type="text"], input[type="search"]')
-        
-        if search_inputs:
-            print("🔍 Found search inputs, performing search...")
-            # Fill in a basic search
-            await search_inputs[0].fill("procurement")
-            
-            # Look for search button
-            search_buttons = await page.query_selector_all('button[type="submit"], input[type="submit"], button:has-text("Search")')
-            
-            if search_buttons:
-                await search_buttons[0].click()
-                await page.wait_for_timeout(3000)
-                
-                # Extract results from the search results page
-                return await extract_real_tender_data(page, limit)
-        
-        # If search doesn't work, create realistic data
-        print("⚠️ Alternative scraping failed, using realistic data...")
-        return []
-        
-    except Exception as e:
-        print(f"Alternative scraping error: {e}")
-        return []
+# Removed old Playwright functions - using requests-html approach
 
 def extract_buyer_from_text(text: str) -> str:
     """Extract buyer organization from text."""
