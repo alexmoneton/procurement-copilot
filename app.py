@@ -466,7 +466,7 @@ def generate_realistic_ted_tenders(limit: int) -> List[dict]:
             'tender_ref': f"TED-{datetime.now().year}-{(100000 + i):06d}",
             'source': 'TED',
             'title': f"{sector_name} for {buyer_info['buyer'][:50]}",
-            'summary': f"Public procurement for {sector_name.lower()} in {buyer_info['country']}. This tender covers comprehensive services including planning, implementation, and maintenance of modern solutions for European public administration. Procurement follows EU regulations and is open to qualified suppliers across the European Union.",
+            'summary': f"[DEMO DATA] Public procurement for {sector_name.lower()} in {buyer_info['country']}. This tender covers comprehensive services including planning, implementation, and maintenance of modern solutions for European public administration. Real TED integration available on paid plans.",
             'publication_date': pub_date.isoformat(),
             'deadline_date': deadline_date.isoformat(),
             'cpv_codes': cpv_codes,
@@ -523,9 +523,9 @@ async def get_tenders(
 ):
     """Get procurement tenders with filtering and pagination."""
     try:
-        # Use FREE TED Search API (no authentication required!)
-        print("🆓 Accessing FREE TED Search API...")
-        raw_tenders = await fetch_free_ted_api_data(200)
+        # Generate professional demo data (clearly labeled)
+        print("📊 Generating professional demo procurement data...")
+        raw_tenders = generate_realistic_ted_tenders(200)
         
         if not raw_tenders or len(raw_tenders) == 0:
             print("No tender data generated")

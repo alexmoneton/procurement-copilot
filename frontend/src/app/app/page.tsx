@@ -328,9 +328,9 @@ export default function DashboardPage() {
                 <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
                 <div>
                   <h1 className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>TenderPulse</h1>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: '#003399'}}>
-                    139+ active EU tenders • €800M+ value
-                  </span>
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(255, 204, 0, 0.2)', color: '#003399'}}>
+                      Demo Data • Real TED integration on paid plans
+                    </span>
                 </div>
               </div>
               <Link href="/" className="text-sm font-medium text-gray-600 hover:text-[#003399] transition-colors">
