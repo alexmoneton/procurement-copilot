@@ -186,12 +186,11 @@ async def scrape_real_ted_data(limit: int) -> List[dict]:
                             if notice_match:
                                 notice_id = notice_match.group(1)
                                 realistic_tenders[i]['tender_ref'] = f"TED-NOTICE-{notice_id}-{datetime.now().year}"
-                                realistic_tenders[i]['url'] = f"https://ted.europa.eu/udl?uri=TED:NOTICE:{notice_id}-{datetime.now().year}:TEXT:EN:HTML"
+                                realistic_tenders[i]['url'] = f"https://ted.europa.eu/udl?uri=TED:NOTICE:{notice_id}:{datetime.now().year}:TEXT:EN:HTML"
                             else:
-                                # Generate proper TED notice URL format
-                                notice_id = f"{100000 + i}"
-                                realistic_tenders[i]['tender_ref'] = f"TED-NOTICE-{notice_id}-{datetime.now().year}"
-                                realistic_tenders[i]['url'] = f"https://ted.europa.eu/udl?uri=TED:NOTICE:{notice_id}-{datetime.now().year}:TEXT:EN:HTML"
+                                # Create working TED search URL for this specific tender
+                                search_query = text.replace(' ', '+')[:50]  # Limit query length
+                                realistic_tenders[i]['url'] = f"https://ted.europa.eu/search/result?q={search_query}&scope=ALL"
             
             print(f"✅ Successfully created {len(realistic_tenders)} tenders with real TED content")
             return realistic_tenders
@@ -286,7 +285,7 @@ def generate_realistic_ted_tenders(limit: int) -> List[dict]:
             'buyer_country': buyer_info["country"],
             'value_amount': value_amount,
             'currency': buyer_info["currency"],
-            'url': f"https://ted.europa.eu/udl?uri=TED:NOTICE:{100000 + i}-{datetime.now().year}:TEXT:EN:HTML",
+            'url': f"https://ted.europa.eu/search/result?q={sector_name.replace(' ', '+')}&country={buyer_info['country']}&scope=ALL",
             'created_at': datetime.now().isoformat() + 'Z',
             'updated_at': datetime.now().isoformat() + 'Z'
         }
