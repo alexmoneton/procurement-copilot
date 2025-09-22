@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { ChartBarIcon, BellIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
@@ -131,7 +132,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-3">
-                <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+                <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
                 <span className="text-xl font-bold text-[#003399]">TenderPulse</span>
               </Link>
             </div>
@@ -256,7 +257,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Scattered Information</h3>
               <p className="text-gray-600">
-                Opportunities buried across 27+ different national procurement portals. You're spending hours searching instead of bidding.
+                Opportunities buried across 27+ different national procurement portals. You&apos;re spending hours searching instead of bidding.
               </p>
             </div>
             
@@ -266,7 +267,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Missed Deadlines</h3>
               <p className="text-gray-600">
-                By the time you find relevant tenders, it's too late to prepare a winning response. You need weeks, not days.
+                By the time you find relevant tenders, it&apos;s too late to prepare a winning response. You need weeks, not days.
               </p>
             </div>
             
@@ -276,7 +277,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Poor Targeting</h3>
               <p className="text-gray-600">
-                Wasting time on contracts you'll never win. You need to focus on opportunities where you actually have a chance.
+                Wasting time on contracts you&apos;ll never win. You need to focus on opportunities where you actually have a chance.
               </p>
             </div>
           </div>

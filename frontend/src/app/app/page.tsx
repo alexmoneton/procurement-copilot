@@ -35,7 +35,6 @@ function formatDate(dateString: string): string {
 }
 
 function DashboardPageContent() {
-  const { user } = useUser()
   const [tenders, setTenders] = useState<Tender[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -171,7 +170,7 @@ function DashboardPageContent() {
                   borderColor: '#bfdbfe'
                 }}>
                   <h4 className="font-semibold text-sm mb-2" style={{color: '#1e40af'}}>
-                    🎯 Why You'll Win:
+                    🎯 Why You&apos;ll Win:
                   </h4>
                   <ul className="space-y-1">
                     {tender.competition_level && (
