@@ -21,32 +21,43 @@ function DashboardPageContent() {
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {
+    // Always load data, set email if available
     if (user?.emailAddresses?.[0]?.emailAddress) {
       apiClient.setUserEmail(user.emailAddresses[0].emailAddress)
-      loadData()
     }
+    loadData()
   }, [user])
 
   const loadData = async () => {
     setLoading(true)
+    setError(null)
+    
     try {
-      const [tendersResponse, filtersResponse] = await Promise.all([
-        apiClient.getTenders({ limit: 50 }),
-        apiClient.getSavedFilters()
-      ])
-
-      if (tendersResponse.data) {
-        setTenders(tendersResponse.data.tenders)
-      }
-      if (filtersResponse.data) {
-        setFilters(filtersResponse.data)
+      // Load tenders first (most important)
+      const tendersResponse = await apiClient.getTenders({ limit: 50 })
+      
+      if (tendersResponse.error) {
+        throw new Error(tendersResponse.error)
       }
       
-      // Clear any previous errors
-      setError(null)
+      if (tendersResponse.data?.tenders) {
+        setTenders(tendersResponse.data.tenders)
+      }
+      
+      // Load filters (less critical, can fail silently)
+      try {
+        const filtersResponse = await apiClient.getSavedFilters()
+        if (filtersResponse.data) {
+          setFilters(filtersResponse.data)
+        }
+      } catch (filterError) {
+        console.warn('Failed to load filters:', filterError)
+        // Don't fail the whole page for filters
+      }
+      
     } catch (error) {
-      console.error('Error loading data:', error)
-      setError('Failed to load tender data. Please try refreshing the page.')
+      console.error('Error loading tenders:', error)
+      setError(error instanceof Error ? error.message : 'Failed to load tender data')
     } finally {
       setLoading(false)
     }
@@ -58,8 +69,16 @@ function DashboardPageContent() {
   }
 
   const upcomingDeadlines = tenders
-    .filter(tender => tender.deadline_date)
-    .sort((a, b) => new Date(a.deadline_date!).getTime() - new Date(b.deadline_date!).getTime())
+    .filter(tender => tender.deadline_date && tender.deadline_date.trim())
+    .sort((a, b) => {
+      try {
+        const dateA = new Date(a.deadline_date!).getTime()
+        const dateB = new Date(b.deadline_date!).getTime()
+        return dateA - dateB
+      } catch {
+        return 0
+      }
+    })
     .slice(0, 5)
 
   if (loading) {
