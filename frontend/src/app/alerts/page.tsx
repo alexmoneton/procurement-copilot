@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -61,21 +60,16 @@ const alertTemplates = [
 ]
 
 function AlertsPageContent() {
-  const [alertSettings, setAlertSettings] = useState<Record<string, any>>({})
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    // Initialize with default settings
-    const defaultSettings: Record<string, any> = {}
-    alertTemplates.forEach(template => {
-      defaultSettings[template.id] = {
-        enabled: template.defaultEnabled,
-        frequency: template.defaultEnabled ? 'instant' : 'weekly'
-      }
-    })
-    setAlertSettings(defaultSettings)
-    setLoading(false)
-  }, [])
+  // Initialize with default settings (no useEffect to avoid build issues)
+  const defaultSettings: Record<string, any> = {}
+  alertTemplates.forEach(template => {
+    defaultSettings[template.id] = {
+      enabled: template.defaultEnabled,
+      frequency: template.defaultEnabled ? 'instant' : 'weekly'
+    }
+  })
+  
+  const [alertSettings, setAlertSettings] = useState(defaultSettings)
 
   const toggleAlert = (alertId: string, enabled: boolean) => {
     setAlertSettings(prev => ({
@@ -97,13 +91,7 @@ function AlertsPageContent() {
     }))
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+  // Removed loading state to simplify
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
