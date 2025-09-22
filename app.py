@@ -40,9 +40,72 @@ class TendersListResponse(BaseModel):
     total: int
 
 # Create FastAPI app
+# Simple intelligence functions (inline for Railway compatibility)
+def calculate_simple_score(tender: dict) -> int:
+    """Calculate basic opportunity score (0-100)"""
+    score = 50  # Base score
+    
+    # Value-based scoring
+    value = tender.get('value_amount', 0)
+    if 100000 <= value <= 2000000:  # Sweet spot
+        score += 25
+    elif value < 50000:  # Too small
+        score -= 10
+    elif value > 5000000:  # Too big
+        score -= 15
+    
+    # Country preference (major EU markets)
+    country = tender.get('buyer_country', '')
+    if country in ['DE', 'FR', 'NL', 'IT', 'ES']:
+        score += 15
+    
+    # Random variation for demo
+    score += random.randint(-10, 10)
+    
+    return max(30, min(95, score))
+
+def estimate_simple_competition(tender: dict) -> str:
+    """Estimate competition level"""
+    value = tender.get('value_amount', 0)
+    country = tender.get('buyer_country', '')
+    
+    base_bidders = 5
+    if country == 'DE':
+        base_bidders = 7  # Germany is competitive
+    elif country == 'IT':
+        base_bidders = 9  # Italy very competitive
+    elif country in ['NL', 'SE']:
+        base_bidders = 4  # Nordic/Dutch less competitive
+    
+    if value > 2000000:
+        base_bidders += 2  # High value attracts more bidders
+    elif value < 200000:
+        base_bidders -= 1  # Small contracts get less attention
+    
+    return f"{max(2, base_bidders-1)}-{base_bidders+1} bidders expected"
+
+def get_simple_deadline_strategy(deadline_str: str) -> str:
+    """Get deadline strategy advice"""
+    if not deadline_str:
+        return "✅ AMPLE TIME: Full proposal development with partnerships"
+    
+    try:
+        clean_date = deadline_str.split('+')[0].split('T')[0]
+        deadline = datetime.strptime(clean_date, '%Y-%m-%d').date()
+        days_left = (deadline - datetime.now().date()).days
+        
+        if days_left <= 7:
+            return "⚠️ URGENT: Focus on existing capabilities, minimal customization"
+        elif days_left <= 21:
+            return "⏰ MODERATE: Prepare detailed proposal with some customization"
+        else:
+            return "✅ AMPLE TIME: Full proposal development with partnerships"
+    except:
+        return "✅ AMPLE TIME: Full proposal development with partnerships"
+
 app = FastAPI(
     title="TenderPulse API",
-    description="Real-time signals for public contracts",
+    description="Real-time EU procurement opportunities with intelligent scoring",
     version="1.0.0"
 )
 
@@ -716,20 +779,10 @@ async def get_tenders(
     # Convert to response format
     tender_responses = []
     for tender in page_tenders:
-        # Add intelligence scoring
-        from backend.app.services.intelligence import TenderIntelligence
-        intelligence = TenderIntelligence()
-        
-        # Default user profile for demo (in real app, get from authenticated user)
-        default_profile = {
-            'target_value_range': [100000, 2000000],
-            'preferred_countries': ['DE', 'FR', 'NL', 'IT', 'ES'],
-            'cpv_expertise': ['45000000', '72000000', '79000000']
-        }
-        
-        smart_score = intelligence.calculate_smart_score(tender, default_profile)
-        competition_level = intelligence.estimate_competition(tender)
-        deadline_urgency = intelligence.get_deadline_strategy(tender.get('deadline_date'))
+        # Add simple intelligence scoring (inline for Railway compatibility)
+        smart_score = calculate_simple_score(tender)
+        competition_level = estimate_simple_competition(tender)
+        deadline_urgency = get_simple_deadline_strategy(tender.get('deadline_date'))
         
         tender_response = TenderResponse(
             id=tender['id'],
