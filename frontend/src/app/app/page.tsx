@@ -108,11 +108,28 @@ function DashboardPageContent() {
               <p className="text-gray-600 mb-3">
                 {tender.summary}
               </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span>Ref: {tender.tender_ref}</span>
-                <span>Source: {tender.source}</span>
-                <span>Country: {tender.buyer_country}</span>
-                <span>Value: {tender.currency} {tender.value_amount?.toLocaleString()}</span>
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-500 mb-2">
+                <div>
+                  <span className="font-medium">Ref:</span> {tender.tender_ref}
+                </div>
+                <div>
+                  <span className="font-medium">Source:</span> {tender.source}
+                </div>
+                <div>
+                  <span className="font-medium">Country:</span> {tender.buyer_country}
+                </div>
+                <div>
+                  <span className="font-medium">Value:</span> {tender.currency} {tender.value_amount?.toLocaleString()}
+                </div>
+                <div>
+                  <span className="font-medium">Published:</span> {new Date(tender.publication_date).toLocaleDateString()}
+                </div>
+                <div>
+                  <span className="font-medium">Deadline:</span> {tender.deadline_date ? new Date(tender.deadline_date).toLocaleDateString() : 'Not specified'}
+                </div>
+                <div className="col-span-2">
+                  <span className="font-medium">Buyer:</span> {tender.buyer_name || 'Not specified'}
+                </div>
               </div>
               <div className="mt-3">
                 <a 
