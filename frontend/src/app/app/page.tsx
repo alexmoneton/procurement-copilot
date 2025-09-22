@@ -19,14 +19,21 @@ function DashboardPageContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    
     // Always load data, set email if available
     if (user?.emailAddresses?.[0]?.emailAddress) {
       apiClient.setUserEmail(user.emailAddresses[0].emailAddress)
     }
     loadData()
-  }, [user])
+  }, [user, mounted])
 
   const loadData = async () => {
     setLoading(true)
@@ -69,11 +76,20 @@ function DashboardPageContent() {
   }
 
   const upcomingDeadlines = tenders
-    .filter(tender => tender.deadline_date && tender.deadline_date.trim())
+    .filter(tender => {
+      if (!tender.deadline_date) return false
+      try {
+        const date = new Date(tender.deadline_date)
+        return !isNaN(date.getTime())
+      } catch {
+        return false
+      }
+    })
     .sort((a, b) => {
       try {
         const dateA = new Date(a.deadline_date!).getTime()
         const dateB = new Date(b.deadline_date!).getTime()
+        if (isNaN(dateA) || isNaN(dateB)) return 0
         return dateA - dateB
       } catch {
         return 0
@@ -81,7 +97,7 @@ function DashboardPageContent() {
     })
     .slice(0, 5)
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
