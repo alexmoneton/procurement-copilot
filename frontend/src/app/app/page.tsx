@@ -9,6 +9,30 @@ import { apiClient, Tender } from '@/lib/api'
 const hasClerkKeys = typeof window !== 'undefined' && 
   process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
 
+// Helper function to format dates from TED API
+function formatDate(dateString: string): string {
+  if (!dateString) return 'Not specified'
+  
+  try {
+    // Handle TED API date formats like "2015-10-07+02:00" or "2025-11-02"
+    const cleanDate = dateString.split('+')[0].split('T')[0] // Remove timezone and time
+    const date = new Date(cleanDate)
+    
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date'
+    }
+    
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  } catch (error) {
+    console.warn('Error formatting date:', dateString, error)
+    return 'Invalid Date'
+  }
+}
+
 function DashboardPageContent() {
   const { user } = useUser()
   const [tenders, setTenders] = useState<Tender[]>([])
@@ -122,10 +146,10 @@ function DashboardPageContent() {
                   <span className="font-medium">Value:</span> {tender.currency} {tender.value_amount?.toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium">Published:</span> {new Date(tender.publication_date).toLocaleDateString()}
+                  <span className="font-medium">Published:</span> {formatDate(tender.publication_date)}
                 </div>
                 <div>
-                  <span className="font-medium">Deadline:</span> {tender.deadline_date ? new Date(tender.deadline_date).toLocaleDateString() : 'Not specified'}
+                  <span className="font-medium">Deadline:</span> {tender.deadline_date ? formatDate(tender.deadline_date) : 'Not specified'}
                 </div>
                 <div className="col-span-2">
                   <span className="font-medium">Buyer:</span> {tender.buyer_name || 'Not specified'}
