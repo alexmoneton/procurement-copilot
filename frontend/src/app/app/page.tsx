@@ -120,9 +120,21 @@ function DashboardPageContent() {
 
       {/* Simple Tenders List */}
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-          Real TED Tenders ({tenders.length})
-        </h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Real TED Tenders ({tenders.length})
+          </h2>
+          <Link 
+            href="/alerts"
+            className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px] hover:shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #FFCC00, #FFB000)',
+              color: '#003399'
+            }}
+          >
+            🔔 Setup Smart Alerts
+          </Link>
+        </div>
         <div className="grid gap-6">
           {tenders.map((tender) => (
             <div 
