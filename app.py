@@ -31,6 +31,9 @@ class TenderResponse(BaseModel):
     source: str
     created_at: str
     updated_at: str
+    smart_score: Optional[int] = None  # Intelligence score 0-100
+    competition_level: Optional[str] = None  # Expected competition
+    deadline_urgency: Optional[str] = None  # Deadline strategy
 
 class TendersListResponse(BaseModel):
     tenders: List[TenderResponse]
@@ -713,6 +716,21 @@ async def get_tenders(
     # Convert to response format
     tender_responses = []
     for tender in page_tenders:
+        # Add intelligence scoring
+        from backend.app.services.intelligence import TenderIntelligence
+        intelligence = TenderIntelligence()
+        
+        # Default user profile for demo (in real app, get from authenticated user)
+        default_profile = {
+            'target_value_range': [100000, 2000000],
+            'preferred_countries': ['DE', 'FR', 'NL', 'IT', 'ES'],
+            'cpv_expertise': ['45000000', '72000000', '79000000']
+        }
+        
+        smart_score = intelligence.calculate_smart_score(tender, default_profile)
+        competition_level = intelligence.estimate_competition(tender)
+        deadline_urgency = intelligence.get_deadline_strategy(tender.get('deadline_date'))
+        
         tender_response = TenderResponse(
             id=tender['id'],
             tender_ref=tender['tender_ref'],
@@ -728,7 +746,10 @@ async def get_tenders(
             url=tender['url'],
             source=tender['source'],
             created_at=tender['created_at'],
-            updated_at=tender['updated_at']
+            updated_at=tender['updated_at'],
+            smart_score=smart_score,
+            competition_level=competition_level,
+            deadline_urgency=deadline_urgency
         )
         tender_responses.append(tender_response)
     

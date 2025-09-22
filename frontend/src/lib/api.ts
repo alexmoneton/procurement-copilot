@@ -26,6 +26,9 @@ export interface Tender {
   url: string;
   created_at: string;
   updated_at: string;
+  smart_score?: number;  // Intelligence score 0-100
+  competition_level?: string;  // Expected competition
+  deadline_urgency?: string;  // Deadline strategy
 }
 
 export interface SavedFilter {
