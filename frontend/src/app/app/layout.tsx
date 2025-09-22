@@ -1,5 +1,6 @@
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
+import Image from 'next/image'
 import { BellIcon, CogIcon, HomeIcon } from '@heroicons/react/24/outline'
 
 // Check if Clerk is properly configured
@@ -22,7 +23,7 @@ export default function AppLayout({
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 shadow-sm">
           <div className="flex h-16 shrink-0 items-center">
             <Link href="/" className="flex items-center gap-3">
-              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
               <span className="text-xl font-bold text-[#003399]">TenderPulse</span>
             </Link>
           </div>

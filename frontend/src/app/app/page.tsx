@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
+import Image from 'next/image'
 import { apiClient, Tender } from '@/lib/api'
 
 // Check if Clerk is properly configured
@@ -104,7 +105,7 @@ function DashboardPageContent() {
       <div className="mb-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
-            <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+            <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
             <div>
               <h1 className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>TenderPulse</h1>
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" style={{backgroundColor: 'rgba(0, 51, 153, 0.1)', color: '#003399'}}>

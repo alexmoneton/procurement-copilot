@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
-import { UserIcon, CreditCardIcon, BellIcon, CheckIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
+import { UserIcon, CreditCardIcon, BellIcon } from '@heroicons/react/24/outline'
 import { apiClient } from '@/lib/api'
 
 // Check if Clerk is properly configured
@@ -71,7 +72,7 @@ function AccountPageContent() {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
               <div>
                 <h1 className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>Account Settings</h1>
                 <p className="text-sm text-gray-600">Manage your TenderPulse subscription</p>
@@ -257,7 +258,7 @@ function AccountPageContent() {
         <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
               <span className="text-xl font-bold text-white">TenderPulse</span>
             </div>
             <p className="text-sm text-gray-400">
