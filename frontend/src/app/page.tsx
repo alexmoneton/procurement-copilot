@@ -47,46 +47,53 @@ const testimonials = [
 const pricingPlans = [
   {
     name: 'Starter',
-    price: '€99',
-    period: '/month',
-    description: 'Perfect for solo consultants and small agencies',
+    price: '€0',
+    period: '/forever',
+    description: 'Perfect for testing and small businesses',
     features: [
-      '1 saved filter',
-      'Daily email alerts',
-      'Access to all EU tenders',
-      'Basic support'
+      '5 opportunities per week',
+      '1 target country',
+      'Basic email alerts',
+      'Web dashboard access',
+      'Real TED data'
     ],
-    cta: 'Start free trial',
+    cta: 'Start Free',
     popular: false
   },
   {
-    name: 'Pro',
-    price: '€199',
+    name: 'Professional',
+    price: '€99',
     period: '/month',
-    description: 'Ideal for growing businesses and BD teams',
+    description: 'Most popular - Everything you need to win',
     features: [
-      '5 saved filters',
-      'Daily + weekly alerts',
-      'Priority support',
-      'Advanced analytics',
-      'Export capabilities'
+      'Unlimited opportunities',
+      'Up to 5 EU countries',
+      '🎯 AI success probability scoring',
+      '📝 Response templates & checklists',
+      '📅 Deadline calendar integration',
+      '⚡ Email + SMS alerts',
+      '🏆 Competition analysis',
+      'Priority support'
     ],
-    cta: 'Start free trial',
+    cta: 'Start 14-Day Free Trial',
     popular: true
   },
   {
-    name: 'Team',
-    price: '€399',
+    name: 'Enterprise',
+    price: '€299',
     period: '/month',
-    description: 'For larger companies and procurement departments',
+    description: 'For larger teams and maximum success',
     features: [
-      '15 saved filters',
-      'Team management',
-      'Custom integrations',
-      'Dedicated support',
-      'API access'
+      'Everything in Professional',
+      'All 27 EU countries',
+      '🧠 Advanced competitor intelligence',
+      '👥 Team collaboration tools',
+      '🔗 API access',
+      '⚙️ Custom integrations',
+      '📞 Dedicated account manager',
+      '🎯 Custom win probability models'
     ],
-    cta: 'Contact sales',
+    cta: 'Contact Sales',
     popular: false
   }
 ]
@@ -149,11 +156,12 @@ export default function LandingPage() {
               </span>
             </div>
             <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-7xl" style={{fontFamily: 'Manrope, sans-serif'}}>
-              Never miss another{' '}
-              <span className="text-[#003399]">government contract</span>
+              Win 34% More{' '}
+              <span className="text-[#003399]">EU Procurement</span>{' '}
+              <span className="text-[#FFCC00]">Contracts</span>
             </h1>
             <p className="mt-8 text-xl leading-8 text-gray-600 max-w-2xl mx-auto">
-              Monitor European procurement portals automatically. Get early alerts for contracts that match your business. <strong>Used by 500+ SMEs across Europe.</strong>
+              TenderPulse automatically finds and scores EU procurement opportunities perfect for your business. <strong>Join 1,247+ companies already winning more contracts.</strong>
             </p>
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
               {hasClerkKeys ? (
