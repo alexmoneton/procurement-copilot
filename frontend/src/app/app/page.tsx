@@ -123,40 +123,73 @@ function DashboardPageContent() {
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
           Real TED Tenders ({tenders.length})
         </h2>
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           {tenders.map((tender) => (
-            <div key={tender.id} className="bg-white p-6 rounded-lg shadow border border-gray-200">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-medium text-gray-900 flex-1">
+            <div 
+              key={tender.id} 
+              className={`relative p-6 rounded-xl transition-all duration-300 hover:transform hover:translate-y-[-2px] hover:shadow-xl border-l-4 ${
+                tender.smart_score && tender.smart_score >= 70 ? 'bg-gradient-to-r from-white to-green-50 border-l-green-500' :
+                tender.smart_score && tender.smart_score >= 50 ? 'bg-gradient-to-r from-white to-yellow-50 border-l-yellow-500' :
+                tender.smart_score ? 'bg-gradient-to-r from-white to-red-50 border-l-red-500' :
+                'bg-white border-l-gray-300'
+              }`}
+              style={{
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                background: tender.smart_score && tender.smart_score >= 70 ? 'linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%)' :
+                           tender.smart_score && tender.smart_score >= 50 ? 'linear-gradient(135deg, #ffffff 0%, #fffbeb 100%)' :
+                           tender.smart_score ? 'linear-gradient(135deg, #ffffff 0%, #fef2f2 100%)' :
+                           'white'
+              }}
+            >
+              {tender.smart_score && (
+                <div 
+                  className="absolute top-4 right-4 px-3 py-1 rounded-full text-white font-semibold text-sm"
+                  style={{
+                    background: tender.smart_score >= 70 ? 'linear-gradient(135deg, #10b981, #059669)' :
+                               tender.smart_score >= 50 ? 'linear-gradient(135deg, #f59e0b, #d97706)' :
+                               'linear-gradient(135deg, #ef4444, #dc2626)'
+                  }}
+                >
+                  {tender.smart_score}% Match
+                </div>
+              )}
+              
+              <div className="pr-20 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">
                   {tender.title}
                 </h3>
-                {tender.smart_score && (
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ml-3 ${
-                    tender.smart_score >= 70 ? 'bg-green-100 text-green-800' :
-                    tender.smart_score >= 50 ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {tender.smart_score}% Match
-                  </span>
-                )}
               </div>
               
               <p className="text-gray-600 mb-3">
                 {tender.summary}
               </p>
               
-              {tender.competition_level && (
-                <div className="bg-blue-50 p-3 rounded-lg mb-3">
-                  <div className="text-sm">
-                    <span className="font-medium text-blue-900">Competition:</span> 
-                    <span className="text-blue-700 ml-1">{tender.competition_level}</span>
-                  </div>
-                  {tender.deadline_urgency && (
-                    <div className="text-sm mt-1">
-                      <span className="font-medium text-blue-900">Strategy:</span> 
-                      <span className="text-blue-700 ml-1">{tender.deadline_urgency}</span>
-                    </div>
-                  )}
+              {(tender.competition_level || tender.deadline_urgency) && (
+                <div className="p-4 rounded-lg mb-4 border" style={{
+                  background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
+                  borderColor: '#bfdbfe'
+                }}>
+                  <h4 className="font-semibold text-sm mb-2" style={{color: '#1e40af'}}>
+                    🎯 Why You'll Win:
+                  </h4>
+                  <ul className="space-y-1">
+                    {tender.competition_level && (
+                      <li className="text-sm text-gray-700 pl-5 relative">
+                        <span className="absolute left-0 text-green-600 font-bold">✓</span>
+                        Competition: {tender.competition_level}
+                      </li>
+                    )}
+                    {tender.deadline_urgency && (
+                      <li className="text-sm text-gray-700 pl-5 relative">
+                        <span className="absolute left-0 text-green-600 font-bold">✓</span>
+                        Strategy: {tender.deadline_urgency}
+                      </li>
+                    )}
+                    <li className="text-sm text-gray-700 pl-5 relative">
+                      <span className="absolute left-0 text-green-600 font-bold">✓</span>
+                      Perfect size match for your capacity
+                    </li>
+                  </ul>
                 </div>
               )}
               
@@ -183,15 +216,30 @@ function DashboardPageContent() {
                   <span className="font-medium">Buyer:</span> {tender.buyer_name || 'Not specified'}
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="flex gap-3 mt-4">
                 <a 
                   href={tender.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  className="px-4 py-2 rounded-lg text-white font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px] hover:shadow-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, #003399, #0052CC)',
+                  }}
                 >
-                  View on TED →
+                  View Full Tender →
                 </a>
+                {tender.smart_score && tender.smart_score >= 60 && (
+                  <button 
+                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px]"
+                    style={{
+                      background: 'linear-gradient(135deg, #FFCC00, #FFB000)',
+                      color: '#003399',
+                      border: 'none'
+                    }}
+                  >
+                    Get Response Kit
+                  </button>
+                )}
               </div>
             </div>
           ))}
