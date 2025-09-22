@@ -251,7 +251,7 @@ export default function LandingPage() {
           
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div className="bg-white p-8 rounded-2xl shadow-lg text-center border border-gray-100">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl" style={{background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: 'white'}}>
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl bg-red-500 text-white">
                 😫
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Scattered Information</h3>
@@ -261,7 +261,7 @@ export default function LandingPage() {
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-lg text-center border border-gray-100">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl" style={{background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: 'white'}}>
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl bg-red-500 text-white">
                 ⏰
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Missed Deadlines</h3>
@@ -271,7 +271,7 @@ export default function LandingPage() {
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-lg text-center border border-gray-100">
-              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl" style={{background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: 'white'}}>
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center text-3xl bg-red-500 text-white">
                 🎯
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Poor Targeting</h3>
@@ -297,11 +297,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 mt-16">
             {features.map((feature) => (
               <div key={feature.name} className="text-center">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl" style={{
-                  background: 'linear-gradient(135deg, #003399, #0052CC)',
-                  color: 'white',
-                  boxShadow: '0 8px 20px rgba(0, 51, 153, 0.3)'
-                }}>
+                <div className="w-20 h-20 mx-auto mb-6 rounded-3xl flex items-center justify-center text-4xl bg-[#003399] text-white shadow-xl">
                   {feature.emoji}
                 </div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">
@@ -311,10 +307,7 @@ export default function LandingPage() {
                   {feature.description}
                 </p>
                 <div className="mt-4">
-                  <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium" style={{
-                    backgroundColor: 'rgba(255, 204, 0, 0.1)',
-                    color: '#003399'
-                  }}>
+                  <span className="inline-flex items-center rounded-full bg-yellow-100 text-[#003399] px-3 py-1 text-xs font-medium">
                     {feature.stat}
                   </span>
                 </div>
