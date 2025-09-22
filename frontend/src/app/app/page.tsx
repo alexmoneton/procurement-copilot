@@ -17,6 +17,7 @@ function DashboardPageContent() {
   const [tenders, setTenders] = useState<Tender[]>([])
   const [filters, setFilters] = useState<SavedFilter[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {
@@ -29,25 +30,23 @@ function DashboardPageContent() {
   const loadData = async () => {
     setLoading(true)
     try {
-      console.log('🔍 Loading dashboard data...')
       const [tendersResponse, filtersResponse] = await Promise.all([
         apiClient.getTenders({ limit: 50 }),
         apiClient.getSavedFilters()
       ])
 
-      console.log('🔍 Tenders response:', tendersResponse)
-      console.log('🔍 Filters response:', filtersResponse)
-
       if (tendersResponse.data) {
-        console.log('✅ Setting tenders:', tendersResponse.data.tenders?.length || 0)
         setTenders(tendersResponse.data.tenders)
       }
       if (filtersResponse.data) {
         setFilters(filtersResponse.data)
       }
+      
+      // Clear any previous errors
+      setError(null)
     } catch (error) {
-      console.error('❌ Error loading data:', error)
-      setError(`Failed to load data: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error('Error loading data:', error)
+      setError('Failed to load tender data. Please try refreshing the page.')
     } finally {
       setLoading(false)
     }
@@ -67,6 +66,23 @@ function DashboardPageContent() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-red-600 text-lg mb-4">{error}</div>
+        <button 
+          onClick={() => {
+            setError(null)
+            loadData()
+          }}
+          className="btn-primary"
+        >
+          Try Again
+        </button>
       </div>
     )
   }
