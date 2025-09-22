@@ -29,19 +29,25 @@ function DashboardPageContent() {
   const loadData = async () => {
     setLoading(true)
     try {
+      console.log('🔍 Loading dashboard data...')
       const [tendersResponse, filtersResponse] = await Promise.all([
         apiClient.getTenders({ limit: 50 }),
         apiClient.getSavedFilters()
       ])
 
+      console.log('🔍 Tenders response:', tendersResponse)
+      console.log('🔍 Filters response:', filtersResponse)
+
       if (tendersResponse.data) {
+        console.log('✅ Setting tenders:', tendersResponse.data.tenders?.length || 0)
         setTenders(tendersResponse.data.tenders)
       }
       if (filtersResponse.data) {
         setFilters(filtersResponse.data)
       }
     } catch (error) {
-      console.error('Error loading data:', error)
+      console.error('❌ Error loading data:', error)
+      setError(`Failed to load data: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }

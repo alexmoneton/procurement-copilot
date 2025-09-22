@@ -4,6 +4,12 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.tenderpulse.eu';
 
+// Debug: Log the API URL being used
+if (typeof window !== 'undefined') {
+  console.log('🔍 Frontend API Base URL:', API_BASE_URL);
+  console.log('🔍 NEXT_PUBLIC_API_URL env var:', process.env.NEXT_PUBLIC_API_URL);
+}
+
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
