@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { CheckIcon } from '@heroicons/react/24/solid'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
 
@@ -92,7 +93,7 @@ export default function PricingPage() {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
               <Link href="/" className="flex items-center gap-3">
-                <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+                <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
                 <span className="text-xl font-bold text-[#003399]">TenderPulse</span>
               </Link>
             </div>

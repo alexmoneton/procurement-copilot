@@ -61,7 +61,7 @@ const alertTemplates = [
 
 function AlertsPageContent() {
   // Initialize with default settings (no useEffect to avoid build issues)
-  const defaultSettings: Record<string, any> = {}
+  const defaultSettings: Record<string, {enabled: boolean, frequency: string}> = {}
   alertTemplates.forEach(template => {
     defaultSettings[template.id] = {
       enabled: template.defaultEnabled,
