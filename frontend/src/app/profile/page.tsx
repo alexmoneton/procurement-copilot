@@ -57,7 +57,10 @@ const COMPANY_SIZES = [
 ]
 
 const EXPERIENCE_LEVELS = [
-  'beginner', 'intermediate', 'advanced', 'expert'
+  { value: 'beginner', label: 'Beginner (0-2 years with tenders)' },
+  { value: 'intermediate', label: 'Intermediate (2-5 years with tenders)' },
+  { value: 'advanced', label: 'Advanced (5+ years with tenders)' },
+  { value: 'expert', label: 'Expert (10+ years with tenders)' }
 ]
 
 export default function ProfilePage() {
@@ -322,19 +325,23 @@ export default function ProfilePage() {
           {/* Experience Level */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Experience Level
+              Experience with Public Tenders
             </label>
             <select
               value={formData.experience_level}
               onChange={(e) => setFormData(prev => ({ ...prev, experience_level: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
+              <option value="">Select your tender experience</option>
               {EXPERIENCE_LEVELS.map(level => (
-                <option key={level} value={level}>
-                  {level.charAt(0).toUpperCase() + level.slice(1)}
+                <option key={level.value} value={level.value}>
+                  {level.label}
                 </option>
               ))}
             </select>
+            <p className="text-xs text-gray-500 mt-1">
+              This helps us recommend tenders that match your experience level
+            </p>
           </div>
 
           {/* Submit Button */}
