@@ -72,23 +72,11 @@ user_profiles = {}
 # Simple intelligence functions (inline for Railway compatibility)
 def calculate_smart_score(tender: dict, user_profile: dict = None) -> int:
     """Calculate intelligent opportunity score (0-100) based on user profile"""
-    score = 50  # Base score
-    
     if not user_profile:
-        # Fallback to simple scoring if no profile
-        value = tender.get('value_amount', 0)
-        if 100000 <= value <= 2000000:
-            score += 25
-        elif value < 50000:
-            score -= 10
-        elif value > 5000000:
-            score -= 15
-        
-        country = tender.get('buyer_country', '')
-        if country in ['DE', 'FR', 'NL', 'IT', 'ES']:
-            score += 15
-        
-        return max(30, min(95, score))
+        # Return None if no profile - user needs to complete profile first
+        return None
+    
+    score = 50  # Base score
     
     # Profile-based scoring
     tender_value = tender.get('value_amount', 0)
@@ -144,16 +132,22 @@ def get_expected_bidders(country: str, value: int) -> int:
     
     return max(2, base_competition)
 
-def estimate_competition(tender: dict) -> str:
+def estimate_competition(tender: dict, user_profile: dict = None) -> str:
     """Estimate competition level"""
+    if not user_profile:
+        return None
+        
     value = tender.get('value_amount', 0)
     country = tender.get('buyer_country', '')
     
     expected_bidders = get_expected_bidders(country, value)
     return f"{max(2, expected_bidders-1)}-{expected_bidders+2} bidders expected"
 
-def get_deadline_strategy(deadline_str: str) -> str:
+def get_deadline_strategy(deadline_str: str, user_profile: dict = None) -> str:
     """Get deadline strategy advice"""
+    if not user_profile:
+        return None
+        
     if not deadline_str:
         return "✅ AMPLE TIME: Full proposal development with partnerships"
     
@@ -855,14 +849,9 @@ async def get_tenders(
     for tender in page_tenders:
               # Add intelligent scoring based on user profile
               # Only show smart score if user has completed profile
-              if user_profile:
-                  smart_score = calculate_smart_score(tender, user_profile)
-                  competition_level = estimate_competition(tender)
-                  deadline_urgency = get_deadline_strategy(tender.get('deadline_date'))
-              else:
-                  smart_score = None
-                  competition_level = None
-                  deadline_urgency = None
+              smart_score = calculate_smart_score(tender, user_profile)
+              competition_level = estimate_competition(tender, user_profile)
+              deadline_urgency = get_deadline_strategy(tender.get('deadline_date'), user_profile)
         
         tender_response = TenderResponse(
             id=tender['id'],
