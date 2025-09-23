@@ -163,7 +163,7 @@ function DashboardPageContent() {
                            'white'
               }}
             >
-              {tender.smart_score && (
+              {tender.smart_score ? (
                 <div 
                   className="absolute top-4 right-4 px-3 py-1 rounded-full text-white font-semibold text-sm"
                   style={{
@@ -173,6 +173,12 @@ function DashboardPageContent() {
                   }}
                 >
                   {tender.smart_score}% Match
+                </div>
+              ) : (
+                <div 
+                  className="absolute top-4 right-4 px-3 py-1 rounded-full text-gray-600 font-medium text-sm bg-gray-100 border border-gray-200"
+                >
+                  Complete profile to see match score
                 </div>
               )}
               
@@ -186,7 +192,7 @@ function DashboardPageContent() {
                 {tender.summary}
               </p>
               
-              {(tender.competition_level || tender.deadline_urgency) && (
+              {(tender.competition_level || tender.deadline_urgency) ? (
                 <div className="p-4 rounded-lg mb-4 border" style={{
                   background: 'linear-gradient(135deg, #eff6ff, #dbeafe)',
                   borderColor: '#bfdbfe'
@@ -212,6 +218,15 @@ function DashboardPageContent() {
                       Perfect size match for your capacity
                     </li>
                   </ul>
+                </div>
+              ) : (
+                <div className="p-4 rounded-lg mb-4 border bg-gray-50 border-gray-200">
+                  <h4 className="font-semibold text-sm mb-2 text-gray-600">
+                    🎯 Personalized Analysis:
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    Complete your profile to see personalized competition analysis, deadline strategies, and winning recommendations tailored to your company.
+                  </p>
                 </div>
               )}
               
