@@ -46,7 +46,7 @@ function DashboardPageContent() {
   const loadData = async () => {
     try {
       console.log('🔍 Loading tenders...')
-      const response = await apiClient.getTenders({ limit: 10 })
+      const response = await apiClient.getTenders({ limit: 50 })
       
       if (response.error) {
         setError(response.error)
