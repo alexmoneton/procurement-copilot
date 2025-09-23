@@ -178,7 +178,7 @@ function DashboardPageContent() {
                 <div 
                   className="absolute top-4 right-4 px-3 py-1 rounded-full text-gray-600 font-medium text-sm bg-gray-100 border border-gray-200"
                 >
-                  Complete profile to see match score
+                  Set up profile to see match score
                 </div>
               )}
               
