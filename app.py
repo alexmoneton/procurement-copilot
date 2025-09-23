@@ -847,11 +847,11 @@ async def get_tenders(
     # Convert to response format
     tender_responses = []
     for tender in page_tenders:
-              # Add intelligent scoring based on user profile
-              # Only show smart score if user has completed profile
-              smart_score = calculate_smart_score(tender, user_profile)
-              competition_level = estimate_competition(tender, user_profile)
-              deadline_urgency = get_deadline_strategy(tender.get('deadline_date'), user_profile)
+        # Add intelligent scoring based on user profile
+        # Only show smart score if user has completed profile
+        smart_score = calculate_smart_score(tender, user_profile)
+        competition_level = estimate_competition(tender, user_profile)
+        deadline_urgency = get_deadline_strategy(tender.get('deadline_date'), user_profile)
         
         tender_response = TenderResponse(
             id=tender['id'],
