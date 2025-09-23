@@ -39,52 +39,120 @@ class TendersListResponse(BaseModel):
     tenders: List[TenderResponse]
     total: int
 
+# Profile models
+class UserProfileBase(BaseModel):
+    company_name: Optional[str] = None
+    target_value_range: Optional[List[int]] = None
+    preferred_countries: Optional[List[str]] = None
+    cpv_expertise: Optional[List[str]] = None
+    company_size: Optional[str] = None
+    experience_level: Optional[str] = None
+
+class UserProfileCreate(UserProfileBase):
+    pass
+
+class UserProfileUpdate(BaseModel):
+    company_name: Optional[str] = None
+    target_value_range: Optional[List[int]] = None
+    preferred_countries: Optional[List[str]] = None
+    cpv_expertise: Optional[List[str]] = None
+    company_size: Optional[str] = None
+    experience_level: Optional[str] = None
+
+class UserProfile(UserProfileBase):
+    id: str
+    user_id: str
+    created_at: str
+    updated_at: str
+
+# In-memory storage for profiles (in production, use a database)
+user_profiles = {}
+
 # Create FastAPI app
 # Simple intelligence functions (inline for Railway compatibility)
-def calculate_simple_score(tender: dict) -> int:
-    """Calculate basic opportunity score (0-100)"""
+def calculate_smart_score(tender: dict, user_profile: dict = None) -> int:
+    """Calculate intelligent opportunity score (0-100) based on user profile"""
     score = 50  # Base score
     
-    # Value-based scoring
-    value = tender.get('value_amount', 0)
-    if 100000 <= value <= 2000000:  # Sweet spot
-        score += 25
-    elif value < 50000:  # Too small
-        score -= 10
-    elif value > 5000000:  # Too big
-        score -= 15
+    if not user_profile:
+        # Fallback to simple scoring if no profile
+        value = tender.get('value_amount', 0)
+        if 100000 <= value <= 2000000:
+            score += 25
+        elif value < 50000:
+            score -= 10
+        elif value > 5000000:
+            score -= 15
+        
+        country = tender.get('buyer_country', '')
+        if country in ['DE', 'FR', 'NL', 'IT', 'ES']:
+            score += 15
+        
+        return max(30, min(95, score))
     
-    # Country preference (major EU markets)
+    # Profile-based scoring
+    tender_value = tender.get('value_amount', 0)
+    user_sweet_spot = user_profile.get('target_value_range', [100000, 2000000])
+    
+    if user_sweet_spot[0] <= tender_value <= user_sweet_spot[1]:
+        score += 25
+    elif tender_value < user_sweet_spot[0]:
+        score -= 10
+    elif tender_value > user_sweet_spot[1] * 2:
+        score -= 20
+    
+    # Geographic preference
     country = tender.get('buyer_country', '')
-    if country in ['DE', 'FR', 'NL', 'IT', 'ES']:
+    if country in user_profile.get('preferred_countries', []):
         score += 15
     
-    # Random variation for demo
-    score += random.randint(-10, 10)
+    # CPV match
+    tender_cpvs = tender.get('cpv_codes', [])
+    user_cpvs = user_profile.get('cpv_expertise', [])
+    if any(cpv[:2] == user_cpv[:2] for cpv in tender_cpvs for user_cpv in user_cpvs):
+        score += 20
     
-    return max(30, min(95, score))
+    # Competition level (fewer bidders = higher score)
+    expected_bidders = get_expected_bidders(country, tender_value)
+    if expected_bidders <= 4:
+        score += 15
+    elif expected_bidders >= 10:
+        score -= 10
+    
+    return max(0, min(100, int(score)))
 
-def estimate_simple_competition(tender: dict) -> str:
+def get_expected_bidders(country: str, value: int) -> int:
+    """Get expected number of bidders based on country and value"""
+    country_difficulty = {
+        'DE': {'avg_bidders': 8},
+        'FR': {'avg_bidders': 6},
+        'NL': {'avg_bidders': 5},
+        'IT': {'avg_bidders': 12},
+        'ES': {'avg_bidders': 7},
+        'PL': {'avg_bidders': 4},
+        'SE': {'avg_bidders': 5},
+        'NO': {'avg_bidders': 6}
+    }
+    
+    base_competition = country_difficulty.get(country, {}).get('avg_bidders', 6)
+    
+    # Adjust based on tender value
+    if value > 5000000:  # €5M+
+        base_competition += 3
+    elif value < 100000:  # €100K-
+        base_competition -= 2
+    
+    return max(2, base_competition)
+
+def estimate_competition(tender: dict) -> str:
     """Estimate competition level"""
     value = tender.get('value_amount', 0)
     country = tender.get('buyer_country', '')
     
-    base_bidders = 5
-    if country == 'DE':
-        base_bidders = 7  # Germany is competitive
-    elif country == 'IT':
-        base_bidders = 9  # Italy very competitive
-    elif country in ['NL', 'SE']:
-        base_bidders = 4  # Nordic/Dutch less competitive
-    
-    if value > 2000000:
-        base_bidders += 2  # High value attracts more bidders
-    elif value < 200000:
-        base_bidders -= 1  # Small contracts get less attention
-    
-    return f"{max(2, base_bidders-1)}-{base_bidders+1} bidders expected"
+    expected_bidders = get_expected_bidders(country, value)
+    return f"{max(2, expected_bidders-1)}-{expected_bidders+2} bidders expected"
 
-def get_simple_deadline_strategy(deadline_str: str) -> str:
+def get_deadline_strategy(deadline_str: str) -> str:
     """Get deadline strategy advice"""
     if not deadline_str:
         return "✅ AMPLE TIME: Full proposal development with partnerships"
@@ -724,7 +792,8 @@ async def get_tenders(
     query: Optional[str] = Query(default=None),
     country: Optional[str] = Query(default=None),
     min_value: Optional[int] = Query(default=None),
-    max_value: Optional[int] = Query(default=None)
+    max_value: Optional[int] = Query(default=None),
+    x_user_email: Optional[str] = None
 ):
     """Get procurement tenders with filtering and pagination."""
     try:
@@ -776,13 +845,18 @@ async def get_tenders(
     end = start + limit
     page_tenders = filtered_tenders[start:end]
     
+    # Get user profile for intelligence calculation
+    user_profile = None
+    if x_user_email and x_user_email in user_profiles:
+        user_profile = user_profiles[x_user_email]
+    
     # Convert to response format
     tender_responses = []
     for tender in page_tenders:
-        # Add simple intelligence scoring (inline for Railway compatibility)
-        smart_score = calculate_simple_score(tender)
-        competition_level = estimate_simple_competition(tender)
-        deadline_urgency = get_simple_deadline_strategy(tender.get('deadline_date'))
+        # Add intelligent scoring based on user profile
+        smart_score = calculate_smart_score(tender, user_profile)
+        competition_level = estimate_competition(tender)
+        deadline_urgency = get_deadline_strategy(tender.get('deadline_date'))
         
         tender_response = TenderResponse(
             id=tender['id'],
@@ -810,6 +884,119 @@ async def get_tenders(
         tenders=tender_responses,
         total=total
     )
+
+# Profile endpoints
+@app.get("/api/v1/profiles/profile", response_model=UserProfile)
+async def get_user_profile(x_user_email: Optional[str] = None):
+    """Get current user's profile."""
+    if not x_user_email:
+        raise HTTPException(status_code=401, detail="User email required")
+    
+    if x_user_email not in user_profiles:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    profile = user_profiles[x_user_email]
+    return UserProfile(
+        id=profile['id'],
+        user_id=profile['user_id'],
+        company_name=profile.get('company_name'),
+        target_value_range=profile.get('target_value_range'),
+        preferred_countries=profile.get('preferred_countries'),
+        cpv_expertise=profile.get('cpv_expertise'),
+        company_size=profile.get('company_size'),
+        experience_level=profile.get('experience_level'),
+        created_at=profile['created_at'],
+        updated_at=profile['updated_at']
+    )
+
+@app.post("/api/v1/profiles/profile", response_model=UserProfile)
+async def create_user_profile(profile_data: UserProfileCreate, x_user_email: Optional[str] = None):
+    """Create or update user profile."""
+    if not x_user_email:
+        raise HTTPException(status_code=401, detail="User email required")
+    
+    profile_id = str(uuid.uuid4())
+    now = datetime.now().isoformat()
+    
+    profile = {
+        'id': profile_id,
+        'user_id': x_user_email,  # Using email as user_id for simplicity
+        'company_name': profile_data.company_name,
+        'target_value_range': profile_data.target_value_range,
+        'preferred_countries': profile_data.preferred_countries,
+        'cpv_expertise': profile_data.cpv_expertise,
+        'company_size': profile_data.company_size,
+        'experience_level': profile_data.experience_level,
+        'created_at': now,
+        'updated_at': now
+    }
+    
+    user_profiles[x_user_email] = profile
+    
+    return UserProfile(
+        id=profile['id'],
+        user_id=profile['user_id'],
+        company_name=profile.get('company_name'),
+        target_value_range=profile.get('target_value_range'),
+        preferred_countries=profile.get('preferred_countries'),
+        cpv_expertise=profile.get('cpv_expertise'),
+        company_size=profile.get('company_size'),
+        experience_level=profile.get('experience_level'),
+        created_at=profile['created_at'],
+        updated_at=profile['updated_at']
+    )
+
+@app.patch("/api/v1/profiles/profile", response_model=UserProfile)
+async def update_user_profile(profile_data: UserProfileUpdate, x_user_email: Optional[str] = None):
+    """Update user profile."""
+    if not x_user_email:
+        raise HTTPException(status_code=401, detail="User email required")
+    
+    if x_user_email not in user_profiles:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    profile = user_profiles[x_user_email]
+    
+    # Update fields that are provided
+    if profile_data.company_name is not None:
+        profile['company_name'] = profile_data.company_name
+    if profile_data.target_value_range is not None:
+        profile['target_value_range'] = profile_data.target_value_range
+    if profile_data.preferred_countries is not None:
+        profile['preferred_countries'] = profile_data.preferred_countries
+    if profile_data.cpv_expertise is not None:
+        profile['cpv_expertise'] = profile_data.cpv_expertise
+    if profile_data.company_size is not None:
+        profile['company_size'] = profile_data.company_size
+    if profile_data.experience_level is not None:
+        profile['experience_level'] = profile_data.experience_level
+    
+    profile['updated_at'] = datetime.now().isoformat()
+    
+    return UserProfile(
+        id=profile['id'],
+        user_id=profile['user_id'],
+        company_name=profile.get('company_name'),
+        target_value_range=profile.get('target_value_range'),
+        preferred_countries=profile.get('preferred_countries'),
+        cpv_expertise=profile.get('cpv_expertise'),
+        company_size=profile.get('company_size'),
+        experience_level=profile.get('experience_level'),
+        created_at=profile['created_at'],
+        updated_at=profile['updated_at']
+    )
+
+@app.delete("/api/v1/profiles/profile")
+async def delete_user_profile(x_user_email: Optional[str] = None):
+    """Delete user profile."""
+    if not x_user_email:
+        raise HTTPException(status_code=401, detail="User email required")
+    
+    if x_user_email not in user_profiles:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    del user_profiles[x_user_email]
+    return {"message": "Profile deleted successfully"}
 
 if __name__ == "__main__":
     import uvicorn

@@ -74,6 +74,37 @@ export interface BillingPortal {
   url: string;
 }
 
+export interface UserProfile {
+  id: string;
+  user_id: string;
+  company_name?: string;
+  target_value_range?: [number, number];
+  preferred_countries?: string[];
+  cpv_expertise?: string[];
+  company_size?: string;
+  experience_level?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserProfileCreate {
+  company_name?: string;
+  target_value_range?: [number, number];
+  preferred_countries?: string[];
+  cpv_expertise?: string[];
+  company_size?: string;
+  experience_level?: string;
+}
+
+export interface UserProfileUpdate {
+  company_name?: string;
+  target_value_range?: [number, number];
+  preferred_countries?: string[];
+  cpv_expertise?: string[];
+  company_size?: string;
+  experience_level?: string;
+}
+
 class ApiClient {
   private baseUrl: string;
   private userEmail: string | null = null;
@@ -217,6 +248,31 @@ class ApiClient {
 
     const data = await response.json()
     return { data }
+  }
+
+  // User Profile
+  async getUserProfile(): Promise<ApiResponse<UserProfile>> {
+    return this.request('/api/v1/profiles/profile');
+  }
+
+  async createUserProfile(profile: UserProfileCreate): Promise<ApiResponse<UserProfile>> {
+    return this.request('/api/v1/profiles/profile', {
+      method: 'POST',
+      body: JSON.stringify(profile),
+    });
+  }
+
+  async updateUserProfile(profile: UserProfileUpdate): Promise<ApiResponse<UserProfile>> {
+    return this.request('/api/v1/profiles/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(profile),
+    });
+  }
+
+  async deleteUserProfile(): Promise<ApiResponse<void>> {
+    return this.request('/api/v1/profiles/profile', {
+      method: 'DELETE',
+    });
   }
 
   // Health check
