@@ -163,26 +163,7 @@ function DashboardPageContent() {
                            'white'
               }}
             >
-              {tender.smart_score ? (
-                <div 
-                  className="absolute top-4 right-4 px-3 py-1 rounded-full text-white font-semibold text-sm"
-                  style={{
-                    background: tender.smart_score >= 70 ? 'linear-gradient(135deg, #10b981, #059669)' :
-                               tender.smart_score >= 50 ? 'linear-gradient(135deg, #f59e0b, #d97706)' :
-                               'linear-gradient(135deg, #ef4444, #dc2626)'
-                  }}
-                >
-                  {tender.smart_score}% Match
-                </div>
-              ) : (
-                <div 
-                  className="absolute top-4 right-4 px-2 py-1 rounded-full text-gray-600 font-medium text-xs bg-gray-100 border border-gray-200"
-                >
-                  Complete profile
-                </div>
-              )}
-              
-              <div className="pr-24 mb-4">
+              <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">
                   {tender.title}
                 </h3>
@@ -265,6 +246,24 @@ function DashboardPageContent() {
                 >
                   View Full Tender →
                 </a>
+                {tender.smart_score ? (
+                  <div 
+                    className="px-4 py-2 rounded-lg text-white font-semibold text-sm"
+                    style={{
+                      background: tender.smart_score >= 70 ? 'linear-gradient(135deg, #10b981, #059669)' :
+                                 tender.smart_score >= 50 ? 'linear-gradient(135deg, #f59e0b, #d97706)' :
+                                 'linear-gradient(135deg, #ef4444, #dc2626)'
+                    }}
+                  >
+                    {tender.smart_score}% Match
+                  </div>
+                ) : (
+                  <button 
+                    className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px] hover:shadow-lg border-2 border-[#003399] text-[#003399] hover:bg-[#003399] hover:text-white"
+                  >
+                    See Personalized AI-Score
+                  </button>
+                )}
                 {tender.smart_score && tender.smart_score >= 60 && (
                   <button 
                     className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px]"
