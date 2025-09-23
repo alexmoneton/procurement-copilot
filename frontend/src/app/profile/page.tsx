@@ -6,16 +6,46 @@ import Image from 'next/image'
 import { apiClient, UserProfile, UserProfileCreate } from '@/lib/api'
 
 const CPV_CODES = [
+  // Construction & Infrastructure
   { code: '45000000', name: 'Construction work' },
+  { code: '45200000', name: 'Works for complete or part construction' },
+  { code: '45300000', name: 'Building installation work' },
+  
+  // IT & Technology
   { code: '72000000', name: 'IT services' },
-  { code: '50000000', name: 'Repair and maintenance services' },
-  { code: '79000000', name: 'Business services' },
-  { code: '71000000', name: 'Architectural and engineering services' },
+  { code: '72100000', name: 'Hardware consultancy services' },
+  { code: '72200000', name: 'Software programming services' },
   { code: '73000000', name: 'Research and development services' },
+  { code: '73100000', name: 'Research and experimental development services' },
+  { code: '73200000', name: 'Research consultancy services' },
+  
+  // Professional Services
+  { code: '71000000', name: 'Architectural and engineering services' },
+  { code: '79000000', name: 'Business services' },
+  { code: '79100000', name: 'Legal services' },
+  { code: '79200000', name: 'Accounting, auditing and fiscal services' },
+  
+  // Education & Training
   { code: '80000000', name: 'Education and training services' },
+  { code: '80100000', name: 'Primary education services' },
+  { code: '80200000', name: 'Secondary education services' },
+  
+  // Health & Social
   { code: '85000000', name: 'Health and social work services' },
+  
+  // Utilities & Environment
   { code: '90000000', name: 'Sewage, refuse, cleaning services' },
-  { code: '92000000', name: 'Recreational, cultural and sporting services' }
+  { code: '31000000', name: 'Electrical machinery, apparatus, equipment' },
+  { code: '32000000', name: 'Radio, television, communication equipment' },
+  { code: '33000000', name: 'Medical equipments, pharmaceuticals' },
+  { code: '35000000', name: 'Security, fire-fighting, police equipment' },
+  
+  // Transportation
+  { code: '60000000', name: 'Transport services' },
+  { code: '60100000', name: 'Road transport services' },
+  
+  // Agriculture & Food
+  { code: '09000000', name: 'Petroleum products, fuel, electricity' }
 ]
 
 const COUNTRIES = [
