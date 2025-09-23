@@ -176,13 +176,13 @@ function DashboardPageContent() {
                 </div>
               ) : (
                 <div 
-                  className="absolute top-4 right-4 px-2 py-1 rounded-full text-gray-600 font-medium text-xs bg-gray-100 border border-gray-200 max-w-48"
+                  className="absolute top-4 right-4 px-2 py-1 rounded-full text-gray-600 font-medium text-xs bg-gray-100 border border-gray-200"
                 >
-                  Set up profile to see match score
+                  Complete profile
                 </div>
               )}
               
-              <div className="pr-32 mb-4">
+              <div className="pr-24 mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2 leading-tight">
                   {tender.title}
                 </h3>
