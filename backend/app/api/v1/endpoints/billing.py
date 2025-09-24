@@ -29,6 +29,13 @@ except ImportError as e:
     logger = None
     DB_AVAILABLE = False
 
+# Initialize Stripe early
+if stripe and settings:
+    stripe.api_key = getattr(settings, 'stripe_secret_key', None)
+    if not stripe.api_key:
+        logger.warning("Stripe secret key not configured - billing endpoints will be disabled")
+        # Don't fail the module load, just disable Stripe functionality
+
 router = APIRouter()
 
 # Helper functions
@@ -99,13 +106,6 @@ async def test_checkout(
             
     except Exception as e:
         return {"error": f"Test failed: {str(e)}"}
-
-# Initialize Stripe
-stripe.api_key = getattr(settings, 'stripe_secret_key', None)
-if not stripe.api_key:
-    logger.warning("Stripe secret key not configured - billing endpoints will be disabled")
-    # Don't fail the module load, just disable Stripe functionality
-
 
 async def ensure_user_exists(db: AsyncSession, email: str) -> uuid.UUID:
     """Ensure user exists in database, create if not."""
