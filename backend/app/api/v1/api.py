@@ -6,7 +6,7 @@ from .endpoints import health, tenders, filters, profiles, admin
 
 # Import billing with error handling
 try:
-    from .endpoints import billing
+    from .endpoints import billing_simple as billing
     print("✅ Billing module imported successfully")
 except Exception as e:
     print(f"❌ Error importing billing module: {e}")
