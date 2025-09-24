@@ -1,7 +1,10 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { CheckIcon } from '@heroicons/react/24/solid'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
+import { useState } from 'react'
 
 // Check if Clerk is properly configured
 const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
@@ -85,6 +88,33 @@ const faqs = [
 ]
 
 export default function PricingPage() {
+  const [loading, setLoading] = useState<string | null>(null)
+
+  const handleCheckout = async (priceId: string) => {
+    setLoading(priceId)
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ price_id: priceId }),
+      })
+
+      const data = await response.json()
+      
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        console.error('No checkout URL returned')
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error)
+    } finally {
+      setLoading(null)
+    }
+  }
+
   return (
     <div className="bg-white">
       {/* Header */}
@@ -201,17 +231,17 @@ export default function PricingPage() {
                 </ul>
                 <div className="mt-10">
                   {hasClerkKeys ? (
-                    <SignUpButton mode="modal">
-                      <button
-                        className={`w-full rounded-xl px-6 py-4 text-center text-lg font-semibold shadow-lg transition-all hover:shadow-xl transform hover:-translate-y-0.5 ${
-                          plan.popular
-                            ? 'bg-[#FFCC00] text-[#003399] hover:bg-[#FFD700]'
-                            : 'bg-[#003399] text-white hover:bg-[#002266]'
-                        }`}
-                      >
-                        {plan.cta}
-                      </button>
-                    </SignUpButton>
+                    <button
+                      onClick={() => handleCheckout(plan.priceId)}
+                      disabled={loading === plan.priceId}
+                      className={`w-full rounded-xl px-6 py-4 text-center text-lg font-semibold shadow-lg transition-all hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        plan.popular
+                          ? 'bg-[#FFCC00] text-[#003399] hover:bg-[#FFD700]'
+                          : 'bg-[#003399] text-white hover:bg-[#002266]'
+                      }`}
+                    >
+                      {loading === plan.priceId ? 'Processing...' : plan.cta}
+                    </button>
                   ) : (
                     <Link
                       href="/app"
