@@ -6,12 +6,28 @@ import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-import stripe
 
-from ....db.session import get_db
-from ....db.crud import UserCRUD
-from ....core.config import settings
-from ....core.logging import logger
+# Import with error handling
+try:
+    import stripe
+    STRIPE_AVAILABLE = True
+except ImportError:
+    stripe = None
+    STRIPE_AVAILABLE = False
+
+try:
+    from ....db.session import get_db
+    from ....db.crud import UserCRUD
+    from ....core.config import settings
+    from ....core.logging import logger
+    DB_AVAILABLE = True
+except ImportError as e:
+    print(f"Database imports failed: {e}")
+    get_db = None
+    UserCRUD = None
+    settings = None
+    logger = None
+    DB_AVAILABLE = False
 
 router = APIRouter()
 
@@ -19,7 +35,12 @@ router = APIRouter()
 @router.get("/test")
 async def billing_test():
     """Test endpoint to verify billing module is loaded."""
-    return {"status": "billing module loaded successfully"}
+    return {
+        "status": "billing module loaded successfully",
+        "stripe_available": STRIPE_AVAILABLE,
+        "db_available": DB_AVAILABLE,
+        "stripe_configured": bool(stripe and hasattr(settings, 'stripe_secret_key') and settings.stripe_secret_key) if settings else False
+    }
 
 @router.post("/test-checkout")
 async def test_checkout(
