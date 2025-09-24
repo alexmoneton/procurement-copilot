@@ -18,7 +18,7 @@ async def run_migrations(db: AsyncSession = Depends(get_db)):
         import os
         
         # Set up Alembic configuration
-        alembic_cfg = Config("alembic.ini")
+        alembic_cfg = Config("app/alembic.ini")
         
         # Run migrations
         command.upgrade(alembic_cfg, "head")
