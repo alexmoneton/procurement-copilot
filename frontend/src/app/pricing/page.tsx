@@ -43,7 +43,7 @@ const pricingPlans = [
       'Email notifications',
       'Tender export (CSV)'
     ],
-    cta: 'Start free trial',
+    cta: 'Start 14-day free trial',
     popular: false,
     priceId: stripePriceIds.starter
   },
@@ -62,7 +62,7 @@ const pricingPlans = [
       'Custom CPV filtering',
       'Value range alerts'
     ],
-    cta: 'Start free trial',
+    cta: 'Start 14-day free trial',
     popular: true,
     priceId: stripePriceIds.pro
   },

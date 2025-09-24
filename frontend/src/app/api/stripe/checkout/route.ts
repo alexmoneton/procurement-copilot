@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Price ID is required' }, { status: 400 })
     }
 
-    // Create Stripe checkout session
+    // Create Stripe checkout session with 14-day trial
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -36,6 +36,9 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
+      subscription_data: {
+        trial_period_days: 14,
+      },
       success_url: `${request.nextUrl.origin}/account?success=true`,
       cancel_url: `${request.nextUrl.origin}/pricing?canceled=true`,
       metadata: {
