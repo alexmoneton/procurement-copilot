@@ -21,6 +21,54 @@ async def billing_test():
     """Test endpoint to verify billing module is loaded."""
     return {"status": "billing module loaded successfully"}
 
+@router.post("/test-checkout")
+async def test_checkout(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    user_email: str = Depends(get_current_user_email)
+):
+    """Test endpoint to debug checkout session creation."""
+    try:
+        if not stripe.api_key:
+            return {"error": "Stripe not configured", "stripe_configured": False}
+        
+        body = await request.json()
+        price_id = body.get("price_id", "price_starter")
+        
+        # Test Stripe connection
+        try:
+            # Try to retrieve the price to see if it exists
+            price = stripe.Price.retrieve(price_id)
+            return {
+                "status": "success",
+                "stripe_configured": True,
+                "price_exists": True,
+                "price_id": price_id,
+                "price_details": {
+                    "id": price.id,
+                    "active": price.active,
+                    "unit_amount": price.unit_amount,
+                    "currency": price.currency
+                }
+            }
+        except stripe.error.InvalidRequestError as e:
+            return {
+                "status": "error",
+                "stripe_configured": True,
+                "price_exists": False,
+                "price_id": price_id,
+                "error": str(e)
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "stripe_configured": True,
+                "error": str(e)
+            }
+            
+    except Exception as e:
+        return {"error": f"Test failed: {str(e)}"}
+
 # Initialize Stripe
 stripe.api_key = getattr(settings, 'stripe_secret_key', None)
 if not stripe.api_key:
