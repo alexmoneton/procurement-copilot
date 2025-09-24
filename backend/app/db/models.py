@@ -15,6 +15,7 @@ from sqlalchemy import (
     Enum as SQLEnum,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     String,
     Text,
@@ -212,6 +213,89 @@ class User(Base):
         "SavedFilter",
         back_populates="user",
         cascade="all, delete-orphan",
+    )
+    profile: Mapped[Optional["UserProfile"]] = relationship(
+        "UserProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+
+class UserProfile(Base):
+    """User profile model for personalization."""
+    
+    __tablename__ = "user_profiles"
+    
+    # Primary key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+    )
+    
+    # Foreign key
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="User ID"
+    )
+    
+    # Profile details
+    company_name: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="Company name"
+    )
+    target_value_range: Mapped[Optional[list[int]]] = mapped_column(
+        ARRAY(Integer),
+        nullable=True,
+        comment="Target value range [min, max]"
+    )
+    preferred_countries: Mapped[Optional[list[str]]] = mapped_column(
+        ARRAY(String(2)),
+        nullable=True,
+        comment="Preferred countries"
+    )
+    cpv_expertise: Mapped[Optional[list[str]]] = mapped_column(
+        ARRAY(String(10)),
+        nullable=True,
+        comment="CPV expertise codes"
+    )
+    company_size: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        comment="Company size"
+    )
+    experience_level: Mapped[Optional[str]] = mapped_column(
+        String(50),
+        nullable=True,
+        comment="Experience level"
+    )
+    
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="Profile creation timestamp"
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+        comment="Profile last update timestamp"
+    )
+    
+    # Relationships
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="profile",
     )
 
 

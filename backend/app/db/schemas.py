@@ -53,6 +53,11 @@ class Tender(TenderBase):
     id: uuid.UUID = Field(..., description="Tender ID")
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
+    
+    # Intelligence fields (calculated dynamically)
+    smart_score: Optional[int] = Field(None, description="Intelligence score 0-100")
+    competition_level: Optional[str] = Field(None, description="Expected competition level")
+    deadline_urgency: Optional[str] = Field(None, description="Deadline strategy advice")
 
 
 class TenderList(BaseModel):
@@ -98,6 +103,44 @@ class User(UserBase):
     
     id: uuid.UUID = Field(..., description="User ID")
     created_at: datetime = Field(..., description="Registration timestamp")
+
+
+class UserProfileBase(BaseModel):
+    """Base user profile schema."""
+    
+    company_name: Optional[str] = Field(None, description="Company name")
+    target_value_range: Optional[list[int]] = Field(None, description="Target value range [min, max]")
+    preferred_countries: Optional[list[str]] = Field(None, description="Preferred countries")
+    cpv_expertise: Optional[list[str]] = Field(None, description="CPV expertise codes")
+    company_size: Optional[str] = Field(None, description="Company size")
+    experience_level: Optional[str] = Field(None, description="Experience level")
+
+
+class UserProfileCreate(UserProfileBase):
+    """Schema for creating a user profile."""
+    pass
+
+
+class UserProfileUpdate(BaseModel):
+    """Schema for updating a user profile."""
+    
+    company_name: Optional[str] = None
+    target_value_range: Optional[list[int]] = None
+    preferred_countries: Optional[list[str]] = None
+    cpv_expertise: Optional[list[str]] = None
+    company_size: Optional[str] = None
+    experience_level: Optional[str] = None
+
+
+class UserProfile(UserProfileBase):
+    """Schema for user profile response."""
+    
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: uuid.UUID = Field(..., description="Profile ID")
+    user_id: uuid.UUID = Field(..., description="User ID")
+    created_at: datetime = Field(..., description="Creation timestamp")
+    updated_at: datetime = Field(..., description="Last update timestamp")
 
 
 class SavedFilterBase(BaseModel):

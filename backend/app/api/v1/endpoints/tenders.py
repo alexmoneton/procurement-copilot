@@ -2,14 +2,44 @@
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ....db.crud import TenderCRUD
+from ....db.crud import TenderCRUD, UserCRUD, UserProfileCRUD
 from ....db.schemas import Tender, TenderList, TenderSearchParams, TenderSource
 from ....db.session import get_db
+from ....services.intelligence import TenderIntelligence
 
 router = APIRouter()
+
+
+async def get_user_profile_for_intelligence(
+    db: AsyncSession,
+    user_email: Optional[str] = None
+) -> Optional[dict]:
+    """Get user profile for intelligence calculation."""
+    if not user_email:
+        return None
+    
+    try:
+        user = await UserCRUD.get_by_email(db, user_email)
+        if not user:
+            return None
+        
+        profile = await UserProfileCRUD.get_by_user_id(db, user.id)
+        if not profile:
+            return None
+        
+        # Convert profile to dict for intelligence service
+        return {
+            'target_value_range': profile.target_value_range or [50000, 2000000],
+            'preferred_countries': profile.preferred_countries or [],
+            'cpv_expertise': profile.cpv_expertise or [],
+            'company_size': profile.company_size or 'medium',
+            'experience_level': profile.experience_level or 'intermediate'
+        }
+    except Exception:
+        return None
 
 
 @router.get("/tenders", response_model=TenderList)
@@ -25,6 +55,7 @@ async def search_tenders(
     limit: int = Query(50, ge=1, le=100, description="Number of results to return"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     db: AsyncSession = Depends(get_db),
+    x_user_email: Optional[str] = Header(None, alias="X-User-Email"),
 ) -> TenderList:
     """Search tenders with various filters."""
     try:
@@ -69,6 +100,24 @@ async def search_tenders(
         # Calculate pagination info
         pages = (total + limit - 1) // limit if total > 0 else 0
         page = (offset // limit) + 1 if offset > 0 else 1
+        
+        # Add intelligence data if user profile exists
+        user_profile = await get_user_profile_for_intelligence(db, x_user_email)
+        if user_profile:
+            intelligence = TenderIntelligence()
+            for tender in tenders:
+                # Convert tender to dict for intelligence calculation
+                tender_dict = {
+                    'value_amount': tender.value_amount,
+                    'buyer_country': tender.buyer_country,
+                    'cpv_codes': tender.cpv_codes,
+                    'deadline_date': tender.deadline_date.isoformat() if tender.deadline_date else None
+                }
+                
+                # Calculate intelligence fields
+                tender.smart_score = intelligence.calculate_smart_score(tender_dict, user_profile)
+                tender.competition_level = intelligence.estimate_competition(tender_dict)
+                tender.deadline_urgency = intelligence.get_deadline_strategy(tender_dict.get('deadline_date'))
         
         return TenderList(
             items=tenders,

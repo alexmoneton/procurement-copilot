@@ -8,8 +8,8 @@ from typing import Optional
 from sqlalchemy import and_, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .models import Tender, User, SavedFilter, EmailLog, Award, Company, TenderSource
-from .schemas import TenderCreate, TenderUpdate, UserCreate, SavedFilterCreate, SavedFilterUpdate, EmailLogCreate, AwardCreate, CompanyCreate, CompanyUpdate
+from .models import Tender, User, SavedFilter, EmailLog, Award, Company, TenderSource, UserProfile
+from .schemas import TenderCreate, TenderUpdate, UserCreate, SavedFilterCreate, SavedFilterUpdate, EmailLogCreate, AwardCreate, CompanyCreate, CompanyUpdate, UserProfileCreate, UserProfileUpdate
 
 
 class TenderCRUD:
@@ -494,5 +494,75 @@ class CompanyCRUD:
         
         from datetime import datetime
         db_company.last_contacted = datetime.now()
+        await db.commit()
+        return True
+
+
+class UserProfileCRUD:
+    """CRUD operations for UserProfile model."""
+    
+    @staticmethod
+    async def create(db: AsyncSession, user_id: uuid.UUID, profile: UserProfileCreate) -> UserProfile:
+        """Create a new user profile."""
+        db_profile = UserProfile(user_id=user_id, **profile.model_dump())
+        db.add(db_profile)
+        await db.commit()
+        await db.refresh(db_profile)
+        return db_profile
+    
+    @staticmethod
+    async def get_by_user_id(db: AsyncSession, user_id: uuid.UUID) -> Optional[UserProfile]:
+        """Get user profile by user ID."""
+        result = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+        return result.scalar_one_or_none()
+    
+    @staticmethod
+    async def update(
+        db: AsyncSession, 
+        user_id: uuid.UUID, 
+        profile_update: UserProfileUpdate
+    ) -> Optional[UserProfile]:
+        """Update user profile."""
+        result = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+        db_profile = result.scalar_one_or_none()
+        
+        if not db_profile:
+            return None
+        
+        update_data = profile_update.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(db_profile, field, value)
+        
+        await db.commit()
+        await db.refresh(db_profile)
+        return db_profile
+    
+    @staticmethod
+    async def upsert(
+        db: AsyncSession, 
+        user_id: uuid.UUID, 
+        profile: UserProfileCreate
+    ) -> UserProfile:
+        """Create or update user profile."""
+        existing = await UserProfileCRUD.get_by_user_id(db, user_id)
+        
+        if existing:
+            # Update existing profile
+            update_data = UserProfileUpdate(**profile.model_dump())
+            return await UserProfileCRUD.update(db, user_id, update_data)
+        else:
+            # Create new profile
+            return await UserProfileCRUD.create(db, user_id, profile)
+    
+    @staticmethod
+    async def delete(db: AsyncSession, user_id: uuid.UUID) -> bool:
+        """Delete user profile."""
+        result = await db.execute(select(UserProfile).where(UserProfile.user_id == user_id))
+        db_profile = result.scalar_one_or_none()
+        
+        if not db_profile:
+            return False
+        
+        await db.delete(db_profile)
         await db.commit()
         return True
