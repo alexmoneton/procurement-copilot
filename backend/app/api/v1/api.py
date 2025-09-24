@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from .endpoints import health, tenders, filters, profiles
+from .endpoints import health, tenders, filters, profiles, admin
 
 # Import billing with error handling
 try:
@@ -29,3 +29,4 @@ except Exception as e:
     traceback.print_exc()
 
 api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
