@@ -9,6 +9,26 @@ import { useState } from 'react'
 // Check if Clerk is properly configured
 const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
 
+// Get Stripe price IDs from environment variables
+const getStripePriceIds = () => {
+  try {
+    const priceIdsJson = process.env.NEXT_PUBLIC_STRIPE_PRICE_IDS
+    if (priceIdsJson) {
+      return JSON.parse(priceIdsJson)
+    }
+  } catch (error) {
+    console.error('Error parsing Stripe price IDs:', error)
+  }
+  // Fallback to placeholder IDs if not configured
+  return {
+    starter: 'price_starter',
+    pro: 'price_pro', 
+    team: 'price_team'
+  }
+}
+
+const stripePriceIds = getStripePriceIds()
+
 const pricingPlans = [
   {
     name: 'Starter',
@@ -25,7 +45,7 @@ const pricingPlans = [
     ],
     cta: 'Start free trial',
     popular: false,
-    priceId: 'price_starter'
+    priceId: stripePriceIds.starter
   },
   {
     name: 'Pro',
@@ -44,7 +64,7 @@ const pricingPlans = [
     ],
     cta: 'Start free trial',
     popular: true,
-    priceId: 'price_pro'
+    priceId: stripePriceIds.pro
   },
   {
     name: 'Team',
@@ -64,7 +84,7 @@ const pricingPlans = [
     ],
     cta: 'Contact sales',
     popular: false,
-    priceId: 'price_team'
+    priceId: stripePriceIds.team
   }
 ]
 
