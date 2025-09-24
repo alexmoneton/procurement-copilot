@@ -12,6 +12,7 @@ except Exception as e:
     print(f"❌ Error importing billing module: {e}")
     import traceback
     traceback.print_exc()
+    billing = None
 
 api_router = APIRouter()
 
@@ -20,13 +21,16 @@ api_router.include_router(tenders.router, prefix="/tenders", tags=["tenders"])
 api_router.include_router(filters.router, prefix="/filters", tags=["filters"])
 
 # Include billing router with error handling
-try:
-    api_router.include_router(billing.router, prefix="/billing", tags=["billing"])
-    print("✅ Billing router included successfully")
-except Exception as e:
-    print(f"❌ Error including billing router: {e}")
-    import traceback
-    traceback.print_exc()
+if billing:
+    try:
+        api_router.include_router(billing.router, prefix="/billing", tags=["billing"])
+        print("✅ Billing router included successfully")
+    except Exception as e:
+        print(f"❌ Error including billing router: {e}")
+        import traceback
+        traceback.print_exc()
+else:
+    print("⚠️ Billing module not available - skipping billing router")
 
 api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
