@@ -15,6 +15,12 @@ from ....core.logging import logger
 
 router = APIRouter()
 
+# Test endpoint to verify billing module is loaded
+@router.get("/test")
+async def billing_test():
+    """Test endpoint to verify billing module is loaded."""
+    return {"status": "billing module loaded successfully"}
+
 # Initialize Stripe
 stripe.api_key = getattr(settings, 'stripe_secret_key', None)
 if not stripe.api_key:
