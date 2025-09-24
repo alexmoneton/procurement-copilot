@@ -142,11 +142,13 @@ class Settings(BaseSettings):
     # Stripe
     stripe_secret_key: Optional[str] = Field(
         default=None,
-        description="Stripe secret key for payments"
+        description="Stripe secret key for payments",
+        alias="STRIPE_SECRET_KEY"
     )
     stripe_webhook_secret: Optional[str] = Field(
         default=None,
-        description="Stripe webhook secret for webhook verification"
+        description="Stripe webhook secret for webhook verification",
+        alias="STRIPE_WEBHOOK_SECRET"
     )
     
     # Frontend
