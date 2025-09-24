@@ -78,6 +78,82 @@ class ResendEmailProvider(EmailProvider):
             raise EmailError(f"Failed to send email: {e}")
 
 
+class SendGridEmailProvider(EmailProvider):
+    """SendGrid email provider implementation."""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.sendgrid.com"
+        self.logger = logger.bind(service="sendgrid_email")
+    
+    async def send_email(
+        self,
+        to: str,
+        subject: str,
+        html_content: str,
+        text_content: str,
+    ) -> Dict[str, Any]:
+        """Send email via SendGrid API."""
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        
+        payload = {
+            "personalizations": [
+                {
+                    "to": [{"email": to}],
+                    "subject": subject
+                }
+            ],
+            "from": {
+                "email": "alex@tenderpulse.eu",
+                "name": "Alex from TenderPulse"
+            },
+            "content": [
+                {
+                    "type": "text/html",
+                    "value": html_content
+                },
+                {
+                    "type": "text/plain",
+                    "value": text_content
+                }
+            ]
+        }
+        
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/v3/mail/send",
+                    headers=headers,
+                    json=payload,
+                    timeout=30.0,
+                )
+                response.raise_for_status()
+                
+                # SendGrid returns empty body on success, so we create our own result
+                result = {
+                    "id": f"sg-{datetime.now().timestamp()}",
+                    "to": to,
+                    "subject": subject,
+                    "status": "sent"
+                }
+                
+                self.logger.info(f"Email sent successfully to {to} via SendGrid")
+                return result
+                
+        except httpx.HTTPStatusError as e:
+            self.logger.error(f"SendGrid API error: {e.response.status_code} - {e.response.text}")
+            raise EmailError(f"Failed to send email: {e.response.status_code}")
+        except httpx.RequestError as e:
+            self.logger.error(f"Request error: {e}")
+            raise EmailError(f"Failed to send email: {e}")
+        except Exception as e:
+            self.logger.error(f"Unexpected error: {e}")
+            raise EmailError(f"Failed to send email: {e}")
+
+
 class MockEmailProvider(EmailProvider):
     """Mock email provider for testing."""
     
@@ -125,13 +201,20 @@ class EmailService:
     
     def _create_provider(self) -> EmailProvider:
         """Create email provider based on configuration."""
-        api_key = getattr(settings, 'resend_api_key', None)
+        # Check for SendGrid first (since you're using SendGrid)
+        sendgrid_api_key = getattr(settings, 'sendgrid_api_key', None)
+        if sendgrid_api_key:
+            self.logger.info("Using SendGrid email provider")
+            return SendGridEmailProvider(sendgrid_api_key)
         
-        if not api_key:
-            self.logger.warning("No Resend API key configured, using mock provider")
-            return MockEmailProvider()
+        # Fallback to Resend
+        resend_api_key = getattr(settings, 'resend_api_key', None)
+        if resend_api_key:
+            self.logger.info("Using Resend email provider")
+            return ResendEmailProvider(resend_api_key)
         
-        return ResendEmailProvider(api_key)
+        self.logger.warning("No email API key configured, using mock provider")
+        return MockEmailProvider()
     
     def _format_currency(self, amount: Optional[Decimal], currency: Optional[str]) -> str:
         """Format currency amount for display."""

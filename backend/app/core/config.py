@@ -134,6 +134,10 @@ class Settings(BaseSettings):
         default=None,
         description="Resend API key for sending emails"
     )
+    sendgrid_api_key: Optional[str] = Field(
+        default=None,
+        description="SendGrid API key for sending emails"
+    )
     
     # Stripe
     stripe_secret_key: Optional[str] = Field(
