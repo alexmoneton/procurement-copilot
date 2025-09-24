@@ -16,7 +16,8 @@ router = APIRouter()
 # Initialize Stripe
 stripe.api_key = getattr(settings, 'stripe_secret_key', None)
 if not stripe.api_key:
-    logger.warning("Stripe secret key not configured")
+    logger.warning("Stripe secret key not configured - billing endpoints will be disabled")
+    # Don't fail the module load, just disable Stripe functionality
 
 
 async def get_current_user_email(
