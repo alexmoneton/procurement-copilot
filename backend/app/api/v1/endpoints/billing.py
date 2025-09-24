@@ -31,6 +31,16 @@ except ImportError as e:
 
 router = APIRouter()
 
+# Helper functions
+async def get_current_user_email(
+    x_user_email: Optional[str] = Header(None, alias="X-User-Email")
+) -> str:
+    """Get current user email from header and ensure user exists."""
+    if not x_user_email:
+        raise HTTPException(status_code=401, detail="X-User-Email header required")
+    
+    return x_user_email
+
 # Test endpoint to verify billing module is loaded
 @router.get("/test")
 async def billing_test():
@@ -95,16 +105,6 @@ stripe.api_key = getattr(settings, 'stripe_secret_key', None)
 if not stripe.api_key:
     logger.warning("Stripe secret key not configured - billing endpoints will be disabled")
     # Don't fail the module load, just disable Stripe functionality
-
-
-async def get_current_user_email(
-    x_user_email: Optional[str] = Header(None, alias="X-User-Email")
-) -> str:
-    """Get current user email from header and ensure user exists."""
-    if not x_user_email:
-        raise HTTPException(status_code=401, detail="X-User-Email header required")
-    
-    return x_user_email
 
 
 async def ensure_user_exists(db: AsyncSession, email: str) -> uuid.UUID:
