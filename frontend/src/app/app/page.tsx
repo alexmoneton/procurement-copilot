@@ -258,11 +258,12 @@ function DashboardPageContent() {
                     {tender.smart_score}% Match
                   </div>
                 ) : (
-                  <button 
+                  <Link 
+                    href="/profile"
                     className="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 hover:transform hover:translate-y-[-1px] hover:shadow-lg border-2 border-[#003399] text-[#003399] hover:bg-[#003399] hover:text-white"
                   >
                     See Personalized AI-Score
-                  </button>
+                  </Link>
                 )}
                 {tender.smart_score && tender.smart_score >= 60 && (
                   <button 
