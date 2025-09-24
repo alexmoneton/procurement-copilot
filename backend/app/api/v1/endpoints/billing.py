@@ -111,7 +111,7 @@ async def ensure_user_exists(db: AsyncSession, email: str) -> uuid.UUID:
     """Ensure user exists in database, create if not."""
     user = await UserCRUD.get_by_email(db, email)
     if not user:
-        from ...db.schemas import UserCreate
+        from ....db.schemas import UserCreate
         user = await UserCRUD.create(db, UserCreate(email=email))
         logger.info(f"Created new user: {email}")
     
