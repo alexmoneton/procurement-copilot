@@ -31,10 +31,13 @@ except ImportError as e:
 
 # Initialize Stripe early
 if stripe and settings:
-    stripe.api_key = getattr(settings, 'stripe_secret_key', None)
-    print(f"DEBUG: Stripe secret key configured: {bool(stripe.api_key)}")
-    print(f"DEBUG: Stripe secret key starts with: {stripe.api_key[:10] if stripe.api_key else 'None'}")
-    if not stripe.api_key:
+    stripe_secret_key = getattr(settings, 'stripe_secret_key', None)
+    if stripe_secret_key:
+        stripe.api_key = stripe_secret_key
+        print(f"DEBUG: Stripe secret key configured: {bool(stripe.api_key)}")
+        print(f"DEBUG: Stripe secret key starts with: {stripe.api_key[:10] if stripe.api_key else 'None'}")
+    else:
+        print("DEBUG: No Stripe secret key found in settings")
         logger.warning("Stripe secret key not configured - billing endpoints will be disabled")
         # Don't fail the module load, just disable Stripe functionality
 
