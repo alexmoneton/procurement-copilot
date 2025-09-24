@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { ChartBarIcon, BellIcon, GlobeAltIcon } from '@heroicons/react/24/outline'
 import { CheckIcon as CheckIconSolid } from '@heroicons/react/24/solid'
 import { SignInButton, SignUpButton } from '@clerk/nextjs'
+import Footer from '@/components/Footer'
 
 // Check if Clerk is properly configured
 const hasClerkKeys = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.startsWith('pk_')
@@ -496,25 +497,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900">
-        <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
-              <span className="text-xl font-bold text-white">TenderPulse</span>
-            </div>
-            <p className="text-sm text-gray-400">
-              © 2025 TenderPulse. All rights reserved.
-            </p>
-          </div>
-          <div className="mt-8 border-t border-gray-800 pt-8">
-            <p className="text-xs text-gray-500 text-center">
-              TenderPulse is an independent service and is not affiliated with the European Union or its institutions.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
