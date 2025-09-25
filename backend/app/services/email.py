@@ -293,8 +293,8 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>New Tenders - {filter_name}</title>
         </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="padding: 20px 0;">
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0; padding: 0;">
+            <div style="padding: 0; margin: 0;">
                 <p style="font-size: 16px; margin: 0 0 20px 0;">
                     Hey there,
                 </p>

@@ -38,13 +38,13 @@ async def test_email(
 
         html_content = f"""
         <!DOCTYPE html>
-        <html>
+        <html style="margin:0;padding:0;">
         <head>
             <meta charset="utf-8">
             <title>Test Email</title>
         </head>
-        <body style="margin:0;padding:0;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;color:#333;">
-            <div style="margin:0;padding:0;">
+        <body style="margin:0;padding:0;font-family:Arial,sans-serif;font-size:14px;line-height:1.4;color:#333;background:#fff;">
+            <div style="margin:0;padding:0;width:100%;">
                 {message}
             </div>
         </body>

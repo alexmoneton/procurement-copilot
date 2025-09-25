@@ -1594,8 +1594,8 @@ Alex
         <html>
         <head>
             <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }}
+                .container {{ max-width: 600px; margin: 0; padding: 0; }}
                 .opportunity {{ background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }}
             </style>
         </head>
