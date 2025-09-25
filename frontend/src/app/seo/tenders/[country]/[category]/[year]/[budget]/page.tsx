@@ -164,7 +164,9 @@ export default async function TenderCombinationPage({ params }: TenderCombinatio
   )
 
   // Calculate total value
-  const totalValue = tenders.reduce((sum: number, tender: any) => {
+  const totalValue = tenders.reduce((sum: number, tender: {
+    value_amount?: number;
+  }) => {
     return sum + (tender.value_amount || 0)
   }, 0)
 
@@ -245,7 +247,17 @@ export default async function TenderCombinationPage({ params }: TenderCombinatio
           </div>
           
           <div className="divide-y divide-gray-200">
-            {tenders.map((tender: any) => (
+            {tenders.map((tender: {
+          id: string;
+          title: string;
+          url: string;
+          buyer_name?: string;
+          deadline?: string;
+          value_amount?: number;
+          currency?: string;
+          cpv_codes?: string[];
+          source?: string;
+        }) => (
               <div key={tender.id} className="p-6 hover:bg-gray-50">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

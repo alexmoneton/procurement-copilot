@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Fetch sitemap data from backend
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.tenderpulse.eu'
@@ -41,7 +41,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-function generateSitemapXML(combinations: any[]): string {
+function generateSitemapXML(combinations: Array<{
+  country: string;
+  category: string;
+  year: number;
+  budget: string;
+  tender_count: number;
+  total_value?: number;
+}>): string {
   const baseUrl = 'https://tenderpulse.eu'
   const now = new Date().toISOString().split('T')[0]
   
