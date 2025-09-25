@@ -98,8 +98,10 @@ async def run_automated_system():
                             print(f"   ⚠️  No valid email found")
                             continue
                         
-                        # Generate email
+                        # Generate email using proper template
                         email_content = email_generator.generate_personalized_email(prospect)
+                        print(f"   📝 Generated email subject: {email_content['subject']}")
+                        print(f"   📝 Email preview: {email_content['body'][:100]}...")
                         
                         # Send email if auto-sending is enabled
                         if auto_send:
@@ -112,7 +114,7 @@ async def run_automated_system():
                                     params={
                                         'to': prospect.email,
                                         'subject': email_content['subject'],
-                                        'message': email_content['body']
+                                        'message': email_content['html_body']  # Use HTML version
                                     },
                                     timeout=30
                                 )
