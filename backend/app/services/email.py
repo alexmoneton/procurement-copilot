@@ -335,9 +335,11 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
             <meta charset="utf-8">
             <title>Test Email</title>
         </head>
-        <body>
-            <p>{message}</p>
-            <p>If you received this email, your email system is working correctly.</p>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; text-align: left;">
+            <div style="padding: 20px;">
+                <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.4;">{message}</p>
+                <p style="margin: 0; font-size: 14px; line-height: 1.4;">If you received this email, your email system is working correctly.</p>
+            </div>
         </body>
         </html>
         """
