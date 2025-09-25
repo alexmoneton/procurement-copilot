@@ -41,8 +41,8 @@ async def test_email(
             <meta charset="utf-8">
             <title>Test Email</title>
             <style>
-                body, div, p, span { margin: 0 !important; padding: 0 !important; }
-                body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; }
+                body, div, p, span {{ margin: 0 !important; padding: 0 !important; }}
+                body {{ font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; }}
             </style>
         </head>
         <body>
