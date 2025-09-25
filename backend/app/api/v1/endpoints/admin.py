@@ -44,7 +44,7 @@ async def test_email(
         """
         
         payload = {
-            "from": "onboarding@resend.dev",
+            "from": "alerts@tenderpulse.eu",
             "to": [to],
             "subject": subject,
             "html": html_content,
