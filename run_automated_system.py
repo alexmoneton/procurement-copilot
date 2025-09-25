@@ -20,7 +20,7 @@ from advanced_ted_prospect_finder import (
     ProspectExtractor,
     EmailTemplateGenerator
 )
-from sendgrid_email_sender import SendGridEmailSender
+# from sendgrid_email_sender import SendGridEmailSender  # Removed - using Resend now
 
 async def run_automated_system():
     """Run the complete automated customer acquisition system"""
@@ -69,11 +69,8 @@ async def run_automated_system():
                 print("-" * 40)
                 
                 email_finder = EmailFinder(config)
-                email_sender = SendGridEmailSender(
-                    api_key=config.get('api_keys.sendgrid', ''),
-                    from_email=config.get('email.from_email', 'alex@tenderpulse.eu'),
-                    from_name=config.get('email.from_name', 'Alex')
-                )
+                # Use Resend email system via API
+                email_sender = None  # Will use API calls to backend
                 email_generator = EmailTemplateGenerator(config)
                 
                 sent_count = 0

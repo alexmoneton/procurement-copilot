@@ -1,0 +1,46 @@
+{
+  "timestamp": "2025-09-25T09:38:43.139231",
+  "overall_health_score": 80.0,
+  "operational_systems": 4,
+  "total_systems": 5,
+  "checks": {
+    "stripe_payments": {
+      "status": "OPERATIONAL",
+      "stripe_available": true,
+      "stripe_configured": true,
+      "db_available": true
+    },
+    "frontend": {
+      "status": "OPERATIONAL",
+      "response_time": 0.315817
+    },
+    "app_pages": {
+      "app": {
+        "status": "OPERATIONAL",
+        "status_code": 200
+      },
+      "pricing": {
+        "status": "OPERATIONAL",
+        "status_code": 200
+      },
+      "signup": {
+        "status": "OPERATIONAL",
+        "status_code": 200
+      },
+      "signin": {
+        "status": "OPERATIONAL",
+        "status_code": 200
+      }
+    },
+    "email_system": {
+      "status": "OPERATIONAL",
+      "email_id": "e9ae7946-0dea-489b-bfb6-fa76b6de9b20"
+    },
+    "prospect_pipeline": {
+      "status": "OPERATIONAL",
+      "config_loaded": true,
+      "finder_initialized": true
+    }
+  },
+  "launch_ready": true
+}

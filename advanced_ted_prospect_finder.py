@@ -1364,6 +1364,8 @@ Alex
             return "recent"
         
         # Extract city/region from buyer name
+        if isinstance(buyer_str, dict):
+            buyer_str = str(buyer_str)
         buyer_lower = buyer_str.lower()
         if 'berlin' in buyer_lower:
             return "Berlin"
