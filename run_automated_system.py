@@ -75,6 +75,7 @@ async def run_automated_system():
                 
                 sent_count = 0
                 email_found_count = 0
+                sent_emails = set()  # Track emails we've already sent to
                 
                 for i, prospect in enumerate(prospects):
                     print(f"\n📧 Processing {i+1}/{len(prospects)}: {prospect.company_name}")
@@ -91,6 +92,11 @@ async def run_automated_system():
                             prospect.email = str(email_data)
                         
                         if prospect.email:
+                            # Check if we've already sent to this email
+                            if prospect.email in sent_emails:
+                                print(f"   ⚠️  Already sent to {prospect.email}, skipping...")
+                                continue
+                            sent_emails.add(prospect.email)
                             prospect.status = 'email_found'
                             email_found_count += 1
                             print(f"   ✅ Email found: {prospect.email}")
