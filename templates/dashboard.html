@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - TenderPulse{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i> Dashboard</h2>
+    <button class="btn btn-primary" onclick="refreshDashboard()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+    </button>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ stats.total_prospects or 0 }}</div>
+                <div class="stat-label">Total Prospects</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ stats.emails_found or 0 }}</div>
+                <div class="stat-label">Emails Found</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ stats.emails_sent or 0 }}</div>
+                <div class="stat-label">Emails Sent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ stats.conversions or 0 }}</div>
+                <div class="stat-label">Conversions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Status -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-heartbeat me-2"></i>System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        TED API
+                        <span class="badge bg-success">Connected</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Apollo.io
+                        {% if config.apollo_io %}
+                            <span class="badge bg-success">Connected</span>
+                        {% else %}
+                            <span class="badge bg-warning">Not configured</span>
+                        {% endif %}
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Hunter.io
+                        {% if config.hunter_io %}
+                            <span class="badge bg-success">Connected</span>
+                        {% else %}
+                            <span class="badge bg-warning">Not configured</span>
+                        {% endif %}
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        SendGrid
+                        {% if config.sendgrid %}
+                            <span class="badge bg-success">Connected</span>
+                        {% else %}
+                            <span class="badge bg-warning">Not configured</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-line me-2"></i>Performance Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h4 text-primary">{{ stats.email_finding_rate or 0 }}%</div>
+                            <small class="text-muted">Email Finding Rate</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-success">{{ stats.open_rate or 0 }}%</div>
+                        <small class="text-muted">Email Open Rate</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h4 text-warning">{{ stats.reply_rate or 0 }}%</div>
+                            <small class="text-muted">Reply Rate</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 text-info">{{ stats.conversion_rate or 0 }}%</div>
+                        <small class="text-muted">Conversion Rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Prospects -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-users me-2"></i>Recent Prospects</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Country</th>
+                                <th>Status</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for prospect in recent_prospects %}
+                            <tr>
+                                <td>
+                                    <strong>{{ prospect.company_name }}</strong>
+                                    {% if prospect.contact_name %}
+                                        <br><small class="text-muted">{{ prospect.contact_name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ prospect.country }}</span>
+                                </td>
+                                <td>
+                                    {% if prospect.status == 'found' %}
+                                        <span class="badge bg-info">Found</span>
+                                    {% elif prospect.status == 'email_found' %}
+                                        <span class="badge bg-warning">Email Found</span>
+                                    {% elif prospect.status == 'contacted' %}
+                                        <span class="badge bg-primary">Contacted</span>
+                                    {% elif prospect.status == 'responded' %}
+                                        <span class="badge bg-success">Responded</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ prospect.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if prospect.email %}
+                                        <a href="mailto:{{ prospect.email }}" class="text-decoration-none">
+                                            <i class="fas fa-envelope me-1"></i>{{ prospect.email }}
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted">No email</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('prospect_detail', prospect_id=prospect.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if prospect.email %}
+                                            <a href="{{ url_for('email_compose', prospect_id=prospect.id) }}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-envelope"></i>
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for activity in recent_activity %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ activity.action }}</h6>
+                            <small>{{ activity.timestamp }}</small>
+                        </div>
+                        <p class="mb-1">{{ activity.company_name }}</p>
+                        <small>{{ activity.details }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-outline-primary w-100 mb-2" onclick="findProspects()">
+                    <i class="fas fa-search me-2"></i>Find New Prospects
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-success w-100 mb-2" onclick="sendFollowUps()">
+                    <i class="fas fa-envelope me-2"></i>Send Follow-ups
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-warning w-100 mb-2" onclick="createBackup()">
+                    <i class="fas fa-download me-2"></i>Create Backup
+                </button>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-outline-info w-100 mb-2" onclick="viewAnalytics()">
+                    <i class="fas fa-chart-bar me-2"></i>View Analytics
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshDashboard() {
+    window.location.reload();
+}
+
+function findProspects() {
+    // TODO: Implement prospect finding
+    alert('Starting prospect finding...');
+}
+
+function sendFollowUps() {
+    // TODO: Implement follow-up sending
+    alert('Sending follow-up emails...');
+}
+
+function createBackup() {
+    // TODO: Implement backup creation
+    alert('Creating system backup...');
+}
+
+function viewAnalytics() {
+    window.location.href = "{{ url_for('analytics') }}";
+}
+</script>
+{% endblock %}

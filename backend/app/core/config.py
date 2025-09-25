@@ -140,6 +140,12 @@ class Settings(BaseSettings):
         description="SendGrid API key for sending emails"
     )
     
+    # OpenAI
+    openai_api_key: Optional[str] = Field(
+        default=None,
+        description="OpenAI API key for content generation"
+    )
+    
     # Stripe
     stripe_secret_key: Optional[str] = Field(
         default=None,

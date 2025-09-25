@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Tender Matching - TenderPulse{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-bullseye me-2"></i> Tender Matching</h2>
+    <div>
+        {% if not profile %}
+        <a href="{{ url_for('profile') }}" class="btn btn-warning me-2">
+            <i class="fas fa-user-cog me-2"></i>Set Up Profile
+        </a>
+        {% endif %}
+        <button class="btn btn-primary" onclick="refreshMatching()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+    </div>
+</div>
+
+{% if not profile %}
+<div class="alert alert-warning">
+    <h5><i class="fas fa-exclamation-triangle me-2"></i>Profile Required</h5>
+    <p>To see personalized tender matches, please set up your company profile first.</p>
+    <a href="{{ url_for('profile') }}" class="btn btn-warning">Set Up Profile</a>
+</div>
+{% else %}
+
+<!-- Profile Summary -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-user me-2"></i>Your Profile</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <strong>Company:</strong><br>
+                {{ profile.company_name }}
+            </div>
+            <div class="col-md-3">
+                <strong>Value Range:</strong><br>
+                €{{ "{:,}".format(profile.target_value_range[0]) }} - €{{ "{:,}".format(profile.target_value_range[1]) }}
+            </div>
+            <div class="col-md-3">
+                <strong>Countries:</strong><br>
+                {{ profile.preferred_countries|join(', ') }}
+            </div>
+            <div class="col-md-3">
+                <strong>Expertise:</strong><br>
+                {{ profile.cpv_expertise|length }} CPV codes
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matching Tenders -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-list me-2"></i>Matching Tenders ({{ matching_tenders|length }} found)</h5>
+    </div>
+    <div class="card-body">
+        {% if matching_tenders %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Match Score</th>
+                        <th>Title</th>
+                        <th>Value</th>
+                        <th>Country</th>
+                        <th>Deadline</th>
+                        <th>Competition</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tender in matching_tenders %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress me-2" style="width: 60px; height: 20px;">
+                                    <div class="progress-bar 
+                                        {% if tender.smart_score >= 80 %}bg-success
+                                        {% elif tender.smart_score >= 60 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        style="width: {{ tender.smart_score }}%">
+                                    </div>
+                                </div>
+                                <span class="badge 
+                                    {% if tender.smart_score >= 80 %}bg-success
+                                    {% elif tender.smart_score >= 60 %}bg-warning
+                                    {% else %}bg-danger{% endif %}">
+                                    {{ tender.smart_score }}%
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ tender.title[:60] }}{% if tender.title|length > 60 %}...{% endif %}</strong>
+                            <br><small class="text-muted">{{ tender.buyer_name }}</small>
+                        </td>
+                        <td>
+                            <strong>€{{ "{:,}".format(tender.value_amount) }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ tender.buyer_country }}</span>
+                        </td>
+                        <td>
+                            {{ tender.deadline_date }}
+                            <br><small class="text-muted">{{ tender.winning_strategy.deadline_strategy }}</small>
+                        </td>
+                        <td>
+                            <small>{{ tender.winning_strategy.competition_level }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('tender_details', tender_id=tender.id) }}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{{ tender.url }}" target="_blank" 
+                                   class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-external-link-alt"></i> TED
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h5>No Matching Tenders Found</h5>
+            <p class="text-muted">Try adjusting your profile criteria or check back later for new opportunities.</p>
+            <a href="{{ url_for('profile') }}" class="btn btn-primary">Update Profile</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+
+<script>
+function refreshMatching() {
+    location.reload();
+}
+</script>
+{% endblock %}

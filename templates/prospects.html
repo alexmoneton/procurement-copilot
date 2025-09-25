@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Prospects - TenderPulse Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users me-2"></i> Prospects</h2>
+    <button class="btn btn-primary" onclick="refreshProspects()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+    </button>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="found">Found</option>
+                    <option value="email_found">Email Found</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="responded">Responded</option>
+                    <option value="converted">Converted</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Country</label>
+                <select class="form-select" id="countryFilter">
+                    <option value="">All Countries</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="IT">Italy</option>
+                    <option value="ES">Spain</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Sector</label>
+                <select class="form-select" id="sectorFilter">
+                    <option value="">All Sectors</option>
+                    <option value="IT & Software">IT & Software</option>
+                    <option value="Construction">Construction</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Education">Education</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control" id="searchInput" placeholder="Company name...">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prospects Table -->
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="prospectsTable">
+                <thead>
+                    <tr>
+                        <th>Company</th>
+                        <th>Country</th>
+                        <th>Sector</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Pain Level</th>
+                        <th>Lost Tender Value</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prospect in prospects %}
+                    <tr>
+                        <td>
+                            <strong>{{ prospect.company_name }}</strong>
+                            {% if prospect.contact_name %}
+                                <br><small class="text-muted">{{ prospect.contact_name }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">{{ prospect.country }}</span>
+                        </td>
+                        <td>{{ prospect.sector }}</td>
+                        <td>
+                            {% if prospect.email %}
+                                <a href="mailto:{{ prospect.email }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope me-1"></i>{{ prospect.email }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">No email</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prospect.status == 'found' %}
+                                <span class="badge bg-info">Found</span>
+                            {% elif prospect.status == 'email_found' %}
+                                <span class="badge bg-warning">Email Found</span>
+                            {% elif prospect.status == 'contacted' %}
+                                <span class="badge bg-primary">Contacted</span>
+                            {% elif prospect.status == 'responded' %}
+                                <span class="badge bg-success">Responded</span>
+                            {% elif prospect.status == 'converted' %}
+                                <span class="badge bg-success">Converted</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ prospect.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar {% if prospect.pain_level > 70 %}bg-danger{% elif prospect.pain_level > 40 %}bg-warning{% else %}bg-success{% endif %}" 
+                                     style="width: {{ prospect.pain_level }}%">
+                                    {{ prospect.pain_level }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ prospect.lost_tender_value or 'N/A' }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewProspect({{ prospect.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if prospect.email %}
+                                    <button class="btn btn-sm btn-outline-success" onclick="sendEmail({{ prospect.id }})">
+                                        <i class="fas fa-envelope"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshProspects() {
+    window.location.reload();
+}
+
+function viewProspect(id) {
+    // TODO: Implement prospect detail view
+    alert('View prospect ' + id);
+}
+
+function sendEmail(id) {
+    // TODO: Implement email sending
+    alert('Send email to prospect ' + id);
+}
+
+// Filter functionality
+document.getElementById('statusFilter').addEventListener('change', filterTable);
+document.getElementById('countryFilter').addEventListener('change', filterTable);
+document.getElementById('sectorFilter').addEventListener('change', filterTable);
+document.getElementById('searchInput').addEventListener('input', filterTable);
+
+function filterTable() {
+    const statusFilter = document.getElementById('statusFilter').value;
+    const countryFilter = document.getElementById('countryFilter').value;
+    const sectorFilter = document.getElementById('sectorFilter').value;
+    const searchInput = document.getElementById('searchInput').value.toLowerCase();
+    
+    const rows = document.querySelectorAll('#prospectsTable tbody tr');
+    
+    rows.forEach(row => {
+        const status = row.cells[4].textContent.trim();
+        const country = row.cells[1].textContent.trim();
+        const sector = row.cells[2].textContent.trim();
+        const company = row.cells[0].textContent.toLowerCase();
+        
+        const statusMatch = !statusFilter || status.includes(statusFilter);
+        const countryMatch = !countryFilter || country.includes(countryFilter);
+        const sectorMatch = !sectorFilter || sector.includes(sectorFilter);
+        const searchMatch = !searchInput || company.includes(searchInput);
+        
+        if (statusMatch && countryMatch && sectorMatch && searchMatch) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

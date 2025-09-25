@@ -1,0 +1,74 @@
+[
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "SE",
+    "tender_title": "Sweden \u2013 Construction work \u2013 5111467 Kabelentreprenad (Cable contract)",
+    "tender_value": "\u20ac1,500,000",
+    "buyer_name": "Government Agency",
+    "pain_level": 80,
+    "sector": "Construction"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Lithuania-Vilnius: Property management services of real estate on a fee or contract basis",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Vilnius Authority",
+    "pain_level": 65,
+    "sector": "IT & Software"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Lithuania-Vilnius: Property management services of real estate on a fee or contract basis",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Vilnius Authority",
+    "pain_level": 65,
+    "sector": "IT & Software"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Lithuania-Vilnius: Property management services of real estate on a fee or contract basis",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Vilnius Authority",
+    "pain_level": 65,
+    "sector": "IT & Software"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Switzerland \u2013 Contract administration services \u2013 Gestion des risques 2024-2027",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Government Agency",
+    "pain_level": 65,
+    "sector": "IT & Software"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Finland-Tampere: Property management services of real estate on a fee or contract basis",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Tampere Authority",
+    "pain_level": 50,
+    "sector": "Consulting"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Belgium \u2013 Repair and maintenance services \u2013 Opmaak van een contract voor de aankoop (incl. installatie en bekabeling) en onderhoud van brandmeld- en beveiligingssystemen voor diverse gebouwen van Stad Brugge",
+    "tender_value": "\u20ac200,000",
+    "buyer_name": "Government Agency",
+    "pain_level": 50,
+    "sector": "Facility Services"
+  },
+  {
+    "company_name": "Losing Bidders (Names TBD)",
+    "country": "EU",
+    "tender_title": "Finland \u2013 Real estate agency services on a fee or contract basis \u2013 Kiinteist\u00f6asiantuntijapalveluiden hankinta v.2024-2026",
+    "tender_value": "\u20ac400,000",
+    "buyer_name": "Government Agency",
+    "pain_level": 50,
+    "sector": "Professional Services"
+  }
+]

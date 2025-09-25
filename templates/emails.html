@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Emails - TenderPulse Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-envelope me-2"></i> Email Campaigns</h2>
+    <button class="btn btn-primary" onclick="composeEmail()">
+        <i class="fas fa-plus me-2"></i>Compose Email
+    </button>
+</div>
+
+<!-- Email Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ email_stats.total_sent or 0 }}</div>
+                <div class="stat-label">Total Sent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ email_stats.open_rate or 0 }}%</div>
+                <div class="stat-label">Open Rate</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ email_stats.reply_rate or 0 }}%</div>
+                <div class="stat-label">Reply Rate</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ email_stats.conversion_rate or 0 }}%</div>
+                <div class="stat-label">Conversion Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Templates -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5><i class="fas fa-file-alt me-2"></i>Email Templates</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Initial Outreach</h6>
+                        <p class="card-text">Personalized email for new prospects mentioning their specific lost tender.</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="previewTemplate('initial')">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Follow-up 1</h6>
+                        <p class="card-text">Gentle reminder with new opportunities after 3 days.</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="previewTemplate('followup1')">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Follow-up 2</h6>
+                        <p class="card-text">Urgency-based email with closing opportunities after 7 days.</p>
+                        <button class="btn btn-outline-primary btn-sm" onclick="previewTemplate('followup2')">
+                            <i class="fas fa-eye me-1"></i>Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Email Campaigns -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-history me-2"></i>Recent Email Campaigns</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Recipient</th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Sent Date</th>
+                        <th>Opened</th>
+                        <th>Replied</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for campaign in email_campaigns %}
+                    <tr>
+                        <td>
+                            <strong>{{ campaign.prospect_name }}</strong>
+                            <br><small class="text-muted">{{ campaign.prospect_email }}</small>
+                        </td>
+                        <td>{{ campaign.subject }}</td>
+                        <td>
+                            {% if campaign.status == 'sent' %}
+                                <span class="badge bg-success">Sent</span>
+                            {% elif campaign.status == 'delivered' %}
+                                <span class="badge bg-primary">Delivered</span>
+                            {% elif campaign.status == 'bounced' %}
+                                <span class="badge bg-danger">Bounced</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ campaign.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ campaign.sent_at or 'Not sent' }}</td>
+                        <td>
+                            {% if campaign.opened_at %}
+                                <span class="badge bg-info">
+                                    <i class="fas fa-eye me-1"></i>{{ campaign.opened_at }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">Not opened</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if campaign.replied_at %}
+                                <span class="badge bg-success">
+                                    <i class="fas fa-reply me-1"></i>{{ campaign.replied_at }}
+                                </span>
+                            {% else %}
+                                <span class="text-muted">No reply</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-sm btn-outline-primary" onclick="viewEmail({{ campaign.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success" onclick="resendEmail({{ campaign.id }})">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Email Compose Modal -->
+<div class="modal fade" id="composeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Compose Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="composeForm">
+                    <div class="mb-3">
+                        <label class="form-label">To</label>
+                        <select class="form-select" id="recipientSelect">
+                            <option value="">Select prospect...</option>
+                            {% for prospect in prospects %}
+                                {% if prospect.email %}
+                                    <option value="{{ prospect.id }}" data-email="{{ prospect.email }}" data-name="{{ prospect.company_name }}">
+                                        {{ prospect.company_name }} ({{ prospect.email }})
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="emailSubject" placeholder="Email subject...">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" id="emailBody" rows="10" placeholder="Email content..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendComposedEmail()">Send Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function composeEmail() {
+    const modal = new bootstrap.Modal(document.getElementById('composeModal'));
+    modal.show();
+}
+
+function previewTemplate(templateType) {
+    // TODO: Implement template preview
+    alert('Preview template: ' + templateType);
+}
+
+function viewEmail(id) {
+    // TODO: Implement email view
+    alert('View email: ' + id);
+}
+
+function resendEmail(id) {
+    // TODO: Implement email resend
+    alert('Resend email: ' + id);
+}
+
+function sendComposedEmail() {
+    const recipientId = document.getElementById('recipientSelect').value;
+    const subject = document.getElementById('emailSubject').value;
+    const body = document.getElementById('emailBody').value;
+    
+    if (!recipientId || !subject || !body) {
+        alert('Please fill in all fields');
+        return;
+    }
+    
+    // TODO: Implement email sending
+    alert('Sending email to prospect ' + recipientId);
+    
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('composeModal'));
+    modal.hide();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Tender Details - TenderPulse{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-file-contract me-2"></i> Tender Details</h2>
+    <div>
+        <a href="{{ tender.url }}" target="_blank" class="btn btn-success me-2">
+            <i class="fas fa-external-link-alt me-2"></i>View on TED
+        </a>
+        <a href="{{ url_for('matching') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Matching
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Tender Information -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Tender Information</h5>
+            </div>
+            <div class="card-body">
+                <h4>{{ tender.title }}</h4>
+                <p class="text-muted">{{ tender.summary }}</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>Value:</strong></td>
+                                <td>€{{ "{:,}".format(tender.value_amount) }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Country:</strong></td>
+                                <td><span class="badge bg-primary">{{ tender.buyer_country }}</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Buyer:</strong></td>
+                                <td>{{ tender.buyer_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deadline:</strong></td>
+                                <td>{{ tender.deadline_date }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <td><strong>CPV Codes:</strong></td>
+                                <td>
+                                    {% for cpv in tender.cpv_codes %}
+                                        <span class="badge bg-secondary me-1">{{ cpv }}</span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>TED ID:</strong></td>
+                                <td><code>{{ tender.id }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>URL:</strong></td>
+                                <td><a href="{{ tender.url }}" target="_blank">View on TED</a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Winning Strategy -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-trophy me-2"></i>Winning Strategy</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="display-4 text-primary">{{ tender.winning_strategy.success_probability }}</div>
+                            <p class="text-muted">Success Probability</p>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Competition Level</h6>
+                        <p>{{ tender.winning_strategy.competition_level }}</p>
+                        
+                        <h6>Deadline Strategy</h6>
+                        <p>{{ tender.winning_strategy.deadline_strategy }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Success Factors -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-key me-2"></i>Key Success Factors</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for factor in tender.winning_strategy.key_success_factors %}
+                    <li class="list-group-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>{{ factor }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Preparation Checklist -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-clipboard-list me-2"></i>Preparation Checklist</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for item in tender.winning_strategy.preparation_checklist %}
+                    <div class="col-md-6 mb-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="check_{{ loop.index }}">
+                            <label class="form-check-label" for="check_{{ loop.index }}">
+                                {{ item }}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Match Score -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-bullseye me-2"></i>Your Match Score</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="display-1 
+                    {% if tender.smart_score >= 80 %}text-success
+                    {% elif tender.smart_score >= 60 %}text-warning
+                    {% else %}text-danger{% endif %}">
+                    {{ tender.smart_score }}%
+                </div>
+                <p class="text-muted">Match Score</p>
+                
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar 
+                        {% if tender.smart_score >= 80 %}bg-success
+                        {% elif tender.smart_score >= 60 %}bg-warning
+                        {% else %}bg-danger{% endif %}" 
+                        style="width: {{ tender.smart_score }}%">
+                    </div>
+                </div>
+                
+                {% if tender.smart_score >= 80 %}
+                <div class="alert alert-success">
+                    <i class="fas fa-star me-2"></i>Excellent match! High probability of success.
+                </div>
+                {% elif tender.smart_score >= 60 %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-thumbs-up me-2"></i>Good match. Worth considering.
+                </div>
+                {% else %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Lower match. Consider carefully.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Match Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5><i class="fas fa-user me-2"></i>Why This Matches</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-euro-sign text-success me-2"></i>
+                        <strong>Value:</strong> €{{ "{:,}".format(tender.value_amount) }}
+                        {% if profile.target_value_range[0] <= tender.value_amount <= profile.target_value_range[1] %}
+                        <span class="badge bg-success ms-2">In Range</span>
+                        {% else %}
+                        <span class="badge bg-warning ms-2">Outside Range</span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-globe text-success me-2"></i>
+                        <strong>Country:</strong> {{ tender.buyer_country }}
+                        {% if tender.buyer_country in profile.preferred_countries %}
+                        <span class="badge bg-success ms-2">Preferred</span>
+                        {% else %}
+                        <span class="badge bg-secondary ms-2">Other</span>
+                        {% endif %}
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-tags text-success me-2"></i>
+                        <strong>CPV:</strong> 
+                        {% for cpv in tender.cpv_codes %}
+                            <span class="badge bg-secondary me-1">{{ cpv }}</span>
+                        {% endfor %}
+                        {% if tender.cpv_codes[0][:2] in [cpv[:2] for cpv in profile.cpv_expertise] %}
+                        <span class="badge bg-success ms-2">Expertise</span>
+                        {% else %}
+                        <span class="badge bg-warning ms-2">New Area</span>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ tender.url }}" target="_blank" class="btn btn-success">
+                        <i class="fas fa-external-link-alt me-2"></i>View on TED
+                    </a>
+                    <button class="btn btn-outline-primary" onclick="copyTenderInfo()">
+                        <i class="fas fa-copy me-2"></i>Copy Tender Info
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="printTender()">
+                        <i class="fas fa-print me-2"></i>Print Details
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyTenderInfo() {
+    const tenderInfo = `
+Tender: {{ tender.title }}
+Value: €{{ "{:,}".format(tender.value_amount) }}
+Country: {{ tender.buyer_country }}
+Buyer: {{ tender.buyer_name }}
+Deadline: {{ tender.deadline_date }}
+Match Score: {{ tender.smart_score }}%
+URL: {{ tender.url }}
+    `.trim();
+    
+    navigator.clipboard.writeText(tenderInfo).then(() => {
+        alert('Tender information copied to clipboard!');
+    });
+}
+
+function printTender() {
+    window.print();
+}
+</script>
+{% endblock %}

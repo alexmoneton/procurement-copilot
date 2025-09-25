@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from .endpoints import health, tenders, filters, profiles, admin
+from .endpoints import health, tenders, filters, profiles, admin, seo
 
 # Import billing with error handling
 try:
@@ -34,3 +34,4 @@ else:
 
 api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(seo.router, prefix="/seo", tags=["seo"])

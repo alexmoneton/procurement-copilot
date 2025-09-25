@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - TenderPulse{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user-cog me-2"></i> My Profile</h2>
+    <a href="{{ url_for('matching') }}" class="btn btn-primary">
+        <i class="fas fa-bullseye me-2"></i>View Matching Tenders
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-edit me-2"></i>Profile Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_profile') }}">
+                    <!-- Company Information -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-building me-2"></i>Company Information</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name" 
+                                       value="{{ profile.company_name if profile else '' }}" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="company_size" class="form-label">Company Size</label>
+                                <select class="form-select" id="company_size" name="company_size">
+                                    <option value="">Select size</option>
+                                    <option value="1-10" {% if profile and profile.company_size == '1-10' %}selected{% endif %}>1-10 employees</option>
+                                    <option value="11-50" {% if profile and profile.company_size == '11-50' %}selected{% endif %}>11-50 employees</option>
+                                    <option value="51-200" {% if profile and profile.company_size == '51-200' %}selected{% endif %}>51-200 employees</option>
+                                    <option value="200+" {% if profile and profile.company_size == '200+' %}selected{% endif %}>200+ employees</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="experience_level" class="form-label">Experience Level</label>
+                                <select class="form-select" id="experience_level" name="experience_level">
+                                    <option value="">Select level</option>
+                                    <option value="beginner" {% if profile and profile.experience_level == 'beginner' %}selected{% endif %}>Beginner</option>
+                                    <option value="intermediate" {% if profile and profile.experience_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                                    <option value="expert" {% if profile and profile.experience_level == 'expert' %}selected{% endif %}>Expert</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Value Range -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-euro-sign me-2"></i>Target Contract Value Range</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="min_value" class="form-label">Minimum Value (€)</label>
+                                <input type="number" class="form-control" id="min_value" name="min_value" 
+                                       value="{{ profile.target_value_range[0] if profile else 50000 }}" 
+                                       min="1000" max="10000000" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="max_value" class="form-label">Maximum Value (€)</label>
+                                <input type="number" class="form-control" id="max_value" name="max_value" 
+                                       value="{{ profile.target_value_range[1] if profile else 2000000 }}" 
+                                       min="1000" max="10000000" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferred Countries -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-globe me-2"></i>Preferred Countries</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="DE" id="country_de" name="countries"
+                                           {% if profile and 'DE' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_de">
+                                        🇩🇪 Germany
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="FR" id="country_fr" name="countries"
+                                           {% if profile and 'FR' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_fr">
+                                        🇫🇷 France
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="NL" id="country_nl" name="countries"
+                                           {% if profile and 'NL' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_nl">
+                                        🇳🇱 Netherlands
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="IT" id="country_it" name="countries"
+                                           {% if profile and 'IT' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_it">
+                                        🇮🇹 Italy
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="ES" id="country_es" name="countries"
+                                           {% if profile and 'ES' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_es">
+                                        🇪🇸 Spain
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="PL" id="country_pl" name="countries"
+                                           {% if profile and 'PL' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_pl">
+                                        🇵🇱 Poland
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="SE" id="country_se" name="countries"
+                                           {% if profile and 'SE' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_se">
+                                        🇸🇪 Sweden
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="NO" id="country_no" name="countries"
+                                           {% if profile and 'NO' in profile.preferred_countries %}checked{% endif %}>
+                                    <label class="form-check-label" for="country_no">
+                                        🇳🇴 Norway
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CPV Expertise -->
+                    <div class="mb-4">
+                        <h6><i class="fas fa-tags me-2"></i>CPV Expertise (Common Procurement Vocabulary)</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="45000000" id="cpv_construction" name="cpv_codes"
+                                           {% if profile and '45000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_construction">
+                                        🏗️ Construction work (45)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="72000000" id="cpv_it" name="cpv_codes"
+                                           {% if profile and '72000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_it">
+                                        💻 IT services (72)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="50000000" id="cpv_maintenance" name="cpv_codes"
+                                           {% if profile and '50000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_maintenance">
+                                        🔧 Repair and maintenance (50)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="79000000" id="cpv_business" name="cpv_codes"
+                                           {% if profile and '79000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_business">
+                                        💼 Business services (79)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="71000000" id="cpv_engineering" name="cpv_codes"
+                                           {% if profile and '71000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_engineering">
+                                        🔬 Engineering services (71)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="85000000" id="cpv_health" name="cpv_codes"
+                                           {% if profile and '85000000' in profile.cpv_expertise %}checked{% endif %}>
+                                    <label class="form-check-label" for="cpv_health">
+                                        🏥 Health and social work (85)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Profile
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>How Matching Works</h5>
+            </div>
+            <div class="card-body">
+                <h6>🎯 Smart Scoring (0-100%)</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Value Match (25 pts):</strong> Contracts in your sweet spot</li>
+                    <li><strong>Geographic (15 pts):</strong> Preferred countries</li>
+                    <li><strong>CPV Match (20 pts):</strong> Your expertise areas</li>
+                    <li><strong>Competition (15 pts):</strong> Fewer bidders = higher score</li>
+                    <li><strong>Deadline (10 pts):</strong> More time = better score</li>
+                </ul>
+
+                <h6>🏆 Winning Strategies</h6>
+                <p>For each tender, you'll get:</p>
+                <ul>
+                    <li>Success probability</li>
+                    <li>Competition analysis</li>
+                    <li>Key success factors</li>
+                    <li>Preparation checklist</li>
+                    <li>Deadline strategy</li>
+                </ul>
+
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-lightbulb me-1"></i>
+                        <strong>Tip:</strong> The more specific your profile, the better the matches!
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

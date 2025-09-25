@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - TenderPulse Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-chart-bar me-2"></i> Analytics</h2>
+    <button class="btn btn-primary" onclick="refreshAnalytics()">
+        <i class="fas fa-sync-alt me-2"></i>Refresh
+    </button>
+</div>
+
+<!-- Key Metrics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ funnel_data.get('found', 0) + funnel_data.get('email_found', 0) + funnel_data.get('contacted', 0) + funnel_data.get('responded', 0) + funnel_data.get('converted', 0) }}</div>
+                <div class="stat-label">Total Prospects</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ funnel_data.get('email_found', 0) }}</div>
+                <div class="stat-label">Emails Found</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ email_performance|sum(attribute='emails_sent') or 0 }}</div>
+                <div class="stat-label">Emails Sent</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-number">{{ funnel_data.get('converted', 0) }}</div>
+                <div class="stat-label">Conversions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Prospects by Status</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-globe me-2"></i>Prospects by Country</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="countryChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-envelope-open me-2"></i>Email Performance</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <div class="h4 text-primary">
+                                {% set total_sent = email_performance|sum(attribute='emails_sent') %}
+                                {% set total_opened = email_performance|sum(attribute='emails_opened') %}
+                                {% if total_sent > 0 %}{{ ((total_opened / total_sent) * 100)|round(1) }}{% else %}0{% endif %}%
+                            </div>
+                            <small class="text-muted">Open Rate</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <div class="h4 text-success">
+                                {% set total_sent = email_performance|sum(attribute='emails_sent') %}
+                                {% set total_replied = email_performance|sum(attribute='emails_replied') %}
+                                {% if total_sent > 0 %}{{ ((total_replied / total_sent) * 100)|round(1) }}{% else %}0{% endif %}%
+                            </div>
+                            <small class="text-muted">Reply Rate</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="h4 text-warning">
+                            {% set total_responded = funnel_data.get('responded', 0) %}
+                            {% set total_converted = funnel_data.get('converted', 0) %}
+                            {% if total_responded > 0 %}{{ ((total_converted / total_responded) * 100)|round(1) }}{% else %}0{% endif %}%
+                        </div>
+                        <small class="text-muted">Conversion Rate</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-trophy me-2"></i>Top Performing Sectors</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for sector in sector_performance[:5] %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ sector.sector }}
+                        <span class="badge bg-primary rounded-pill">{{ sector.total_prospects }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-clock me-2"></i>Recent Activity</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Action</th>
+                        <th>Company</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in daily_activity[:5] %}
+                    <tr>
+                        <td>{{ activity.date }}</td>
+                        <td>
+                            <span class="badge bg-info">Prospects Found</span>
+                        </td>
+                        <td>{{ activity.prospects_found }} prospects</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function refreshAnalytics() {
+    window.location.reload();
+}
+
+// Status Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Found', 'Email Found', 'Contacted', 'Responded', 'Converted'],
+        datasets: [{
+            data: [
+                {{ funnel_data.get('found', 0) }},
+                {{ funnel_data.get('email_found', 0) }},
+                {{ funnel_data.get('contacted', 0) }},
+                {{ funnel_data.get('responded', 0) }},
+                {{ funnel_data.get('converted', 0) }}
+            ],
+            backgroundColor: [
+                '#17a2b8',
+                '#ffc107',
+                '#007bff',
+                '#28a745',
+                '#6f42c1'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+});
+
+// Country Chart
+const countryCtx = document.getElementById('countryChart').getContext('2d');
+new Chart(countryCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Germany', 'France', 'Netherlands', 'Italy', 'Spain'],
+        datasets: [{
+            label: 'Prospects',
+            data: [
+                {% for country in country_performance[:5] %}{{ country.total_prospects }}{% if not loop.last %},{% endif %}{% endfor %}
+            ],
+            backgroundColor: '#667eea'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
