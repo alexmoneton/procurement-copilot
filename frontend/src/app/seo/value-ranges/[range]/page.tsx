@@ -108,14 +108,28 @@ export default async function ValueRangePage({ params }: ValueRangePageProps) {
   }
 
   // Fetch tenders for this value range
+  // Note: The API doesn't support min_value/max_value filtering yet
+  // For now, we'll fetch all tenders and filter client-side
   const response = await apiClient.getTenders({ 
-    min_value: rangeInfo.minValue,
-    max_value: rangeInfo.maxValue,
-    limit: 20 
+    limit: 100  // Get more tenders to filter client-side
   })
 
-  const tenders = response.data?.tenders || []
-  const totalTenders = response.data?.total || 0
+  // Filter tenders by value range client-side
+  const allTenders = response.data?.tenders || []
+  const filteredTenders = allTenders.filter(tender => {
+    if (!tender.value_amount) return false
+    
+    if (rangeInfo.minValue !== null && tender.value_amount < rangeInfo.minValue) {
+      return false
+    }
+    if (rangeInfo.maxValue !== null && tender.value_amount > rangeInfo.maxValue) {
+      return false
+    }
+    return true
+  })
+  
+  const tenders = filteredTenders.slice(0, 20) // Show first 20 matching tenders
+  const totalTenders = filteredTenders.length
 
   // Calculate total value
   const totalValue = tenders.reduce((sum, tender) => {

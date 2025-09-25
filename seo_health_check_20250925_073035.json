@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-09-25T07:30:33.702246",
+  "base_url": "https://tenderpulse.eu",
+  "sitemap": {
+    "status_code": 404,
+    "response_time": 0,
+    "accessible": false,
+    "error": "HTTP 404"
+  },
+  "seo_pages": {
+    "/seo/countries/de": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/seo/countries/fr": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/seo/countries/es": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/seo/cpv-codes/72000000": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/seo/cpv-codes/45000000": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/seo/value-ranges/medium": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    }
+  },
+  "api_endpoints": {
+    "/api/v1/seo/tenders": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/api/v1/seo/sitemap-data": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    },
+    "/api/v1/seo/page-intro": {
+      "status_code": 404,
+      "response_time": 0,
+      "accessible": false,
+      "error": "HTTP 404"
+    }
+  },
+  "health_score": 0.0,
+  "total_checks": 10,
+  "passed_checks": 0
+}
