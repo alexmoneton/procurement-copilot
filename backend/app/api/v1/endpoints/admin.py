@@ -17,7 +17,7 @@ async def test_email(
 ):
     """Test email delivery."""
     try:
-        from ...services.email import EmailService
+        from ....services.email import EmailService
         
         email_service = EmailService()
         
