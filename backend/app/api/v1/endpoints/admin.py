@@ -17,9 +17,22 @@ async def test_email(
 ):
     """Test email delivery."""
     try:
-        from ....services.email import EmailService
+        # Simple direct test using Resend API
+        import httpx
+        from ....core.config import settings
         
-        email_service = EmailService()
+        resend_api_key = getattr(settings, 'resend_api_key', None)
+        if not resend_api_key:
+            return {
+                "status": "error",
+                "message": "No Resend API key configured",
+                "result": None
+            }
+        
+        headers = {
+            "Authorization": f"Bearer {resend_api_key}",
+            "Content-Type": "application/json",
+        }
         
         html_content = f"""
         <html>
@@ -40,23 +53,22 @@ async def test_email(
         </html>
         """
         
-        text_content = f"""
-        TenderPulse Email Test
+        payload = {
+            "from": "TenderPulse <alerts@tenderpulse.eu>",
+            "to": [to],
+            "subject": subject,
+            "html": html_content,
+        }
         
-        {message}
-        
-        If you received this email, your TenderPulse email system is working correctly.
-        
-        --
-        TenderPulse - Real-time signals for European public contracts
-        """
-        
-        result = await email_service.send_email(
-            to=to,
-            subject=subject,
-            html_content=html_content,
-            text_content=text_content
-        )
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                "https://api.resend.com/emails",
+                headers=headers,
+                json=payload,
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            result = response.json()
         
         logger.info(f"Test email sent successfully to {to}: {result}")
         return {
