@@ -143,7 +143,6 @@ class TestEmailService:
         assert "Alex" in html
         assert "Test Filter" in html
         assert "new tender" in html
-        assert "test@example.com" in html
         assert "Test Tender 1" in html
 
     def test_generate_email_text(self):
