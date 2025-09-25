@@ -16,9 +16,22 @@ from app.db.session import get_db
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 from sqlalchemy.pool import StaticPool
+from sqlalchemy import JSON
 
 # Test database URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+
+# Override ARRAY fields with JSON for SQLite compatibility
+def patch_models_for_sqlite():
+    """Patch models to use JSON instead of ARRAY for SQLite compatibility."""
+    # Override cpv_codes field in Tender model
+    if hasattr(Tender, 'cpv_codes'):
+        Tender.cpv_codes.type = JSON()
+    
+    # Override cpv_codes field in Award model if it exists
+    from app.db.models import Award
+    if hasattr(Award, 'cpv_codes'):
+        Award.cpv_codes.type = JSON()
 
 
 @pytest.fixture(scope="session")
@@ -32,6 +45,9 @@ def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
 @pytest_asyncio.fixture(scope="function")
 async def test_db() -> AsyncGenerator[AsyncSession, None]:
     """Create a test database session."""
+    # Patch models for SQLite compatibility
+    patch_models_for_sqlite()
+    
     # Create test engine
     engine = create_async_engine(
         TEST_DATABASE_URL,
