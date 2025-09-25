@@ -196,8 +196,8 @@ class EmailService:
     """Email service for sending tender notifications."""
     
     def __init__(self, provider: Optional[EmailProvider] = None):
-        self.provider = provider or self._create_provider()
         self.logger = logger.bind(service="email_service")
+        self.provider = provider or self._create_provider()
     
     def _create_provider(self) -> EmailProvider:
         """Create email provider based on configuration."""
