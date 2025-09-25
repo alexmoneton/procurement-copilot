@@ -1415,6 +1415,8 @@ Alex
         if not original_buyer:
             return "Government Agency"
         
+        if isinstance(original_buyer, dict):
+            original_buyer = str(original_buyer)
         buyer_lower = original_buyer.lower()
         
         # Map similar cities/regions
@@ -1494,6 +1496,8 @@ Alex
         if not original_buyer:
             return "Government Agency"
         
+        if isinstance(original_buyer, dict):
+            original_buyer = str(original_buyer)
         buyer_lower = original_buyer.lower()
         
         # Different mapping for second similar buyer
@@ -1523,6 +1527,8 @@ Alex
         if not original_buyer:
             return "Government Agency"
         
+        if isinstance(original_buyer, dict):
+            original_buyer = str(original_buyer)
         buyer_lower = original_buyer.lower()
         
         # Third mapping for final buyer

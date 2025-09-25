@@ -104,19 +104,26 @@ async def run_automated_system():
                         # Send email if auto-sending is enabled
                         if auto_send:
                             print(f"   📤 Sending email...")
-                            result = await email_sender.send_email(
-                                to_email=prospect.email,
-                                subject=email_content['subject'],
-                                body=email_content['body'],
-                                html_body=email_content['html_body']
-                            )
-                            
-                            if result['status'] == 'sent':
-                                prospect.status = 'contacted'
-                                sent_count += 1
-                                print(f"   ✅ Email sent successfully!")
-                            else:
-                                print(f"   ❌ Email failed: {result.get('error', 'Unknown error')}")
+                            # Use Resend API instead of email_sender
+                            import requests
+                            try:
+                                response = requests.post(
+                                    'https://api.tenderpulse.eu/api/v1/admin/test-email',
+                                    params={
+                                        'to': prospect.email,
+                                        'subject': email_content['subject'],
+                                        'message': email_content['body']
+                                    },
+                                    timeout=30
+                                )
+                                if response.status_code == 200:
+                                    result = response.json()
+                                    print(f"   ✅ Email sent successfully (ID: {result.get('result', {}).get('id', 'unknown')})")
+                                    sent_count += 1
+                                else:
+                                    print(f"   ❌ Failed to send email: HTTP {response.status_code}")
+                            except Exception as e:
+                                print(f"   ❌ Error sending email: {e}")
                         else:
                             print(f"   ⚠️  Email generated but NOT sent (auto-sending disabled)")
                             print(f"   📝 Subject: {email_content['subject']}")
