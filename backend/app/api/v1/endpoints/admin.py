@@ -36,18 +36,25 @@ async def test_email(
         
         html_content = f"""
         <html>
-        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #003399; color: white; padding: 20px; text-align: center;">
-                <h1>🎯 TenderPulse</h1>
-            </div>
-            <div style="padding: 20px;">
-                <h2>Email Test Successful!</h2>
-                <p>{message}</p>
-                <p>If you received this email, your TenderPulse email system is working correctly.</p>
-                <hr>
-                <p style="color: #666; font-size: 12px;">
-                    TenderPulse - Real-time signals for European public contracts
-                </p>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa;">
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin: 20px; overflow: hidden;">
+                <div style="padding: 30px 20px; text-align: center; border-bottom: 1px solid #e9ecef;">
+                    <h1 style="margin: 0; color: #003399; font-size: 24px; font-weight: 600;">TenderPulse</h1>
+                    <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 14px;">Real-time signals for European public contracts</p>
+                </div>
+                <div style="padding: 30px 20px;">
+                    <h2 style="margin: 0 0 20px 0; color: #212529; font-size: 20px; font-weight: 500;">Email Test Successful!</h2>
+                    <p style="margin: 0 0 15px 0; color: #495057; line-height: 1.5;">{message}</p>
+                    <p style="margin: 0 0 20px 0; color: #495057; line-height: 1.5;">If you received this email, your TenderPulse email system is working correctly.</p>
+                    <div style="background: #e3f2fd; border-left: 4px solid #003399; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin: 0; color: #003399; font-size: 14px; font-weight: 500;">✅ Email delivery confirmed</p>
+                    </div>
+                </div>
+                <div style="padding: 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; text-align: center;">
+                    <p style="margin: 0; color: #6c757d; font-size: 12px;">
+                        TenderPulse - Independent EU procurement monitoring service
+                    </p>
+                </div>
             </div>
         </body>
         </html>
