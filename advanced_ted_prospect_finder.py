@@ -1604,16 +1604,11 @@ Alex
                 body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
                 .opportunity {{ background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }}
-                .footer {{ border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #666; }}
             </style>
         </head>
         <body>
             <div class="container">
                 {html_body}
-                <div class="footer">
-                    <p>TenderPulse - Never Miss Another Tender</p>
-                    <p>This email was sent because you recently participated in EU public procurement.</p>
-                </div>
             </div>
         </body>
         </html>
