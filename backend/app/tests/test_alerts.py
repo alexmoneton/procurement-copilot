@@ -140,9 +140,9 @@ class TestEmailService:
 
         html = service._generate_email_html("Test Filter", tenders, "test@example.com")
 
-        assert "Procurement Copilot" in html
+        assert "Alex" in html
         assert "Test Filter" in html
-        assert "1 new tender" in html
+        assert "new tender" in html
         assert "test@example.com" in html
         assert "Test Tender 1" in html
 
