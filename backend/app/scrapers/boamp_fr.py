@@ -226,13 +226,21 @@ class BOAMPFRScraper(BaseScraper):
         ]
         
         for selector in cpv_selectors:
-            elements = parser.css(selector)
-            for elem in elements:
-                text = self._clean_text(elem.text())
-                if text:
-                    # Extract 8-digit codes
-                    codes = re.findall(r"\b\d{8}\b", text)
-                    cpv_codes.extend(codes)
+            try:
+                elements = parser.css(selector)
+                for elem in elements:
+                    try:
+                        text = self._clean_text(elem.text())
+                        if text:
+                            # Extract 8-digit codes
+                            codes = re.findall(r"\b\d{8}\b", text)
+                            cpv_codes.extend(codes)
+                    except Exception as e:
+                        self.logger.warning(f"Error processing element: {e}")
+                        continue
+            except Exception as e:
+                self.logger.warning(f"Error with selector {selector}: {e}")
+                continue
         
         return self._normalize_cpv_codes(cpv_codes)
 
