@@ -46,7 +46,7 @@ class ResendEmailProvider(EmailProvider):
         }
         
         payload = {
-            "from": "TenderPulse <alerts@tenderpulse.eu>",
+            "from": "TenderPulse <alex@tenderpulse.eu>",
             "to": [to],
             "subject": subject,
             "html": html_content,
@@ -107,7 +107,7 @@ class SendGridEmailProvider(EmailProvider):
                 }
             ],
             "from": {
-                "email": "alerts@tenderpulse.eu",
+                "email": "alex@tenderpulse.eu",
                 "name": "TenderPulse"
             },
             "content": [

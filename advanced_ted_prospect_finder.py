@@ -1243,7 +1243,7 @@ Deadline: {self.generate_deadline()}
 
 Since you already have the experience from {buyer_short}, this could be a good match.
 
-Here's the TED listing: https://ted.europa.eu/udl?uri=TED:NOTICE:{prospect.lost_tender_id}
+We have a personalized list of tenders that will interest you: https://tenderpulse.eu
 
 Alex
 TenderPulse
@@ -1432,8 +1432,16 @@ Alex
             return "Government Agency"
         
         if isinstance(original_buyer, dict):
-            original_buyer = str(original_buyer)
-        buyer_lower = original_buyer.lower()
+            # Handle dictionary case - extract meaningful value
+            for key, value in original_buyer.items():
+                if value and isinstance(value, str) and len(value) > 2:
+                    original_buyer = value
+                    break
+            else:
+                # If no good value, use first key
+                original_buyer = list(original_buyer.keys())[0] if original_buyer else "Government Agency"
+        
+        buyer_lower = str(original_buyer).lower()
         
         # Map similar cities/regions
         if 'berlin' in buyer_lower:
@@ -1581,6 +1589,12 @@ Alex
     def convert_to_html(self, text_body: str) -> str:
         """Convert plain text email to HTML"""
         html_body = text_body.replace('\n', '<br>')
+        
+        # Make the TenderPulse link highlighted
+        html_body = html_body.replace(
+            'We have a personalized list of tenders that will interest you: https://tenderpulse.eu',
+            'We have a <a href="https://tenderpulse.eu" style="color: #007bff; text-decoration: underline;">personalized list of tenders that will interest you</a>'
+        )
         
         # Add basic styling
         html_template = f"""
