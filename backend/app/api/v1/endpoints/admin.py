@@ -42,15 +42,15 @@ async def test_email(
             <title>Test Email</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; text-align: left;">
-            <div style="padding: 0;">
-                <p style="margin: 0; font-size: 14px; line-height: 1.4;">{message}</p>
+            <div style="padding: 0; margin: 0;">
+                <div style="margin: 0; padding: 0; font-size: 14px; line-height: 1.4;">{message}</div>
             </div>
         </body>
         </html>
         """
         
         payload = {
-            "from": "alex@tenderpulse.eu",
+            "from": "Alexandre Monéton <alex@tenderpulse.eu>",
             "to": [to],
             "subject": subject,
             "html": html_content,
