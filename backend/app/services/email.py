@@ -46,7 +46,7 @@ class ResendEmailProvider(EmailProvider):
         }
         
         payload = {
-            "from": "Procurement Copilot <noreply@procurement-copilot.com>",
+            "from": "TenderPulse <alerts@tenderpulse.eu>",
             "to": [to],
             "subject": subject,
             "html": html_content,
