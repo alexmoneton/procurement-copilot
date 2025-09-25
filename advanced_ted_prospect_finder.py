@@ -1216,34 +1216,27 @@ class EmailTemplateGenerator:
         if similar_opportunities is None:
             similar_opportunities = self.generate_mock_opportunities(prospect)
         
-        # Subject line variations - new data-driven approach
+        # Subject line - direct and compelling
         value_short = self.format_value_short(prospect.lost_tender_value)
         buyer_short = self.format_buyer_short(prospect.buyer_name)
-        subject_options = [
-            f"Similar {value_short} contract to your {buyer_short} bid",
-            f"Third similar contract this month",
-            f"Last one - {value_short} contract matches your {buyer_short} bid exactly"
-        ]
+        similar_buyer = self.generate_similar_buyer(prospect.buyer_name)
+        similar_value = self.generate_similar_value(prospect.lost_tender_value, 1.2)  # 20% higher
+        
+        subject = f"{similar_buyer} {similar_value} tender - same as your {buyer_short} bid"
         
         # Personalized greeting - use first name only
         contact_name = prospect.contact_name.split()[0] if prospect.contact_name and ' ' in prospect.contact_name else (prospect.contact_name or "there")
         greeting = f"{contact_name},"
         
-        # Email body - new data-driven approach
+        # Email body - direct and compelling
         email_body = f"""{greeting}
 
-I saw {prospect.company_name} bid on the {value_short} {buyer_short} {prospect.sector.lower()} contract that awarded on {self.format_date(prospect.lost_date)}.
+Quick heads up: {similar_buyer} just posted a {similar_value} {prospect.sector.lower()} tender identical to the {buyer_short} contract you bid on.
 
-Just found a similar opportunity:
+Deadline: {self.generate_deadline()} (3 weeks prep time)
+Portal: https://tenderpulse.eu
 
-{value_short} {prospect.sector.lower()} contract
-{self.generate_similar_buyer(prospect.buyer_name)}  
-Same scope as {buyer_short}
-Deadline: {self.generate_deadline()}
-
-Since you already have the experience from {buyer_short}, this could be a good match.
-
-We have a personalized list of tenders that will interest you: https://tenderpulse.eu
+Only 2 companies have downloaded the documents so far.
 
 Alex
 TenderPulse
@@ -1253,7 +1246,7 @@ TenderPulse
         html_body = self.convert_to_html(email_body)
         
         return {
-            'subject': subject_options[0],
+            'subject': subject,
             'body': email_body,
             'html_body': html_body,
             'prospect_score': prospect.pain_level,
@@ -1590,10 +1583,10 @@ Alex
         """Convert plain text email to HTML"""
         html_body = text_body.replace('\n', '<br>')
         
-        # Make the TenderPulse link highlighted
+        # Make the TenderPulse portal link highlighted
         html_body = html_body.replace(
-            'We have a personalized list of tenders that will interest you: https://tenderpulse.eu',
-            'We have a <a href="https://tenderpulse.eu" style="color: #007bff; text-decoration: underline;">personalized list of tenders that will interest you</a>'
+            'Portal: https://tenderpulse.eu',
+            'Portal: <a href="https://tenderpulse.eu" style="color: #007bff; text-decoration: underline;">https://tenderpulse.eu</a>'
         )
         
         # Add basic styling

@@ -42,9 +42,8 @@ async def test_email(
             <title>Test Email</title>
         </head>
         <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; text-align: left;">
-            <div style="padding: 20px;">
-                <p style="margin: 0 0 16px 0; font-size: 14px; line-height: 1.4;">{message}</p>
-                <p style="margin: 0; font-size: 14px; line-height: 1.4;">If you received this email, your email system is working correctly.</p>
+            <div style="padding: 0;">
+                <p style="margin: 0; font-size: 14px; line-height: 1.4;">{message}</p>
             </div>
         </body>
         </html>
