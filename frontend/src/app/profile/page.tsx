@@ -4,8 +4,12 @@ import { useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
+// Route segment config
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function ProfilePage() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const router = useRouter()
   const [formData, setFormData] = useState({
     company: '',
@@ -61,6 +65,14 @@ export default function ProfilePage() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
   if (!user) {

@@ -394,7 +394,7 @@ export default function PricingPage() {
         <div className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-auto" />
+              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-auto" />
               <span className="text-xl font-bold text-white">TenderPulse</span>
             </div>
             <p className="text-sm text-gray-400">

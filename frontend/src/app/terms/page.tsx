@@ -23,7 +23,7 @@ export default function TermsPage() {
             1. Acceptance of Terms
           </h2>
           <p className="text-gray-600 mb-6">
-            By accessing and using TenderPulse ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+            By accessing and using TenderPulse (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
           </p>
 
           <h2 className="text-2xl font-bold text-gray-900 mb-4" style={{fontFamily: 'Manrope, sans-serif'}}>

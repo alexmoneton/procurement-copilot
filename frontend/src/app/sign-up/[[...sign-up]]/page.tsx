@@ -1,13 +1,14 @@
 'use client'
 
 import { SignUp } from '@clerk/nextjs'
+import Image from 'next/image'
 
 export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <img src="/logo.svg" alt="TenderPulse" className="h-12 w-auto" />
+          <Image src="/logo.svg" alt="TenderPulse" width={48} height={48} className="h-12 w-auto" />
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900" style={{fontFamily: 'Manrope, sans-serif'}}>
           Start your free trial

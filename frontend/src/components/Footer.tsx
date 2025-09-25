@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <img src="/logo.svg" alt="TenderPulse" className="h-8 w-8" />
+              <Image src="/logo.svg" alt="TenderPulse" width={32} height={32} className="h-8 w-8" />
               <span className="text-xl font-bold text-[#003399]" style={{fontFamily: 'Manrope, sans-serif'}}>
                 TenderPulse
               </span>
