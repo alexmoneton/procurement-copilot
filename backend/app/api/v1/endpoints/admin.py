@@ -40,11 +40,13 @@ async def test_email(
         <head>
             <meta charset="utf-8">
             <title>Test Email</title>
+            <style>
+                body, div, p, span { margin: 0 !important; padding: 0 !important; }
+                body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; }
+            </style>
         </head>
-        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.4; color: #333; text-align: left;">
-            <div style="padding: 0; margin: 0;">
-                <div style="margin: 0; padding: 0; font-size: 14px; line-height: 1.4;">{message}</div>
-            </div>
+        <body>
+            {message}
         </body>
         </html>
         """
