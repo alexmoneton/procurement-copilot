@@ -122,7 +122,7 @@ export default async function ValueRangePage({ params }: ValueRangePageProps) {
     if (rangeInfo.minValue !== null && tender.value_amount < rangeInfo.minValue) {
       return false
     }
-    if (rangeInfo.maxValue !== null && tender.value_amount > rangeInfo.maxValue) {
+    if (rangeInfo.maxValue !== null && rangeInfo.maxValue !== undefined && tender.value_amount > rangeInfo.maxValue) {
       return false
     }
     return true
