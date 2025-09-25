@@ -327,20 +327,17 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
         """
     
     def _generate_simple_html(self, message: str) -> str:
-        """Generate simple HTML email with logo."""
+        """Generate simple HTML email."""
         return f"""
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Test Email</title>
         </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="padding: 20px 0;">
-                <p style="font-size: 16px; margin: 0 0 20px 0;">{message}</p>
-                <p style="font-size: 14px; color: #666; margin: 0;">If you received this email, your email system is working correctly.</p>
-            </div>
+        <body>
+            <p>{message}</p>
+            <p>If you received this email, your email system is working correctly.</p>
         </body>
         </html>
         """
