@@ -3,12 +3,7 @@
     "apollo_io": "y47FTdF1ch9C7DdUwh1ffw",
     "hunter_io": "c3889ba122d60ac4d635a07b8467597564f533f3"
   },
-  "email_provider": "sendgrid",
-  "sendgrid": {
-    "api_key": "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",
-    "from_email": "alex@tenderpulse.eu",
-    "from_name": "Alex from TenderPulse"
-  },
+  "email_provider": "resend",
   "resend": {
     "api_key": "",
     "from_email": "alex@tenderpulse.eu",
@@ -36,7 +31,7 @@
     "ted_requests_per_minute": 30,
     "apollo_requests_per_minute": 20,
     "hunter_requests_per_minute": 10,
-    "sendgrid_emails_per_hour": 100
+    "resend_emails_per_hour": 100
   },
   "search_params": {
     "countries": [
@@ -66,7 +61,7 @@
   "daily_budgets": {
     "apollo_requests": 1000,
     "hunter_requests": 500,
-    "sendgrid_emails": 200,
+    "resend_emails": 200,
     "ted_requests": 2000
   },
   "cache_ttl_hours": 24,

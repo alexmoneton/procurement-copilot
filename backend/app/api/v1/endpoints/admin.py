@@ -40,23 +40,12 @@ async def test_email(
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>TenderPulse</title>
+            <title>Test Email</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background-color: #003399; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; position: relative;">
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNiIgZmlsbD0iIzAwMzM5OSIvPgogIDxnIHN0cm9rZT0iI0ZGQ0MwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0ibm9uZSI+CiAgICA8cGF0aCBkPSJNNiAxNiBMMTAgMTYgTDEyIDEwIEwxNiAyMiBMMTggNiBMMjAgMTYgTDI2IDE2IiBvcGFjaXR5PSIxIi8+CiAgICA8cGF0aCBkPSJNOCAyMCBMMTAgMjAgTDEyIDE4IEwxNCAyMiBMMTYgMTggTDE4IDIwIEwyNCAyMCIgb3BhY2l0eT0iMC42IiBzdHJva2Utd2lkdGg9IjIiLz4KICA8L2c+CiAgPGcgZmlsbD0iI0ZGQ0MwMCIgb3BhY2l0eT0iMC45Ij4KICAgIDxjaXJjbGUgY3g9IjgiIGN5PSI4IiByPSIxIi8+CiAgICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjgiIHI9IjEiLz4KICA8L2c+Cjwvc3ZnPg==" alt="TenderPulse" style="width: 32px; height: 32px; position: absolute; left: 20px; top: 50%; transform: translateY(-50%);">
-                <h1 style="margin: 0; font-size: 24px; font-family: 'Manrope', sans-serif;">TenderPulse</h1>
-            </div>
-            
-            <div style="background-color: white; padding: 20px; border: 1px solid #e0e0e0; border-top: none;">
+            <div style="padding: 20px 0;">
                 <p style="font-size: 16px; margin: 0 0 20px 0;">{message}</p>
-                <p style="font-size: 14px; color: #666; margin: 0;">If you received this email, your TenderPulse email system is working correctly.</p>
-                
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center;">
-                    <p style="color: #999; font-size: 11px; margin: 4px 0 0 0;">
-                        TenderPulse is an independent service and is not affiliated with the European Union or its institutions.
-                    </p>
-                </div>
+                <p style="font-size: 14px; color: #666; margin: 0;">If you received this email, your email system is working correctly.</p>
             </div>
         </body>
         </html>
