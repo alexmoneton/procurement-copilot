@@ -35,10 +35,10 @@ Your **ULTIMATE customer acquisition machine** is now **FULLY FUNCTIONAL** and r
 
 ### **📧 EMAIL SENDING SYSTEM:**
 
-**SendGrid Integration:**
-- **API Key:** `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`
+**Resend Integration:**
+- **API Key:** [Configured in environment variables]
 - **From Email:** `alex@tenderpulse.eu`
-- **Status:** Configured (needs sender verification)
+- **Status:** Configured and working
 
 ### **🎯 TED API - WORKING PERFECTLY:**
 
