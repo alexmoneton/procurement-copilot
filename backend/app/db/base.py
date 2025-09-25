@@ -18,5 +18,5 @@ metadata = MetaData(naming_convention=convention)
 
 class Base(DeclarativeBase):
     """Base class for all database models."""
-    
+
     metadata = metadata

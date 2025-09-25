@@ -7,9 +7,9 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ....core.config import settings
-from ....db.session import get_db
-from ....db.schemas import HealthResponse
 from ....core.metrics import metrics_collector
+from ....db.schemas import HealthResponse
+from ....db.session import get_db
 
 router = APIRouter()
 
@@ -50,13 +50,13 @@ async def metrics():
 async def init_database():
     """Initialize database tables (run migrations)."""
     try:
-        from ....db.session import engine
         from ....db.models import Base
-        
+        from ....db.session import engine
+
         # Create all tables
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        
+
         return {"status": "success", "message": "Database tables created successfully"}
     except Exception as e:
         return {"status": "error", "message": str(e)}

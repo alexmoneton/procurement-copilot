@@ -1,21 +1,21 @@
 """Pytest configuration and fixtures."""
 
 import asyncio
-import pytest
-import pytest_asyncio
 from datetime import date, datetime
 from decimal import Decimal
 from typing import AsyncGenerator, Generator
 from unittest.mock import AsyncMock, MagicMock
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.pool import StaticPool
-
-from app.db.base import Base
-from app.db.models import Tender, User, SavedFilter, TenderSource, NotifyFrequency
-from app.db.session import get_db
+import pytest
+import pytest_asyncio
 from app.core.config import settings
-
+from app.db.base import Base
+from app.db.models import (NotifyFrequency, SavedFilter, Tender, TenderSource,
+                           User)
+from app.db.session import get_db
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+from sqlalchemy.pool import StaticPool
 
 # Test database URL
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -39,21 +39,21 @@ async def test_db() -> AsyncGenerator[AsyncSession, None]:
         connect_args={"check_same_thread": False},
         echo=False,
     )
-    
+
     # Create tables
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    
+
     # Create session
     async_session = async_sessionmaker(engine, expire_on_commit=False)
-    
+
     async with async_session() as session:
         yield session
-    
+
     # Cleanup
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    
+
     await engine.dispose()
 
 
@@ -102,7 +102,7 @@ async def test_saved_filter_data() -> dict:
 async def sample_tenders(test_db: AsyncSession) -> list[Tender]:
     """Create sample tenders in the test database."""
     tenders = []
-    
+
     # Create multiple test tenders
     for i in range(5):
         tender = Tender(
@@ -121,12 +121,12 @@ async def sample_tenders(test_db: AsyncSession) -> list[Tender]:
         )
         test_db.add(tender)
         tenders.append(tender)
-    
+
     await test_db.commit()
-    
+
     for tender in tenders:
         await test_db.refresh(tender)
-    
+
     return tenders
 
 
@@ -200,7 +200,8 @@ def mock_html_content():
 @pytest.fixture
 def override_get_db(test_db: AsyncSession):
     """Override the get_db dependency for testing."""
+
     async def _override_get_db():
         yield test_db
-    
+
     return _override_get_db

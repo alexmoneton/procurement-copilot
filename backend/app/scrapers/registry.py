@@ -1,11 +1,13 @@
 """Connector registry for TenderPulse."""
 
 import os
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
+
 from loguru import logger
 
 from .base import Connector
 from .ted_connector import ted_connector
+
 # Import other connectors when ready
 # from .boamp_fr import boamp_connector
 # from .european_platforms import german_connector, italian_connector
@@ -26,29 +28,31 @@ def resolve_enabled() -> Tuple[List[Connector], List[Connector]]:
     """Resolve enabled and shadow connectors from environment."""
     enabled_names = os.getenv("ENABLE_CONNECTORS", "TED").split(",")
     shadow_names = os.getenv("SHADOW_CONNECTORS", "").split(",")
-    
+
     # Clean up empty strings
     enabled_names = [name.strip() for name in enabled_names if name.strip()]
     shadow_names = [name.strip() for name in shadow_names if name.strip()]
-    
+
     enabled_connectors = []
     shadow_connectors = []
-    
+
     for name in enabled_names:
         if name in ALL_CONNECTORS:
             enabled_connectors.append(ALL_CONNECTORS[name])
             logger.info(f"✅ Enabled connector: {name}")
         else:
             logger.warning(f"❌ Unknown connector in ENABLE_CONNECTORS: {name}")
-    
+
     for name in shadow_names:
         if name in ALL_CONNECTORS:
             shadow_connectors.append(ALL_CONNECTORS[name])
             logger.info(f"👻 Shadow connector: {name}")
         else:
             logger.warning(f"❌ Unknown connector in SHADOW_CONNECTORS: {name}")
-    
-    logger.info(f"Resolved {len(enabled_connectors)} enabled, {len(shadow_connectors)} shadow connectors")
+
+    logger.info(
+        f"Resolved {len(enabled_connectors)} enabled, {len(shadow_connectors)} shadow connectors"
+    )
     return enabled_connectors, shadow_connectors
 
 

@@ -1,43 +1,46 @@
 """Email templates for outreach campaigns."""
 
-from typing import Dict, List, Any, Optional
 from datetime import date
+from typing import Any, Dict, List, Optional
+
 from loguru import logger
 
 
 class OutreachTemplates:
     """Email templates for different outreach campaigns."""
-    
+
     def __init__(self):
         self.logger = logger.bind(service="outreach_templates")
-    
+
     def generate_missed_opportunities_email(
         self,
         company_name: str,
         sector: str,
         missed_tenders: List[Dict[str, Any]],
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://tenderpulse.eu/pricing"
+        trial_link: str = "https://tenderpulse.eu/pricing",
     ) -> Dict[str, str]:
         """
         Email 1: Missed Opportunities
         Subject: "You missed 3 tenders in {sector} last month"
         """
         subject = f"You missed {len(missed_tenders)} tenders in {sector} last month"
-        
+
         # Build missed tenders list
         missed_list = ""
         for tender in missed_tenders[:3]:  # Show max 3
             missed_list += f"• {tender.get('title', 'Unknown')} in {tender.get('country', 'Unknown')}\n"
-        
+
         # Build upcoming tenders list
         upcoming_list = ""
         for tender in upcoming_tenders[:3]:  # Show max 3
-            deadline = tender.get('deadline', 'Unknown')
+            deadline = tender.get("deadline", "Unknown")
             if isinstance(deadline, date):
-                deadline = deadline.strftime('%B %d, %Y')
-            upcoming_list += f"• {tender.get('title', 'Unknown')} (deadline {deadline})\n"
-        
+                deadline = deadline.strftime("%B %d, %Y")
+            upcoming_list += (
+                f"• {tender.get('title', 'Unknown')} (deadline {deadline})\n"
+            )
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -95,7 +98,7 @@ class OutreachTemplates:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hi {company_name},
         
@@ -117,42 +120,46 @@ class OutreachTemplates:
         TenderPulse - Real-time signals for public contracts
         Independent service; not affiliated with the EU.
         """
-        
+
         return {
             "subject": subject,
             "html_content": html_content,
-            "text_content": text_content
+            "text_content": text_content,
         }
-    
+
     def generate_cross_border_expansion_email(
         self,
         company_name: str,
         home_country: str,
         adjacent_country: str,
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://tenderpulse.eu/pricing"
+        trial_link: str = "https://tenderpulse.eu/pricing",
     ) -> Dict[str, str]:
         """
         Email 2: Expand Cross-Border
         Subject: "You're strong in {home_country}. Here's what you're missing in {adjacent_country}"
         """
         subject = f"You're strong in {home_country}. Here's what you're missing in {adjacent_country}"
-        
+
         # Build upcoming tenders list
         upcoming_list = ""
         for tender in upcoming_tenders[:5]:  # Show max 5
-            deadline = tender.get('deadline', 'Unknown')
+            deadline = tender.get("deadline", "Unknown")
             if isinstance(deadline, date):
-                deadline = deadline.strftime('%B %d, %Y')
-            value = tender.get('value', 'Unknown')
-            currency = tender.get('currency', 'EUR')
-            if value and value != 'Unknown':
-                value_str = f"€{value:,.0f}" if currency == 'EUR' else f"{value:,.0f} {currency}"
+                deadline = deadline.strftime("%B %d, %Y")
+            value = tender.get("value", "Unknown")
+            currency = tender.get("currency", "EUR")
+            if value and value != "Unknown":
+                value_str = (
+                    f"€{value:,.0f}"
+                    if currency == "EUR"
+                    else f"{value:,.0f} {currency}"
+                )
             else:
                 value_str = "Value not specified"
-            
+
             upcoming_list += f"• {tender.get('title', 'Unknown')}\n  Deadline: {deadline} | Value: {value_str}\n\n"
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -205,7 +212,7 @@ class OutreachTemplates:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hi {company_name},
         
@@ -225,41 +232,47 @@ class OutreachTemplates:
         TenderPulse - Real-time signals for public contracts
         Independent service; not affiliated with the EU.
         """
-        
+
         return {
             "subject": subject,
             "html_content": html_content,
-            "text_content": text_content
+            "text_content": text_content,
         }
-    
+
     def generate_reactivation_email(
         self,
         company_name: str,
         sector: str,
         upcoming_tenders: List[Dict[str, Any]],
-        trial_link: str = "https://tenderpulse.eu/pricing"
+        trial_link: str = "https://tenderpulse.eu/pricing",
     ) -> Dict[str, str]:
         """
         Email 3: Reactivation
         Subject: "Are you still bidding in {sector}? Here's a curated list for this month"
         """
-        subject = f"Are you still bidding in {sector}? Here's a curated list for this month"
-        
+        subject = (
+            f"Are you still bidding in {sector}? Here's a curated list for this month"
+        )
+
         # Build upcoming tenders list
         upcoming_list = ""
         for tender in upcoming_tenders[:5]:  # Show max 5
-            deadline = tender.get('deadline', 'Unknown')
+            deadline = tender.get("deadline", "Unknown")
             if isinstance(deadline, date):
-                deadline = deadline.strftime('%B %d, %Y')
-            value = tender.get('value', 'Unknown')
-            currency = tender.get('currency', 'EUR')
-            if value and value != 'Unknown':
-                value_str = f"€{value:,.0f}" if currency == 'EUR' else f"{value:,.0f} {currency}"
+                deadline = deadline.strftime("%B %d, %Y")
+            value = tender.get("value", "Unknown")
+            currency = tender.get("currency", "EUR")
+            if value and value != "Unknown":
+                value_str = (
+                    f"€{value:,.0f}"
+                    if currency == "EUR"
+                    else f"{value:,.0f} {currency}"
+                )
             else:
                 value_str = "Value not specified"
-            
+
             upcoming_list += f"• {tender.get('title', 'Unknown')}\n  Deadline: {deadline} | Value: {value_str}\n  Country: {tender.get('country', 'Unknown')}\n\n"
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -312,7 +325,7 @@ class OutreachTemplates:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hi {company_name},
         
@@ -332,21 +345,19 @@ class OutreachTemplates:
         TenderPulse - Real-time signals for public contracts
         Independent service; not affiliated with the EU.
         """
-        
+
         return {
             "subject": subject,
             "html_content": html_content,
-            "text_content": text_content
+            "text_content": text_content,
         }
-    
+
     def generate_unsubscribe_email(
-        self,
-        company_name: str,
-        unsubscribe_link: str
+        self, company_name: str, unsubscribe_link: str
     ) -> Dict[str, str]:
         """Generate unsubscribe confirmation email."""
         subject = "You've been unsubscribed from Procurement Copilot"
-        
+
         html_content = f"""
         <!DOCTYPE html>
         <html>
@@ -377,7 +388,7 @@ class OutreachTemplates:
         </body>
         </html>
         """
-        
+
         text_content = f"""
         Hi {company_name},
         
@@ -389,11 +400,11 @@ class OutreachTemplates:
         
         Procurement Copilot
         """
-        
+
         return {
             "subject": subject,
             "html_content": html_content,
-            "text_content": text_content
+            "text_content": text_content,
         }
 
 

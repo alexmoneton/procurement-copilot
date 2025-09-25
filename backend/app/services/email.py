@@ -1,10 +1,10 @@
 """Email service for sending notifications."""
 
-import httpx
-from typing import Dict, List, Optional, Any
 from datetime import datetime
 from decimal import Decimal
+from typing import Any, Dict, List, Optional
 
+import httpx
 from loguru import logger
 
 from ..core.config import settings
@@ -12,7 +12,7 @@ from ..core.config import settings
 
 class EmailProvider:
     """Base email provider interface."""
-    
+
     async def send_email(
         self,
         to: str,
@@ -26,12 +26,12 @@ class EmailProvider:
 
 class ResendEmailProvider(EmailProvider):
     """Resend email provider implementation."""
-    
+
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.base_url = "https://api.resend.com"
         self.logger = logger.bind(service="resend_email")
-    
+
     async def send_email(
         self,
         to: str,
@@ -44,7 +44,7 @@ class ResendEmailProvider(EmailProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        
+
         payload = {
             "from": "Alexandre Monéton <alex@tenderpulse.eu>",
             "to": [to],
@@ -52,7 +52,7 @@ class ResendEmailProvider(EmailProvider):
             "html": html_content,
             "text": text_content,
         }
-        
+
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
@@ -62,13 +62,15 @@ class ResendEmailProvider(EmailProvider):
                     timeout=30.0,
                 )
                 response.raise_for_status()
-                
+
                 result = response.json()
                 self.logger.info(f"Email sent successfully to {to}: {result.get('id')}")
                 return result
-                
+
         except httpx.HTTPStatusError as e:
-            self.logger.error(f"Resend API error: {e.response.status_code} - {e.response.text}")
+            self.logger.error(
+                f"Resend API error: {e.response.status_code} - {e.response.text}"
+            )
             raise EmailError(f"Failed to send email: {e.response.status_code}")
         except httpx.RequestError as e:
             self.logger.error(f"Request error: {e}")
@@ -80,12 +82,12 @@ class ResendEmailProvider(EmailProvider):
 
 class SendGridEmailProvider(EmailProvider):
     """SendGrid email provider implementation."""
-    
+
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.base_url = "https://api.sendgrid.com"
         self.logger = logger.bind(service="sendgrid_email")
-    
+
     async def send_email(
         self,
         to: str,
@@ -98,30 +100,16 @@ class SendGridEmailProvider(EmailProvider):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        
+
         payload = {
-            "personalizations": [
-                {
-                    "to": [{"email": to}],
-                    "subject": subject
-                }
-            ],
-            "from": {
-                "email": "alex@tenderpulse.eu",
-                "name": "Alexandre Monéton"
-            },
+            "personalizations": [{"to": [{"email": to}], "subject": subject}],
+            "from": {"email": "alex@tenderpulse.eu", "name": "Alexandre Monéton"},
             "content": [
-                {
-                    "type": "text/html",
-                    "value": html_content
-                },
-                {
-                    "type": "text/plain",
-                    "value": text_content
-                }
-            ]
+                {"type": "text/html", "value": html_content},
+                {"type": "text/plain", "value": text_content},
+            ],
         }
-        
+
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.post(
@@ -131,20 +119,22 @@ class SendGridEmailProvider(EmailProvider):
                     timeout=30.0,
                 )
                 response.raise_for_status()
-                
+
                 # SendGrid returns empty body on success, so we create our own result
                 result = {
                     "id": f"sg-{datetime.now().timestamp()}",
                     "to": to,
                     "subject": subject,
-                    "status": "sent"
+                    "status": "sent",
                 }
-                
+
                 self.logger.info(f"Email sent successfully to {to} via SendGrid")
                 return result
-                
+
         except httpx.HTTPStatusError as e:
-            self.logger.error(f"SendGrid API error: {e.response.status_code} - {e.response.text}")
+            self.logger.error(
+                f"SendGrid API error: {e.response.status_code} - {e.response.text}"
+            )
             raise EmailError(f"Failed to send email: {e.response.status_code}")
         except httpx.RequestError as e:
             self.logger.error(f"Request error: {e}")
@@ -156,11 +146,11 @@ class SendGridEmailProvider(EmailProvider):
 
 class MockEmailProvider(EmailProvider):
     """Mock email provider for testing."""
-    
+
     def __init__(self):
         self.sent_emails = []
         self.logger = logger.bind(service="mock_email")
-    
+
     async def send_email(
         self,
         to: str,
@@ -176,10 +166,10 @@ class MockEmailProvider(EmailProvider):
             "text_content": text_content,
             "sent_at": datetime.now(),
         }
-        
+
         self.sent_emails.append(email_data)
         self.logger.info(f"Mock email sent to {to}: {subject}")
-        
+
         return {
             "id": f"mock-{len(self.sent_emails)}",
             "to": to,
@@ -189,64 +179,67 @@ class MockEmailProvider(EmailProvider):
 
 class EmailError(Exception):
     """Email service error."""
+
     pass
 
 
 class EmailService:
     """Email service for sending tender notifications."""
-    
+
     def __init__(self, provider: Optional[EmailProvider] = None):
         self.logger = logger.bind(service="email_service")
         self.provider = provider or self._create_provider()
-    
+
     def _create_provider(self) -> EmailProvider:
         """Create email provider based on configuration."""
         # Check for Resend first (primary provider)
-        resend_api_key = getattr(settings, 'resend_api_key', None)
+        resend_api_key = getattr(settings, "resend_api_key", None)
         if resend_api_key:
             self.logger.info("Using Resend email provider")
             return ResendEmailProvider(resend_api_key)
-        
+
         # Fallback to SendGrid (if still configured)
-        sendgrid_api_key = getattr(settings, 'sendgrid_api_key', None)
+        sendgrid_api_key = getattr(settings, "sendgrid_api_key", None)
         if sendgrid_api_key:
             self.logger.info("Using SendGrid email provider (fallback)")
             return SendGridEmailProvider(sendgrid_api_key)
-        
+
         self.logger.warning("No email API key configured, using mock provider")
         return MockEmailProvider()
-    
-    def _format_currency(self, amount: Optional[Decimal], currency: Optional[str]) -> str:
+
+    def _format_currency(
+        self, amount: Optional[Decimal], currency: Optional[str]
+    ) -> str:
         """Format currency amount for display."""
         if not amount:
             return "N/A"
-        
+
         if currency:
             return f"{amount:,.2f} {currency}"
         else:
             return f"{amount:,.2f}"
-    
+
     def _format_cpv_codes(self, cpv_codes: List[str], max_codes: int = 3) -> str:
         """Format CPV codes for display."""
         if not cpv_codes:
             return "N/A"
-        
+
         # Take first max_codes codes
         display_codes = cpv_codes[:max_codes]
         formatted = ", ".join(display_codes)
-        
+
         if len(cpv_codes) > max_codes:
             formatted += f" (+{len(cpv_codes) - max_codes} more)"
-        
+
         return formatted
-    
+
     def _format_deadline(self, deadline_date: Optional[datetime]) -> str:
         """Format deadline date for display."""
         if not deadline_date:
             return "N/A"
-        
+
         return deadline_date.strftime("%Y-%m-%d")
-    
+
     def _generate_tender_html(self, tender: Dict[str, Any]) -> str:
         """Generate HTML for a single tender."""
         return f"""
@@ -264,7 +257,7 @@ class EmailService:
             {f'<p style="margin: 8px 0 0 0; color: #666; font-size: 14px;">{tender.get("summary", "")}</p>' if tender.get("summary") else ""}
         </div>
         """
-    
+
     def _generate_tender_text(self, tender: Dict[str, Any]) -> str:
         """Generate text for a single tender."""
         return f"""
@@ -279,7 +272,7 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
 
 ---
 """
-    
+
     def _generate_email_html(
         self,
         filter_name: str,
@@ -288,8 +281,10 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
     ) -> str:
         """Generate HTML email content."""
         tender_count = len(tenders)
-        tender_html = "\n".join(self._generate_tender_html(tender) for tender in tenders)
-        
+        tender_html = "\n".join(
+            self._generate_tender_html(tender) for tender in tenders
+        )
+
         return f"""
         <!DOCTYPE html>
         <html>
@@ -325,7 +320,7 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
         </body>
         </html>
         """
-    
+
     def _generate_simple_html(self, message: str) -> str:
         """Generate simple HTML email."""
         return f"""
@@ -343,7 +338,7 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
         </body>
         </html>
         """
-    
+
     def _generate_email_text(
         self,
         filter_name: str,
@@ -352,8 +347,10 @@ Est. Value: {self._format_currency(tender.get('value_amount'), tender.get('curre
     ) -> str:
         """Generate text email content."""
         tender_count = len(tenders)
-        tender_text = "\n".join(self._generate_tender_text(tender) for tender in tenders)
-        
+        tender_text = "\n".join(
+            self._generate_tender_text(tender) for tender in tenders
+        )
+
         return f"""
 PROCUREMENT COPILOT
 New tenders for: {filter_name}
@@ -368,7 +365,7 @@ Unsubscribe: [placeholder link]
 
 This email was sent to {user_email} because you have an active alert for "{filter_name}".
         """.strip()
-    
+
     async def send_tender_digest(
         self,
         user_email: str,
@@ -377,15 +374,19 @@ This email was sent to {user_email} because you have an active alert for "{filte
     ) -> Dict[str, Any]:
         """Send tender digest email."""
         if not tenders:
-            self.logger.info(f"No tenders to send for filter '{filter_name}' to {user_email}")
+            self.logger.info(
+                f"No tenders to send for filter '{filter_name}' to {user_email}"
+            )
             return {"status": "skipped", "reason": "no_tenders"}
-        
+
         tender_count = len(tenders)
-        subject = f"[Procurement Copilot] New tenders for: {filter_name} ({tender_count})"
-        
+        subject = (
+            f"[Procurement Copilot] New tenders for: {filter_name} ({tender_count})"
+        )
+
         html_content = self._generate_email_html(filter_name, tenders, user_email)
         text_content = self._generate_email_text(filter_name, tenders, user_email)
-        
+
         try:
             result = await self.provider.send_email(
                 to=user_email,
@@ -393,14 +394,16 @@ This email was sent to {user_email} because you have an active alert for "{filte
                 html_content=html_content,
                 text_content=text_content,
             )
-            
-            self.logger.info(f"Tender digest sent to {user_email}: {tender_count} tenders")
+
+            self.logger.info(
+                f"Tender digest sent to {user_email}: {tender_count} tenders"
+            )
             return {
                 "status": "sent",
                 "email_id": result.get("id"),
                 "tender_count": tender_count,
             }
-            
+
         except EmailError as e:
             self.logger.error(f"Failed to send tender digest to {user_email}: {e}")
             return {
@@ -408,18 +411,18 @@ This email was sent to {user_email} because you have an active alert for "{filte
                 "error": str(e),
                 "tender_count": tender_count,
             }
-    
+
     def get_body_preview(self, tenders: List[Dict[str, Any]]) -> str:
         """Get email body preview (first 200 characters)."""
         if not tenders:
             return "No new tenders found."
-        
+
         first_tender = tenders[0]
         preview = f"New tender: {first_tender['title']}"
-        
+
         if len(tenders) > 1:
             preview += f" (+{len(tenders) - 1} more)"
-        
+
         return preview[:200]
 
 

@@ -2,15 +2,17 @@
 
 from fastapi import APIRouter
 
-from .endpoints import health, tenders, filters, profiles, admin, seo
+from .endpoints import admin, filters, health, profiles, seo, tenders
 
 # Import billing with error handling
 try:
     from .endpoints import billing
+
     print("✅ Billing module imported successfully")
 except Exception as e:
     print(f"❌ Error importing billing module: {e}")
     import traceback
+
     traceback.print_exc()
     billing = None
 
@@ -28,6 +30,7 @@ if billing:
     except Exception as e:
         print(f"❌ Error including billing router: {e}")
         import traceback
+
         traceback.print_exc()
 else:
     print("⚠️ Billing module not available - skipping billing router")

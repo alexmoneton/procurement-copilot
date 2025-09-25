@@ -6,94 +6,103 @@ from typing import Dict, List, Optional
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..core.config import settings
 from ..db.crud import TenderCRUD
 from ..db.schemas import TenderCreate
-from ..scrapers.registry import resolve_enabled, enabled_source_names, shadow_source_names
 from ..scrapers.base import normalize_record
-from ..core.config import settings
+from ..scrapers.registry import (enabled_source_names, resolve_enabled,
+                                 shadow_source_names)
 from .cpv import cpv_mapper
 from .dedupe import deduplicator
 
 
 class IngestService:
     """Service for ingesting tender data from various sources."""
-    
+
     def __init__(self):
         self.logger = logger.bind(service="ingest")
-    
+
     async def run_ingest(
-        self, 
-        db: AsyncSession, 
+        self,
+        db: AsyncSession,
         since_dt: Optional[datetime] = None,
-        limit_per: int = 200
+        limit_per: int = 200,
     ) -> Dict[str, int]:
         """Run the ingestion pipeline using connector architecture."""
         if since_dt is None:
             since_dt = datetime.now() - timedelta(hours=24)  # Last 24 hours
-        
+
         self.logger.info(f"Starting ingestion since {since_dt}")
-        
+
         # Get enabled and shadow connectors
         enabled_connectors, shadow_connectors = resolve_enabled()
-        
+
         results = {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
         all_tenders = []
-        
+
         # Process enabled connectors (visible to users)
         for connector in enabled_connectors:
             try:
                 self.logger.info(f"Processing enabled connector: {connector.name}")
                 raw_notices = await connector.fetch_since(since_dt, limit_per)
-                
+
                 for raw_notice in raw_notices:
                     tender_data = normalize_record(raw_notice)
                     tender_data["is_shadow"] = False  # Enabled = visible
                     all_tenders.append(tender_data)
-                
-                self.logger.info(f"Processed {len(raw_notices)} notices from {connector.name}")
-                
+
+                self.logger.info(
+                    f"Processed {len(raw_notices)} notices from {connector.name}"
+                )
+
             except Exception as e:
-                self.logger.error(f"Error processing enabled connector {connector.name}: {e}")
+                self.logger.error(
+                    f"Error processing enabled connector {connector.name}: {e}"
+                )
                 results["errors"] += 1
-        
+
         # Process shadow connectors (hidden from users)
         for connector in shadow_connectors:
             try:
                 self.logger.info(f"Processing shadow connector: {connector.name}")
                 raw_notices = await connector.fetch_since(since_dt, limit_per)
-                
+
                 for raw_notice in raw_notices:
                     tender_data = normalize_record(raw_notice)
                     tender_data["is_shadow"] = True  # Shadow = hidden
                     all_tenders.append(tender_data)
-                
-                self.logger.info(f"Processed {len(raw_notices)} shadow notices from {connector.name}")
-                
+
+                self.logger.info(
+                    f"Processed {len(raw_notices)} shadow notices from {connector.name}"
+                )
+
             except Exception as e:
-                self.logger.error(f"Error processing shadow connector {connector.name}: {e}")
+                self.logger.error(
+                    f"Error processing shadow connector {connector.name}: {e}"
+                )
                 results["errors"] += 1
-        
+
         if not all_tenders:
             self.logger.warning("No tenders fetched from any connector")
             return results
-        
+
         # Process and store tenders
         self.logger.info(f"Processing {len(all_tenders)} total tenders")
         processed_tenders = await self._process_tenders(all_tenders)
-        
+
         # Deduplicate
         self.logger.info("Deduplicating tenders")
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Store in database
         self.logger.info(f"Storing {len(deduplicated_tenders)} deduplicated tenders")
         crud = TenderCRUD()
-        
+
         for tender_data in deduplicated_tenders:
             try:
                 tender_create = TenderCreate(**tender_data)
                 existing = await crud.get_by_reference(db, tender_create.tender_ref)
-                
+
                 if existing:
                     # Update existing tender
                     await crud.update(db, existing.id, tender_create)
@@ -102,27 +111,29 @@ class IngestService:
                     # Create new tender
                     await crud.create(db, tender_create)
                     results["inserted"] += 1
-                    
+
             except Exception as e:
-                self.logger.error(f"Error storing tender {tender_data.get('tender_ref', 'unknown')}: {e}")
+                self.logger.error(
+                    f"Error storing tender {tender_data.get('tender_ref', 'unknown')}: {e}"
+                )
                 results["errors"] += 1
-        
+
         self.logger.info(f"Ingestion completed: {results}")
         return results
-    
+
     async def run_full_european_ingest(
-        self, 
-        db: AsyncSession, 
-        ted_limit: int = 50, 
+        self,
+        db: AsyncSession,
+        ted_limit: int = 50,
         boamp_limit: int = 30,
-        european_limit_per_country: int = 15
+        european_limit_per_country: int = 15,
     ) -> Dict[str, int]:
         """Run the complete European ingestion pipeline."""
         self.logger.info("Starting full European tender ingestion pipeline")
-        
+
         # Fetch data from all sources
         all_tenders = []
-        
+
         # Fetch from TED (using real data scraper)
         try:
             self.logger.info(f"Fetching {ted_limit} real tenders from TED")
@@ -138,14 +149,16 @@ class IngestService:
                 all_tenders.extend(ted_tenders)
             except Exception as fallback_e:
                 self.logger.error(f"Fallback TED scraper also failed: {fallback_e}")
-        
+
         # Fetch from BOAMP (only if enabled)
         if settings.ENABLE_BOAMP_INTEGRATION and not settings.TED_ONLY_MODE:
             try:
                 self.logger.info(f"Fetching {boamp_limit} real tenders from BOAMP")
                 boamp_tenders = await fetch_real_boamp_tenders(boamp_limit)
                 all_tenders.extend(boamp_tenders)
-                self.logger.info(f"Fetched {len(boamp_tenders)} real tenders from BOAMP")
+                self.logger.info(
+                    f"Fetched {len(boamp_tenders)} real tenders from BOAMP"
+                )
             except Exception as e:
                 self.logger.error(f"Error fetching real BOAMP tenders: {e}")
                 # Fallback to original scraper
@@ -154,67 +167,80 @@ class IngestService:
                     boamp_tenders = await fetch_last_tenders_boamp(boamp_limit)
                     all_tenders.extend(boamp_tenders)
                 except Exception as fallback_e:
-                    self.logger.error(f"Fallback BOAMP scraper also failed: {fallback_e}")
+                    self.logger.error(
+                        f"Fallback BOAMP scraper also failed: {fallback_e}"
+                    )
         else:
             self.logger.info("BOAMP integration disabled for TED-only mode")
-        
+
         # Fetch from all European platforms (only if enhanced APIs are enabled)
-        if european_limit_per_country > 0 and settings.ENABLE_ENHANCED_EUROPEAN_APIS and not settings.TED_ONLY_MODE:
+        if (
+            european_limit_per_country > 0
+            and settings.ENABLE_ENHANCED_EUROPEAN_APIS
+            and not settings.TED_ONLY_MODE
+        ):
             try:
                 # Use enhanced European platform scrapers with real API integrations
-                self.logger.info(f"Fetching tenders from enhanced European platforms ({european_limit_per_country} per country)")
-                european_tenders = await fetch_all_european_tenders(european_limit_per_country)
+                self.logger.info(
+                    f"Fetching tenders from enhanced European platforms ({european_limit_per_country} per country)"
+                )
+                european_tenders = await fetch_all_european_tenders(
+                    european_limit_per_country
+                )
                 all_tenders.extend(european_tenders)
-                self.logger.info(f"Fetched {len(european_tenders)} tenders from European platforms")
-                
+                self.logger.info(
+                    f"Fetched {len(european_tenders)} tenders from European platforms"
+                )
+
                 # Also fetch enhanced TED data for major countries
                 enhanced_ted_countries = ["DE", "IT", "ES", "NL", "FR"]
                 enhanced_ted_tenders = await fetch_all_enhanced_ted_tenders(
-                    enhanced_ted_countries, 
-                    european_limit_per_country // 2
+                    enhanced_ted_countries, european_limit_per_country // 2
                 )
                 all_tenders.extend(enhanced_ted_tenders)
-                self.logger.info(f"Fetched {len(enhanced_ted_tenders)} enhanced TED tenders")
-                
+                self.logger.info(
+                    f"Fetched {len(enhanced_ted_tenders)} enhanced TED tenders"
+                )
+
             except Exception as e:
                 self.logger.error(f"Error fetching European platform tenders: {e}")
         else:
-            self.logger.info("Enhanced European APIs disabled - using TED-only mode for customer testing")
-        
+            self.logger.info(
+                "Enhanced European APIs disabled - using TED-only mode for customer testing"
+            )
+
         if not all_tenders:
             self.logger.warning("No tenders fetched from any source")
             return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         # Process and normalize data
         self.logger.info(f"Processing {len(all_tenders)} raw tenders")
         processed_tenders = await self._process_tenders(all_tenders)
-        
+
         # Deduplicate
         self.logger.info("Deduplicating tenders")
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Upsert to database
         self.logger.info(f"Upserting {len(deduplicated_tenders)} tenders to database")
         results = await self._upsert_tenders(db, deduplicated_tenders)
-        
+
         self.logger.info(
             f"Ingestion completed: {results['inserted']} inserted, "
             f"{results['updated']} updated, {results['skipped']} skipped, "
             f"{results['errors']} errors"
         )
-        
+
         return results
-    
+
     async def run_ted_only_ingest(
-        self, 
-        db: AsyncSession, 
-        ted_limit: int = 100
+        self, db: AsyncSession, ted_limit: int = 100
     ) -> Dict[str, int]:
         """Run TED-only ingestion for customer testing and demos."""
         self.logger.info("🎯 Starting TED-only ingestion for customer testing")
-        
+
         all_tenders = []
-        
+
         # Fetch only from TED (using real data scraper with fallbacks)
         try:
             self.logger.info(f"Fetching {ted_limit} real tenders from TED only")
@@ -228,33 +254,37 @@ class IngestService:
                 self.logger.info("Falling back to original TED scraper")
                 ted_tenders = await fetch_last_tenders(ted_limit)
                 all_tenders.extend(ted_tenders)
-                self.logger.info(f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper")
+                self.logger.info(
+                    f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper"
+                )
             except Exception as fallback_e:
                 self.logger.error(f"❌ Fallback TED scraper also failed: {fallback_e}")
                 return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 1}
-        
+
         if not all_tenders:
             self.logger.warning("No TED tenders fetched")
             return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         # Process and normalize data
         self.logger.info(f"Processing {len(all_tenders)} TED tenders")
         processed_tenders = await self._process_tenders(all_tenders)
-        
+
         # Deduplicate
         self.logger.info("Deduplicating TED tenders")
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Store in database
-        self.logger.info(f"Storing {len(deduplicated_tenders)} deduplicated TED tenders")
+        self.logger.info(
+            f"Storing {len(deduplicated_tenders)} deduplicated TED tenders"
+        )
         crud = TenderCRUD()
         results = {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         for tender_data in deduplicated_tenders:
             try:
                 tender_create = TenderCreate(**tender_data)
                 existing = await crud.get_by_reference(db, tender_create.tender_ref)
-                
+
                 if existing:
                     # Update existing tender
                     await crud.update(db, existing.id, tender_create)
@@ -263,68 +293,75 @@ class IngestService:
                     # Create new tender
                     await crud.create(db, tender_create)
                     results["inserted"] += 1
-                    
+
             except Exception as e:
-                self.logger.error(f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}")
+                self.logger.error(
+                    f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}"
+                )
                 results["errors"] += 1
-        
-        self.logger.info(f"🎉 TED-only ingestion completed for customer testing: {results}")
+
+        self.logger.info(
+            f"🎉 TED-only ingestion completed for customer testing: {results}"
+        )
         return results
-    
+
     async def _process_tenders(self, raw_tenders: List[Dict]) -> List[Dict]:
         """Process and normalize raw tender data."""
         processed = []
-        
+
         for tender in raw_tenders:
             try:
                 processed_tender = self._normalize_tender(tender)
                 if processed_tender:
                     processed.append(processed_tender)
             except Exception as e:
-                self.logger.warning(f"Error processing tender {tender.get('tender_ref', 'unknown')}: {e}")
+                self.logger.warning(
+                    f"Error processing tender {tender.get('tender_ref', 'unknown')}: {e}"
+                )
                 continue
-        
+
         return processed
-    
+
     def _normalize_tender(self, tender: Dict) -> Optional[Dict]:
         """Normalize a single tender record."""
         try:
             # Validate required fields
             if not tender.get("tender_ref") or not tender.get("title"):
-                self.logger.warning(f"Tender missing required fields: {tender.get('tender_ref', 'unknown')}")
+                self.logger.warning(
+                    f"Tender missing required fields: {tender.get('tender_ref', 'unknown')}"
+                )
                 return None
-            
+
             # Normalize CPV codes
             cpv_codes = tender.get("cpv_codes", [])
             if not cpv_codes and tender.get("title"):
                 # Try to suggest CPV codes based on title and summary
                 suggested_codes = cpv_mapper.suggest_cpv_codes(
-                    tender.get("title", ""),
-                    tender.get("summary", "")
+                    tender.get("title", ""), tender.get("summary", "")
                 )
                 cpv_codes = suggested_codes[:5]  # Limit to 5 suggestions
-            
+
             normalized_cpv = cpv_mapper.validate_cpv_codes(cpv_codes)
-            
+
             # Normalize country code
             country = tender.get("buyer_country", "")
             if country:
                 country = country.upper()[:2]  # Take first 2 characters and uppercase
-            
+
             # Normalize currency
             currency = tender.get("currency", "")
             if currency:
                 currency = currency.upper()[:3]  # Take first 3 characters and uppercase
-            
+
             # Clean and validate text fields
             title = self._clean_text(tender.get("title", ""))
             summary = self._clean_text(tender.get("summary", ""))
             buyer_name = self._clean_text(tender.get("buyer_name", ""))
             url = self._clean_text(tender.get("url", ""))
-            
+
             if not title:
                 return None
-            
+
             return {
                 "tender_ref": tender["tender_ref"],
                 "source": tender.get("source", "UNKNOWN"),
@@ -337,21 +374,23 @@ class IngestService:
                 "buyer_country": country or "XX",
                 "value_amount": tender.get("value_amount"),
                 "currency": currency if currency else None,
-                "url": url if url else f"https://example.com/tender/{tender['tender_ref']}",
+                "url": (
+                    url if url else f"https://example.com/tender/{tender['tender_ref']}"
+                ),
             }
-            
+
         except Exception as e:
             self.logger.error(f"Error normalizing tender: {e}")
             return None
-    
+
     def _clean_text(self, text: str) -> str:
         """Clean and normalize text content."""
         if not text:
             return ""
-        
+
         # Remove extra whitespace
         cleaned = " ".join(text.strip().split())
-        
+
         # Remove HTML entities
         html_entities = {
             "&amp;": "&",
@@ -361,62 +400,71 @@ class IngestService:
             "&#39;": "'",
             "&nbsp;": " ",
         }
-        
+
         for entity, replacement in html_entities.items():
             cleaned = cleaned.replace(entity, replacement)
-        
+
         return cleaned.strip()
-    
-    async def _upsert_tenders(self, db: AsyncSession, tenders: List[Dict]) -> Dict[str, int]:
+
+    async def _upsert_tenders(
+        self, db: AsyncSession, tenders: List[Dict]
+    ) -> Dict[str, int]:
         """Upsert tenders to database."""
         results = {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         for tender in tenders:
             try:
                 # Check if tender already exists
                 existing = await TenderCRUD.get_by_ref(db, tender["tender_ref"])
-                
+
                 if existing:
                     # Update existing tender
                     from ..db.schemas import TenderUpdate
-                    update_data = TenderUpdate(**{k: v for k, v in tender.items() if k != "tender_ref"})
+
+                    update_data = TenderUpdate(
+                        **{k: v for k, v in tender.items() if k != "tender_ref"}
+                    )
                     updated = await TenderCRUD.update(db, existing.id, update_data)
-                    
+
                     if updated:
                         results["updated"] += 1
                         self.logger.debug(f"Updated tender: {tender['tender_ref']}")
                     else:
                         results["skipped"] += 1
-                        self.logger.debug(f"Skipped tender (update failed): {tender['tender_ref']}")
+                        self.logger.debug(
+                            f"Skipped tender (update failed): {tender['tender_ref']}"
+                        )
                 else:
                     # Create new tender
                     tender_create = TenderCreate(**tender)
                     created = await TenderCRUD.create(db, tender_create)
-                    
+
                     if created:
                         results["inserted"] += 1
                         self.logger.debug(f"Inserted tender: {tender['tender_ref']}")
                     else:
                         results["skipped"] += 1
-                        self.logger.debug(f"Skipped tender (creation failed): {tender['tender_ref']}")
-                
+                        self.logger.debug(
+                            f"Skipped tender (creation failed): {tender['tender_ref']}"
+                        )
+
             except Exception as e:
                 results["errors"] += 1
-                self.logger.error(f"Error upserting tender {tender.get('tender_ref', 'unknown')}: {e}")
+                self.logger.error(
+                    f"Error upserting tender {tender.get('tender_ref', 'unknown')}: {e}"
+                )
                 continue
-        
+
         return results
-    
+
     async def run_ted_only_ingest(
-        self, 
-        db: AsyncSession, 
-        ted_limit: int = 100
+        self, db: AsyncSession, ted_limit: int = 100
     ) -> Dict[str, int]:
         """Run TED-only ingestion for customer testing and demos."""
         self.logger.info("🎯 Starting TED-only ingestion for customer testing")
-        
+
         all_tenders = []
-        
+
         # Fetch only from TED (using real data scraper with fallbacks)
         try:
             self.logger.info(f"Fetching {ted_limit} real tenders from TED only")
@@ -430,33 +478,37 @@ class IngestService:
                 self.logger.info("Falling back to original TED scraper")
                 ted_tenders = await fetch_last_tenders(ted_limit)
                 all_tenders.extend(ted_tenders)
-                self.logger.info(f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper")
+                self.logger.info(
+                    f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper"
+                )
             except Exception as fallback_e:
                 self.logger.error(f"❌ Fallback TED scraper also failed: {fallback_e}")
                 return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 1}
-        
+
         if not all_tenders:
             self.logger.warning("No TED tenders fetched")
             return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         # Process and normalize data
         self.logger.info(f"Processing {len(all_tenders)} TED tenders")
         processed_tenders = await self._process_tenders(all_tenders)
-        
+
         # Deduplicate
         self.logger.info("Deduplicating TED tenders")
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Store in database
-        self.logger.info(f"Storing {len(deduplicated_tenders)} deduplicated TED tenders")
+        self.logger.info(
+            f"Storing {len(deduplicated_tenders)} deduplicated TED tenders"
+        )
         crud = TenderCRUD()
         results = {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         for tender_data in deduplicated_tenders:
             try:
                 tender_create = TenderCreate(**tender_data)
                 existing = await crud.get_by_reference(db, tender_create.tender_ref)
-                
+
                 if existing:
                     # Update existing tender
                     await crud.update(db, existing.id, tender_create)
@@ -465,23 +517,24 @@ class IngestService:
                     # Create new tender
                     await crud.create(db, tender_create)
                     results["inserted"] += 1
-                    
+
             except Exception as e:
-                self.logger.error(f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}")
+                self.logger.error(
+                    f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}"
+                )
                 results["errors"] += 1
-        
-        self.logger.info(f"🎉 TED-only ingestion completed for customer testing: {results}")
+
+        self.logger.info(
+            f"🎉 TED-only ingestion completed for customer testing: {results}"
+        )
         return results
-    
+
     async def ingest_single_source(
-        self, 
-        db: AsyncSession, 
-        source: str, 
-        limit: int = 200
+        self, db: AsyncSession, source: str, limit: int = 200
     ) -> Dict[str, int]:
         """Ingest tenders from a single source."""
         self.logger.info(f"Starting ingestion from {source}")
-        
+
         # Fetch data from specified source
         if source.upper() == "TED":
             raw_tenders = await fetch_last_tenders(limit)
@@ -489,38 +542,36 @@ class IngestService:
             raw_tenders = await fetch_last_tenders_boamp(limit)
         else:
             raise ValueError(f"Unknown source: {source}")
-        
+
         if not raw_tenders:
             self.logger.warning(f"No tenders fetched from {source}")
             return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         # Process and normalize data
         processed_tenders = await self._process_tenders(raw_tenders)
-        
+
         # Deduplicate
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Upsert to database
         results = await self._upsert_tenders(db, deduplicated_tenders)
-        
+
         self.logger.info(
             f"Ingestion from {source} completed: {results['inserted']} inserted, "
             f"{results['updated']} updated, {results['skipped']} skipped, "
             f"{results['errors']} errors"
         )
-        
+
         return results
-    
+
     async def run_ted_only_ingest(
-        self, 
-        db: AsyncSession, 
-        ted_limit: int = 100
+        self, db: AsyncSession, ted_limit: int = 100
     ) -> Dict[str, int]:
         """Run TED-only ingestion for customer testing and demos."""
         self.logger.info("🎯 Starting TED-only ingestion for customer testing")
-        
+
         all_tenders = []
-        
+
         # Fetch only from TED (using real data scraper with fallbacks)
         try:
             self.logger.info(f"Fetching {ted_limit} real tenders from TED only")
@@ -534,33 +585,37 @@ class IngestService:
                 self.logger.info("Falling back to original TED scraper")
                 ted_tenders = await fetch_last_tenders(ted_limit)
                 all_tenders.extend(ted_tenders)
-                self.logger.info(f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper")
+                self.logger.info(
+                    f"✅ Fetched {len(ted_tenders)} tenders from fallback TED scraper"
+                )
             except Exception as fallback_e:
                 self.logger.error(f"❌ Fallback TED scraper also failed: {fallback_e}")
                 return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 1}
-        
+
         if not all_tenders:
             self.logger.warning("No TED tenders fetched")
             return {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         # Process and normalize data
         self.logger.info(f"Processing {len(all_tenders)} TED tenders")
         processed_tenders = await self._process_tenders(all_tenders)
-        
+
         # Deduplicate
         self.logger.info("Deduplicating TED tenders")
         deduplicated_tenders = deduplicator.deduplicate_tenders(processed_tenders)
-        
+
         # Store in database
-        self.logger.info(f"Storing {len(deduplicated_tenders)} deduplicated TED tenders")
+        self.logger.info(
+            f"Storing {len(deduplicated_tenders)} deduplicated TED tenders"
+        )
         crud = TenderCRUD()
         results = {"inserted": 0, "updated": 0, "skipped": 0, "errors": 0}
-        
+
         for tender_data in deduplicated_tenders:
             try:
                 tender_create = TenderCreate(**tender_data)
                 existing = await crud.get_by_reference(db, tender_create.tender_ref)
-                
+
                 if existing:
                     # Update existing tender
                     await crud.update(db, existing.id, tender_create)
@@ -569,12 +624,16 @@ class IngestService:
                     # Create new tender
                     await crud.create(db, tender_create)
                     results["inserted"] += 1
-                    
+
             except Exception as e:
-                self.logger.error(f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}")
+                self.logger.error(
+                    f"Error storing TED tender {tender_data.get('tender_ref', 'unknown')}: {e}"
+                )
                 results["errors"] += 1
-        
-        self.logger.info(f"🎉 TED-only ingestion completed for customer testing: {results}")
+
+        self.logger.info(
+            f"🎉 TED-only ingestion completed for customer testing: {results}"
+        )
         return results
 
 

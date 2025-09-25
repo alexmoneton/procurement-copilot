@@ -2,7 +2,8 @@
 
 from typing import AsyncGenerator
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.pool import NullPool
 
 from ..core.config import settings
@@ -38,7 +39,7 @@ async def init_db() -> None:
     async with engine.begin() as conn:
         # Import all models to ensure they are registered
         from . import models  # noqa: F401
-        
+
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
 

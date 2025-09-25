@@ -24,9 +24,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Database initialization failed: {e}")
         logger.info("Continuing without database connection")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down Procurement Copilot API")
     try:

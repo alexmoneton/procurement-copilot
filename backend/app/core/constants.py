@@ -85,7 +85,7 @@ CPV_FAMILIES = {
     "96000000": "Agricultural, forestry, horticultural, aquacultural and apicultural services",
     "97000000": "Public utilities",
     "98000000": "Other community, social and personal services",
-    "99000000": "Public utilities"
+    "99000000": "Public utilities",
 }
 
 # EU-27 countries with their codes and names
@@ -116,7 +116,7 @@ EU_COUNTRIES = {
     "SK": "Slovakia",
     "SI": "Slovenia",
     "ES": "Spain",
-    "SE": "Sweden"
+    "SE": "Sweden",
 }
 
 # Additional European countries (non-EU)
@@ -133,7 +133,7 @@ OTHER_EUROPEAN_COUNTRIES = {
     "CH": "Switzerland",
     "TR": "Turkey",
     "UA": "Ukraine",
-    "GB": "United Kingdom"
+    "GB": "United Kingdom",
 }
 
 # All European countries
@@ -161,7 +161,7 @@ CURRENCIES = {
     "ISK": "kr",
     "MDL": "L",
     "UAH": "₴",
-    "TRY": "₺"
+    "TRY": "₺",
 }
 
 # Tender sources
@@ -171,7 +171,7 @@ TENDER_SOURCES = {
     "PLACE": "Plataforma de Contratación del Sector Público",
     "TEDES": "Tenders Electronic Daily España",
     "SIMAP": "Système d'Information pour les Marchés Publics",
-    "TEDEX": "Tenders Electronic Daily Express"
+    "TEDEX": "Tenders Electronic Daily Express",
 }
 
 # Notification frequencies
@@ -179,21 +179,21 @@ NOTIFICATION_FREQUENCIES = {
     "DAILY": "Daily",
     "WEEKLY": "Weekly",
     "MONTHLY": "Monthly",
-    "IMMEDIATE": "Immediate"
+    "IMMEDIATE": "Immediate",
 }
 
 # Outreach campaign types
 OUTREACH_CAMPAIGNS = {
     "missed_opportunities": "Missed Opportunities",
     "cross_border_expansion": "Cross-Border Expansion",
-    "reactivation": "Reactivation"
+    "reactivation": "Reactivation",
 }
 
 # Outreach targeting strategies
 OUTREACH_STRATEGIES = {
     "lost_bidders": "Active but Losing SMEs",
     "cross_border": "Cross-Border Potential",
-    "lapsed": "Lapsed Bidders"
+    "lapsed": "Lapsed Bidders",
 }
 
 # Subscription plans
@@ -203,22 +203,22 @@ SUBSCRIPTION_PLANS = {
         "price": 99,
         "currency": "EUR",
         "filters": 1,
-        "description": "Perfect for small businesses"
+        "description": "Perfect for small businesses",
     },
     "pro": {
         "name": "Pro",
         "price": 199,
         "currency": "EUR",
         "filters": 5,
-        "description": "Ideal for growing companies"
+        "description": "Ideal for growing companies",
     },
     "team": {
         "name": "Team",
         "price": 399,
         "currency": "EUR",
         "filters": 15,
-        "description": "Built for teams and enterprises"
-    }
+        "description": "Built for teams and enterprises",
+    },
 }
 
 # Industry sectors (mapped to CPV codes)
@@ -226,43 +226,43 @@ INDUSTRY_SECTORS = {
     "it_services": {
         "name": "IT Services",
         "cpv_codes": ["72000000", "48000000", "81000000"],
-        "keywords": ["software", "development", "IT", "digital", "technology"]
+        "keywords": ["software", "development", "IT", "digital", "technology"],
     },
     "construction": {
         "name": "Construction",
         "cpv_codes": ["45000000", "71000000", "44000000"],
-        "keywords": ["construction", "building", "infrastructure", "civil works"]
+        "keywords": ["construction", "building", "infrastructure", "civil works"],
     },
     "consulting": {
         "name": "Consulting",
         "cpv_codes": ["79000000", "80000000", "73000000"],
-        "keywords": ["consulting", "advisory", "strategy", "management"]
+        "keywords": ["consulting", "advisory", "strategy", "management"],
     },
     "healthcare": {
         "name": "Healthcare",
         "cpv_codes": ["85000000", "33000000"],
-        "keywords": ["health", "medical", "pharmaceutical", "care"]
+        "keywords": ["health", "medical", "pharmaceutical", "care"],
     },
     "education": {
         "name": "Education",
         "cpv_codes": ["80000000", "92000000"],
-        "keywords": ["education", "training", "learning", "academic"]
+        "keywords": ["education", "training", "learning", "academic"],
     },
     "transport": {
         "name": "Transport",
         "cpv_codes": ["60000000", "34000000", "78000000"],
-        "keywords": ["transport", "logistics", "shipping", "delivery"]
+        "keywords": ["transport", "logistics", "shipping", "delivery"],
     },
     "energy": {
         "name": "Energy",
         "cpv_codes": ["09000000", "76000000"],
-        "keywords": ["energy", "power", "electricity", "renewable"]
+        "keywords": ["energy", "power", "electricity", "renewable"],
     },
     "environment": {
         "name": "Environment",
         "cpv_codes": ["90000000", "77000000"],
-        "keywords": ["environment", "waste", "recycling", "sustainability"]
-    }
+        "keywords": ["environment", "waste", "recycling", "sustainability"],
+    },
 }
 
 
@@ -270,16 +270,16 @@ def get_cpv_label(cpv_code: str) -> str:
     """Get human-readable label for CPV code."""
     # Get the 8-digit CPV code (first 8 characters)
     cpv_8_digit = cpv_code[:8] if len(cpv_code) >= 8 else cpv_code
-    
+
     # Try to find exact match first
     if cpv_8_digit in CPV_FAMILIES:
         return CPV_FAMILIES[cpv_8_digit]
-    
+
     # Try to find by family (first 2 digits)
     cpv_family = cpv_code[:2] + "000000"
     if cpv_family in CPV_FAMILIES:
         return CPV_FAMILIES[cpv_family]
-    
+
     # Return the code if no match found
     return cpv_code
 

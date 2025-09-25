@@ -1,9 +1,9 @@
 """Base scraper interface and protocols for TenderPulse."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Protocol, List, Dict, Any, Optional
 from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Protocol
 
 from pydantic import BaseModel
 
@@ -11,6 +11,7 @@ from pydantic import BaseModel
 @dataclass
 class RawNotice:
     """Raw notice data from a connector."""
+
     tender_ref: str
     title: str
     summary: Optional[str]
@@ -27,45 +28,46 @@ class RawNotice:
 
 class Connector(Protocol):
     """Protocol for procurement data connectors."""
-    
+
     @property
     def name(self) -> str:
         """Human-readable name of the connector."""
         ...
-    
+
     @property
     def source(self) -> str:
         """Source identifier (matches TenderSource enum)."""
         ...
-    
-    async def fetch_since(self, since: datetime, limit: Optional[int] = None) -> List[RawNotice]:
+
+    async def fetch_since(
+        self, since: datetime, limit: Optional[int] = None
+    ) -> List[RawNotice]:
         """Fetch notices published since the given datetime."""
         ...
 
 
 class BaseScraper(ABC):
     """Base class for scrapers with common functionality."""
-    
+
     def __init__(self, source: str):
         self.source = source
         self.session = None
-    
+
     async def __aenter__(self):
         """Async context manager entry."""
         import httpx
+
         self.session = httpx.AsyncClient(
             timeout=30.0,
-            headers={
-                "User-Agent": "TenderPulse/1.0 (https://tenderpulse.eu)"
-            }
+            headers={"User-Agent": "TenderPulse/1.0 (https://tenderpulse.eu)"},
         )
         return self
-    
+
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
         if self.session:
             await self.session.aclose()
-    
+
     @abstractmethod
     async def fetch_tenders(self, limit: int = 50) -> List[Dict[str, Any]]:
         """Fetch tenders from this source."""
@@ -74,24 +76,25 @@ class BaseScraper(ABC):
 
 class ScrapingError(Exception):
     """Exception raised when scraping fails."""
+
     pass
 
 
 def normalize_record(raw: RawNotice) -> Dict[str, Any]:
     """Normalize a raw notice into TenderCreate format."""
     from datetime import date
-    
+
     def parse_date(date_str: Optional[str]) -> Optional[date]:
         if not date_str:
             return None
         try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00')).date()
+            return datetime.fromisoformat(date_str.replace("Z", "+00:00")).date()
         except Exception:
             try:
-                return datetime.strptime(date_str, '%Y-%m-%d').date()
+                return datetime.strptime(date_str, "%Y-%m-%d").date()
             except Exception:
                 return None
-    
+
     return {
         "tender_ref": raw.tender_ref,
         "source": raw.source,
