@@ -15,12 +15,12 @@ from app.db.schemas import SavedFilterCreate, EmailLogCreate
 class TestEmailService:
     """Test email service functionality."""
     
-    def test_mock_email_provider(self):
+    async def test_mock_email_provider(self):
         """Test mock email provider."""
         provider = MockEmailProvider()
         
         # Test sending email
-        result = provider.send_email(
+        result = await provider.send_email(
             to="test@example.com",
             subject="Test Subject",
             html_content="<p>Test HTML</p>",
