@@ -557,7 +557,15 @@ class TEDProspectFinder:
         # Try to get from notice data first
         buyer_name = notice.get('buyer-name', '')
         if buyer_name:
-            return buyer_name
+            # Handle case where buyer_name is a dictionary
+            if isinstance(buyer_name, dict):
+                # Extract the first meaningful value from the dict
+                for key, value in buyer_name.items():
+                    if value and isinstance(value, str) and len(value) > 2:
+                        return value
+                # If no good value found, use the first key
+                return list(buyer_name.keys())[0] if buyer_name else "Government Agency"
+            return str(buyer_name)
         
         # Extract from title format: "Country-City: Service"
         if ':' in title:
@@ -1365,8 +1373,16 @@ Alex
         
         # Extract city/region from buyer name
         if isinstance(buyer_str, dict):
-            buyer_str = str(buyer_str)
-        buyer_lower = buyer_str.lower()
+            # Handle dictionary case - extract meaningful value
+            for key, value in buyer_str.items():
+                if value and isinstance(value, str) and len(value) > 2:
+                    buyer_str = value
+                    break
+            else:
+                # If no good value, use first key
+                buyer_str = list(buyer_str.keys())[0] if buyer_str else "recent"
+        
+        buyer_lower = str(buyer_str).lower()
         if 'berlin' in buyer_lower:
             return "Berlin"
         elif 'hamburg' in buyer_lower:
