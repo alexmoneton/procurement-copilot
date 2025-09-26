@@ -795,6 +795,10 @@ class EmailFinder:
                             'total_people': 0,
                             'source': 'apollo_company_only'
                         }
+                    else:
+                        # No companies found - this is normal, not an error
+                        logger.info(f"No companies found in Apollo.io for {company_name}")
+                        return {}
                 
                 logger.warning(f"Apollo.io API error: {response.status_code}")
                 return {}
@@ -943,7 +947,8 @@ class EmailFinder:
         # Score emails by position
         scored_emails = []
         for email in emails:
-            position = email.get('position', '').lower()
+            position = email.get('position', '') or ''
+            position = position.lower() if position else ''
             score = 0
             
             for i, priority_pos in enumerate(priority_positions):
@@ -1225,21 +1230,26 @@ class EmailTemplateGenerator:
         subject = f"{similar_buyer} {similar_value} tender - same as your {buyer_short} bid"
         
         # Personalized greeting - use first name only
-        contact_name = prospect.contact_name.split()[0] if prospect.contact_name and ' ' in prospect.contact_name else (prospect.contact_name or "there")
-        greeting = f"{contact_name},"
+        if prospect.contact_name and prospect.contact_name.strip() and prospect.contact_name != "None None":
+            contact_name = prospect.contact_name.split()[0] if ' ' in prospect.contact_name else prospect.contact_name
+            greeting = f"{contact_name},"
+        else:
+            greeting = "Hi there,"
         
         # Email body - direct and compelling
+        # Use real TED URL for the similar opportunity - correct format
+        ted_url = f"https://ted.europa.eu/en/notice/-/detail/{prospect.lost_tender_id}"
+        
         email_body = f"""{greeting}
 
 Quick heads up: {similar_buyer} just posted a {similar_value} {prospect.sector.lower()} tender identical to the {buyer_short} contract you bid on.
 
 Deadline: {self.generate_deadline()} (3 weeks prep time)
-Portal: https://tenderpulse.eu
+Portal: {ted_url}
 
 Only 2 companies have downloaded the documents so far.
 
 Alex
-TenderPulse
 """
         
         # Generate HTML version
@@ -1364,7 +1374,7 @@ Alex
         if not buyer_str:
             return "recent"
         
-        # Extract city/region from buyer name
+        # Handle country codes and extract proper buyer names
         if isinstance(buyer_str, dict):
             # Handle dictionary case - extract meaningful value
             for key, value in buyer_str.items():
@@ -1375,7 +1385,23 @@ Alex
                 # If no good value, use first key
                 buyer_str = list(buyer_str.keys())[0] if buyer_str else "recent"
         
+        # Handle country codes like "lit", "fra", etc.
+        country_codes = {
+            'lit': 'Lithuania',
+            'fra': 'France', 
+            'deu': 'Germany',
+            'ita': 'Italy',
+            'esp': 'Spain',
+            'nld': 'Netherlands',
+            'swe': 'Sweden',
+            'nor': 'Norway',
+            'dnk': 'Denmark',
+            'fin': 'Finland'
+        }
+        
         buyer_lower = str(buyer_str).lower()
+        if buyer_lower in country_codes:
+            return country_codes[buyer_lower]
         if 'berlin' in buyer_lower:
             return "Berlin"
         elif 'hamburg' in buyer_lower:
@@ -1434,7 +1460,23 @@ Alex
                 # If no good value, use first key
                 original_buyer = list(original_buyer.keys())[0] if original_buyer else "Government Agency"
         
+        # Handle country codes like "lit", "fra", etc.
+        country_codes = {
+            'lit': 'Vilnius City Government',
+            'fra': 'Paris City Government', 
+            'deu': 'Berlin City Government',
+            'ita': 'Milan City Government',
+            'esp': 'Madrid City Government',
+            'nld': 'Amsterdam City Government',
+            'swe': 'Stockholm City Government',
+            'nor': 'Oslo City Government',
+            'dnk': 'Copenhagen City Government',
+            'fin': 'Helsinki City Government'
+        }
+        
         buyer_lower = str(original_buyer).lower()
+        if buyer_lower in country_codes:
+            return country_codes[buyer_lower]
         
         # Map similar cities/regions
         if 'berlin' in buyer_lower:
@@ -1583,31 +1625,19 @@ Alex
         """Convert plain text email to HTML"""
         html_body = text_body.replace('\n', '<br>')
         
-        # Make the TenderPulse portal link highlighted
-        html_body = html_body.replace(
-            'Portal: https://tenderpulse.eu',
-            'Portal: <a href="https://tenderpulse.eu" style="color: #007bff; text-decoration: underline;">https://tenderpulse.eu</a>'
-        )
+        # Make the TED portal link highlighted (extract URL from text)
+        import re
+        # More specific regex to avoid capturing text after the URL
+        portal_match = re.search(r'Portal: (https://[^\s<]+)', html_body)
+        if portal_match:
+            ted_url = portal_match.group(1)
+            html_body = html_body.replace(
+                f'Portal: {ted_url}',
+                f'Portal: <a href="{ted_url}" style="color: #007bff; text-decoration: underline;">{ted_url}</a>'
+            )
         
-        # Add basic styling
-        html_template = f"""
-        <html>
-        <head>
-            <style>
-                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }}
-                .container {{ max-width: 600px; margin: 0; padding: 0; }}
-                .opportunity {{ background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                {html_body}
-            </div>
-        </body>
-        </html>
-        """
-        
-        return html_template
+        # Return minimal HTML without any CSS that could interfere
+        return html_body
 
 # CLI Commands using Click
 @click.group()

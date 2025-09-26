@@ -130,22 +130,23 @@ export default async function CPVPage({ params }: CPVPageProps) {
     notFound()
   }
 
-  // Fetch tenders for this CPV code
-  const response = await apiClient.getTenders({ 
-    cpv: cpvCode, 
-    limit: 20 
-  })
-
-  const tenders = response.data?.tenders || []
-  const totalTenders = response.data?.total || 0
+  // Fetch tenders for this CPV code using SEO API
+  const seoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.tenderpulse.eu'}/api/v1/seo/tenders?limit=100`)
+  const seoTenders = seoResponse.ok ? await seoResponse.json() : []
+  
+  // Filter tenders for this specific CPV code
+  const tenders = seoTenders.filter((tender: any) => 
+    tender.cpv_codes && tender.cpv_codes.includes(cpvCode)
+  )
+  const totalTenders = tenders.length
 
   // Calculate total value
-  const totalValue = tenders.reduce((sum, tender) => {
+  const totalValue = tenders.reduce((sum: number, tender: any) => {
     return sum + (tender.value_amount || 0)
   }, 0)
 
   // Get unique countries
-  const countries = [...new Set(tenders.map(t => t.buyer_country))].filter(Boolean)
+  const countries = [...new Set(tenders.map((t: any) => t.buyer_country))].filter(Boolean)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', {
@@ -277,7 +278,7 @@ export default async function CPVPage({ params }: CPVPageProps) {
                         <span className="font-medium">Country:</span> {getCountryFlag(tender.buyer_country)} {tender.buyer_country}
                       </div>
                       <div>
-                        <span className="font-medium">Deadline:</span> {tender.deadline_date ? formatDate(tender.deadline_date) : 'N/A'}
+                        <span className="font-medium">Deadline:</span> {tender.deadline ? formatDate(tender.deadline) : 'N/A'}
                       </div>
                       <div>
                         <span className="font-medium">Value:</span> {tender.value_amount ? formatCurrency(tender.value_amount) : 'N/A'}

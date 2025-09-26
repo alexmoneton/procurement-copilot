@@ -1,6 +1,7 @@
 """SEO endpoints for programmatic SEO system."""
 
 import asyncio
+import json
 import os
 from datetime import datetime
 from typing import List, Optional
@@ -18,6 +19,24 @@ router = APIRouter()
 
 # Initialize OpenAI
 openai.api_key = getattr(settings, "openai_api_key", os.getenv("OPENAI_API_KEY"))
+
+# Load massive SEO dataset
+_seo_tenders_cache = None
+
+def load_massive_seo_data():
+    """Load the massive SEO dataset."""
+    global _seo_tenders_cache
+    
+    if _seo_tenders_cache is None:
+        try:
+            # Try to load the massive dataset first
+            with open('massive_seo_tenders.json', 'r') as f:
+                _seo_tenders_cache = json.load(f)
+        except FileNotFoundError:
+            # Fallback to empty list if file doesn't exist
+            _seo_tenders_cache = []
+    
+    return _seo_tenders_cache
 
 
 class TenderSEO(BaseModel):
@@ -68,7 +87,32 @@ async def get_tenders_seo(
     Get tenders filtered by country, category, year, and budget band for SEO pages.
     """
     try:
-        # Use existing TenderCRUD.search method
+        # Load massive SEO dataset
+        massive_tenders = load_massive_seo_data()
+        
+        if massive_tenders:
+            # Filter the massive dataset
+            filtered_tenders = []
+            for tender_data in massive_tenders:
+                # Apply filters
+                if country and tender_data.get('country') != country:
+                    continue
+                if category and tender_data.get('category') != category:
+                    continue
+                if year and tender_data.get('year') != year:
+                    continue
+                if budget and tender_data.get('budget_band') != budget:
+                    continue
+                
+                filtered_tenders.append(TenderSEO(**tender_data))
+                
+                # Limit results
+                if len(filtered_tenders) >= limit:
+                    break
+            
+            return filtered_tenders
+        
+        # Fallback to database if massive dataset not available
         tenders, total = await TenderCRUD.search(
             db=db, country=country, limit=limit, offset=0
         )

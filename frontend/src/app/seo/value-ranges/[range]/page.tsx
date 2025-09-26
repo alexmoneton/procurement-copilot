@@ -107,16 +107,12 @@ export default async function ValueRangePage({ params }: ValueRangePageProps) {
     notFound()
   }
 
-  // Fetch tenders for this value range
-  // Note: The API doesn't support min_value/max_value filtering yet
-  // For now, we'll fetch all tenders and filter client-side
-  const response = await apiClient.getTenders({ 
-    limit: 100  // Get more tenders to filter client-side
-  })
+  // Fetch tenders for this value range using SEO API
+  const seoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.tenderpulse.eu'}/api/v1/seo/tenders?limit=100`)
+  const seoTenders = seoResponse.ok ? await seoResponse.json() : []
 
   // Filter tenders by value range client-side
-  const allTenders = response.data?.tenders || []
-  const filteredTenders = allTenders.filter(tender => {
+  const filteredTenders = seoTenders.filter((tender: any) => {
     if (!tender.value_amount) return false
     
     if (rangeInfo.minValue !== null && tender.value_amount < rangeInfo.minValue) {
@@ -132,7 +128,7 @@ export default async function ValueRangePage({ params }: ValueRangePageProps) {
   const totalTenders = filteredTenders.length
 
   // Calculate total value
-  const totalValue = tenders.reduce((sum, tender) => {
+  const totalValue = tenders.reduce((sum: number, tender: any) => {
     return sum + (tender.value_amount || 0)
   }, 0)
 
@@ -303,7 +299,7 @@ export default async function ValueRangePage({ params }: ValueRangePageProps) {
                         <span className="font-medium">Country:</span> {getCountryFlag(tender.buyer_country)} {tender.buyer_country}
                       </div>
                       <div>
-                        <span className="font-medium">Deadline:</span> {tender.deadline_date ? formatDate(tender.deadline_date) : 'N/A'}
+                        <span className="font-medium">Deadline:</span> {tender.deadline ? formatDate(tender.deadline) : 'N/A'}
                       </div>
                       <div>
                         <span className="font-medium">Value:</span> {tender.value_amount ? formatCurrency(tender.value_amount) : 'N/A'}
