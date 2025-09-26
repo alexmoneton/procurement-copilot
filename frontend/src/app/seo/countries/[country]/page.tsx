@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { apiClient } from '@/lib/api'
+import { passesQuality, type TenderPage } from '@/lib/seo-quality'
 
 // Country mapping for better SEO
 const COUNTRY_NAMES: Record<string, string> = {
@@ -147,6 +148,10 @@ export default async function CountryPage({ params }: CountryPageProps) {
     return sum + (tender.value_amount || 0)
   }, 0)
 
+  // Quality gate - only index if page has sufficient content
+  const hasQualityContent = totalTenders >= 5 && totalValue > 0
+  const shouldIndex = hasQualityContent
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -165,7 +170,14 @@ export default async function CountryPage({ params }: CountryPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      {/* Noindex gate - only index if quality content */}
+      {!shouldIndex && (
+        <head>
+          <meta name="robots" content="noindex,follow" />
+        </head>
+      )}
+      <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -314,5 +326,6 @@ export default async function CountryPage({ params }: CountryPageProps) {
         </div>
       </div>
     </div>
+    </>
   )
 }
