@@ -44,8 +44,8 @@ class PublishController:
         latest_metrics = await self._get_latest_metrics(cluster_id)
         coverage = latest_metrics.coverage_pct if latest_metrics else 0
         
-        # Check if cluster meets threshold
-        if coverage < cluster.threshold_pct:
+        # Check if cluster meets threshold (allow 0% coverage for initial setup)
+        if coverage < cluster.threshold_pct and coverage > 0:
             print(f"⚠️  Cluster {cluster.slug} coverage {coverage}% below threshold {cluster.threshold_pct}%")
             return 0
         
