@@ -134,17 +134,16 @@ export default async function CountryPage({ params }: CountryPageProps) {
     notFound()
   }
 
-  // Fetch tenders for this country
-  const response = await apiClient.getTenders({ 
-    country: countryCode, 
-    limit: 20 
-  })
-
-  const tenders = response.data?.tenders || []
-  const totalTenders = response.data?.total || 0
+  // Fetch tenders for this country using SEO API
+  const seoResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://api.tenderpulse.eu'}/api/v1/seo/tenders?country=${countryCode}&limit=20`)
+  const seoTenders = seoResponse.ok ? await seoResponse.json() : []
+  
+  // Filter tenders for this specific country
+  const tenders = seoTenders.filter((tender: any) => tender.country === countryCode)
+  const totalTenders = tenders.length
 
   // Calculate total value
-  const totalValue = tenders.reduce((sum, tender) => {
+  const totalValue = tenders.reduce((sum: number, tender: any) => {
     return sum + (tender.value_amount || 0)
   }, 0)
 
@@ -239,7 +238,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
                         <span className="font-medium">Buyer:</span> {tender.buyer_name || 'N/A'}
                       </div>
                       <div>
-                        <span className="font-medium">Deadline:</span> {tender.deadline_date ? formatDate(tender.deadline_date) : 'N/A'}
+                        <span className="font-medium">Deadline:</span> {tender.deadline ? formatDate(tender.deadline) : 'N/A'}
                       </div>
                       <div>
                         <span className="font-medium">Value:</span> {tender.value_amount ? formatCurrency(tender.value_amount) : 'N/A'}
@@ -250,7 +249,7 @@ export default async function CountryPage({ params }: CountryPageProps) {
                       <div className="mt-2">
                         <span className="font-medium text-sm text-gray-600">CPV Codes:</span>
                         <div className="flex flex-wrap gap-1 mt-1">
-                          {tender.cpv_codes.slice(0, 3).map((code) => (
+                          {tender.cpv_codes.slice(0, 3).map((code: string) => (
                             <span key={code} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                               {code}
                             </span>
