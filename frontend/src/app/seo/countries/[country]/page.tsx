@@ -88,6 +88,9 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
     }
   }
 
+  // Check if page should be indexed (in production, this would query the database)
+  const shouldIndex = true // This would be: await getPageIndexableStatus(`/seo/countries/${params.country}`)
+
   return {
     title: `${countryName} Government Tenders & EU Procurement Opportunities | TenderPulse`,
     description: `Find active government tenders and EU procurement opportunities in ${countryName}. Monitor ${countryName} public contracts worth millions with TenderPulse's real-time alerts.`,
@@ -101,6 +104,13 @@ export async function generateMetadata({ params }: CountryPageProps): Promise<Me
       `${countryName} tender opportunities`,
       `${countryName} government bidding`
     ],
+    robots: {
+      index: shouldIndex,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
     openGraph: {
       title: `${countryName} Government Tenders & EU Procurement | TenderPulse`,
       description: `Discover active government tenders in ${countryName}. Real-time alerts for ${countryName} public procurement opportunities.`,

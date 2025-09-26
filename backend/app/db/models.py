@@ -523,3 +523,82 @@ class Company(Base):
         Index("ix_companies_name_country", "name", "country"),
         Index("ix_companies_domain", "domain"),
     )
+
+
+class PageCluster(Base):
+    """Page cluster for organizing SEO pages by type and managing publishing."""
+    
+    __tablename__ = "page_clusters"
+    
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    kind: Mapped[str] = mapped_column(String, nullable=False)  # "country-cpv", "committee", "topic", etc.
+    slug: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    target_daily: Mapped[int] = mapped_column(Integer, default=500)  # cap for new publishes/day
+    threshold_pct: Mapped[int] = mapped_column(Integer, default=40)  # required indexed/submitted coverage
+    status: Mapped[str] = mapped_column(String, default="active")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    pages: Mapped[List["Page"]] = relationship("Page", back_populates="cluster")
+    metrics: Mapped[List["ClusterMetric"]] = relationship("ClusterMetric", back_populates="cluster")
+    
+    # Table constraints
+    __table_args__ = (
+        Index("ix_page_clusters_kind", "kind"),
+        Index("ix_page_clusters_status", "status"),
+    )
+
+
+class Page(Base):
+    """Individual SEO page with quality and publishing controls."""
+    
+    __tablename__ = "pages"
+    
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    cluster_id: Mapped[str] = mapped_column(String, ForeignKey("page_clusters.id"), nullable=False)
+    url: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    slug: Mapped[str] = mapped_column(String, nullable=False)
+    kind: Mapped[str] = mapped_column(String, nullable=False)  # "mep", "committee", "vote", "dossier", "tender"
+    indexable: Mapped[bool] = mapped_column(Boolean, default=False)  # the switch templates read
+    quality_ok: Mapped[bool] = mapped_column(Boolean, default=False)  # passes content/links/schema checks
+    submitted: Mapped[bool] = mapped_column(Boolean, default=False)  # in sitemap
+    published_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    lastmod: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    cluster: Mapped["PageCluster"] = relationship("PageCluster", back_populates="pages")
+    
+    # Table constraints
+    __table_args__ = (
+        Index("ix_pages_cluster_id", "cluster_id"),
+        Index("ix_pages_indexable", "indexable"),
+        Index("ix_pages_quality_ok", "quality_ok"),
+        Index("ix_pages_submitted", "submitted"),
+        Index("ix_pages_kind", "kind"),
+    )
+
+
+class ClusterMetric(Base):
+    """Metrics for tracking cluster performance and coverage."""
+    
+    __tablename__ = "cluster_metrics"
+    
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    cluster_id: Mapped[str] = mapped_column(String, ForeignKey("page_clusters.id"), nullable=False)
+    date: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    submitted: Mapped[int] = mapped_column(Integer, default=0)
+    indexed: Mapped[int] = mapped_column(Integer, default=0)
+    coverage_pct: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    
+    # Relationships
+    cluster: Mapped["PageCluster"] = relationship("PageCluster", back_populates="metrics")
+    
+    # Table constraints
+    __table_args__ = (
+        Index("ix_cluster_metrics_cluster_id", "cluster_id"),
+        Index("ix_cluster_metrics_date", "date"),
+    )
