@@ -173,6 +173,56 @@ class Settings(BaseSettings):
         default="http://localhost:3000", description="Frontend URL for redirects"
     )
 
+    # Outbound Pipeline
+    outbound_enabled: bool = Field(
+        default=True, description="Enable outbound pipeline"
+    )
+    outbound_schedule_cron: str = Field(
+        default="30 8 * * *", description="Cron schedule for outbound pipeline (08:30 Europe/Paris)"
+    )
+    outbound_max_leads_per_day: int = Field(
+        default=150, description="Maximum number of leads to process per day"
+    )
+    outbound_max_emails_per_day: int = Field(
+        default=100, description="Maximum number of emails to send per day"
+    )
+    outbound_min_score: float = Field(
+        default=0.55, description="Minimum fit score threshold for prospects"
+    )
+    outbound_sectors: Optional[str] = Field(
+        default=None, description="Comma-separated list of sectors to focus on"
+    )
+
+    # Email Configuration
+    email_from: str = Field(
+        default="alerts@mail.tenderpulse.eu", description="From email address"
+    )
+    email_from_name: str = Field(
+        default="TenderPulse", description="From name for emails"
+    )
+    list_unsub_base_url: str = Field(
+        default="https://tenderpulse.eu/unsub", description="Base URL for unsubscribe links"
+    )
+
+    # Hunter.io Configuration
+    hunter_api_key: Optional[str] = Field(
+        default=None, description="Hunter.io API key"
+    )
+    hunter_daily_cap: int = Field(
+        default=250, description="Daily API call limit for Hunter.io"
+    )
+    sender_domain: str = Field(
+        default="mail.tenderpulse.eu", description="Sender domain for tracking"
+    )
+
+    # Apollo.io Configuration
+    apollo_api_key: Optional[str] = Field(
+        default=None, description="Apollo.io API key"
+    )
+    apollo_daily_cap: int = Field(
+        default=50, description="Daily API call limit for Apollo.io"
+    )
+
 
 # Global settings instance
 settings = Settings()

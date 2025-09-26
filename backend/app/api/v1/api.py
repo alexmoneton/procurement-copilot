@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from .endpoints import admin, admin_clusters, cron, filters, health, profiles, seo, sitemap, tenders
+from .endpoints import admin, admin_clusters, cron, filters, health, outbound, profiles, seo, sitemap, tenders
 
 # Import billing with error handling
 try:
@@ -38,6 +38,7 @@ else:
 api_router.include_router(profiles.router, prefix="/profiles", tags=["profiles"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(admin_clusters.router, prefix="/admin", tags=["admin-clusters"])
+api_router.include_router(outbound.router, prefix="/outbound", tags=["outbound"])
 api_router.include_router(seo.router, prefix="/seo", tags=["seo"])
 api_router.include_router(sitemap.router, prefix="/sitemap", tags=["sitemap"])
 api_router.include_router(cron.router, prefix="/cron", tags=["cron"])
