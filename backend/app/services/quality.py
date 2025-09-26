@@ -57,13 +57,13 @@ class QualityGate:
         # Determine reasons for failure
         reasons = []
         if words < self.min_word_count:
-            reasons.append('too-few-words')
+            reasons.append(f'too-few-words: {words} < {self.min_word_count}')
         if internal_links < self.min_internal_links:
-            reasons.append('too-few-internal-links')
+            reasons.append(f'too-few-internal-links: {internal_links} < {self.min_internal_links}')
         if not has_json_ld:
             reasons.append('missing-jsonld')
         if quality_score < self.min_quality_score:
-            reasons.append('low-quality-score')
+            reasons.append(f'low-quality-score: {quality_score} < {self.min_quality_score}')
         
         return QualityReport(
             ok=len(reasons) == 0,

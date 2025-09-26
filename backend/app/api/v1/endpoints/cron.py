@@ -89,7 +89,7 @@ async def cron_quality(
         # Get pages that need quality check
         pages_query = select(Page).where(
             Page.quality_ok == False
-        ).limit(1000)  # Process in batches
+        ).limit(5)  # Test with just 5 pages first
         
         result = await db.execute(pages_query)
         pages = result.scalars().all()
@@ -154,6 +154,7 @@ async def cron_quality(
                 else:
                     failed_count += 1
                     print(f"❌ Page {page.slug} failed quality check: {quality_report.reasons}")
+                    print(f"   Words: {quality_report.words}, Links: {quality_report.internal_links}, JSON-LD: {quality_report.has_json_ld}, Score: {quality_report.quality_score}")
                 
             except Exception as e:
                 print(f"❌ Quality check failed for page {page.slug}: {e}")
