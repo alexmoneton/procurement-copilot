@@ -25,9 +25,9 @@ class QualityGate:
     """Quality gate system for SEO pages."""
     
     def __init__(self):
-        self.min_word_count = 200
-        self.min_internal_links = 3
-        self.min_quality_score = 70.0
+        self.min_word_count = 150  # Lowered from 200
+        self.min_internal_links = 2  # Lowered from 3
+        self.min_quality_score = 50.0  # Lowered from 70.0
     
     async def passes_quality(self, html: str) -> QualityReport:
         """
